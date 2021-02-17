@@ -1,0 +1,6 @@
+#! /bin/sh
+#
+# Wrapper around Zeek to set environment.
+
+zeek="$(spicy-config --zeek) -G $(dirname $0)/../random.seed"
+${zeek} $@
