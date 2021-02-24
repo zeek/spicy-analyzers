@@ -7,4 +7,4 @@ build_command = mkdir -p build && cd build && cmake .. && make -j
 # If the package is already installed, the Spicy plugin would pull in both 
 # old and new *.hlto during testing. Hence we need to override the search path 
 # to point to only the new location.
-test_command = cd tests && SPICY_MODULE_PATH=$(pwd)/../build/spicy-modules btest -dj
+test_command = cd tests && SPICY_MODULE_PATH=$(pwd)/../build/spicy-modules btest -dj -a zkg

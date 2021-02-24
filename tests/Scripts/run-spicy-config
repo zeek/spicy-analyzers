@@ -1,0 +1,15 @@
+#! /bin/bash
+
+base=$(cd $(dirname $0)/.. && pwd)
+spicy_tests=${base}/../../../tests # For in-tree Spicy build
+
+test -n "${SPICY_CONFIG}" && exe="${SPICY_CONFIG}"
+
+if [ -z "${exe}" -a -x ${spicy_tests}/Scripts/build-directory ]; then
+    exe=$(${spicy_tests}/Scripts/build-directory)/bin/spicy-config
+fi
+
+test -z "${exe}" && exe="$(which spicy-config 2>/dev/null)"
+test -z "${exe}" && exit 1
+
+${exe} $@
