@@ -2,7 +2,7 @@
 #
 # Wrapper around Zeek to set environment.
 
-if [ "${SPICY_ZKG}" == "1" ]; then
+if [ "${SPICY_ZKG}" = "1" ]; then
    unset ZEEKPATH
    unset ZEEK_PLUGIN_PATH
 fi
