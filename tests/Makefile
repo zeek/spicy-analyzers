@@ -1,18 +1,11 @@
 
-DIAG=diag.log
+all: test-build
 
-.PHONY: all
-all: test
+test-build:
+	@btest -j -d
 
-.PHONY: all-ci
-all-ci: test
-
-.PHONY: test
-test:
-	@btest -j -f $(DIAG)
-
-.PHONY: clean
 clean:
 	@rm -f $(DIAG) .btest.failed.dat
 	@rm -rf .tmp
 
+.PHONY: all test-build clean
