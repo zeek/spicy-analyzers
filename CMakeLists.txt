@@ -30,3 +30,5 @@ if ( NOT "${SPICY_IN_TREE_BUILD}" )
 endif ()
 
 add_subdirectory(analyzer)
+
+spicy_print_analyzers()
