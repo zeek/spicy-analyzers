@@ -42,7 +42,8 @@ endfunction ()
 # variable number of source files for `spicyz`.
 function(spicy_add_analyzer name)
     set(sources "${ARGN}")
-    set(output "${SPICY_MODULE_OUTPUT_DIR}/${name}.hlto")
+    string(TOLOWER "${name}" name_lower)
+    set(output "${SPICY_MODULE_OUTPUT_DIR}/${name_lower}.hlto")
 
     add_custom_command(
         OUTPUT ${output}
@@ -85,11 +86,12 @@ macro(configure)
         endif ()
     else ()
         find_program(spicy_config spicy-config
-            PATHS
+            HINTS
                 ${SPICY_ROOT_DIR}/bin
                 ${SPICY_ROOT_DIR}/build/bin
                 $ENV{SPICY_ROOT_DIR}/bin
                 $ENV{SPICY_ROOT_DIR}/build/bin
+                ${PROJECT_SOURCE_DIR}/../../build/bin   # Try build directory of Spicy distribution we may be part of
             )
     endif ()
 
@@ -164,7 +166,7 @@ function(spicy_print_analyzers)
 
     get_property(included GLOBAL PROPERTY __spicy_included_analyzers)
     message("\nAvailable analyzers:\n")
-    foreach ( x "${included}")
+    foreach ( x ${included})
         message("    ${x}")
     endforeach ()
 
