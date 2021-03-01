@@ -4,7 +4,7 @@ base=$(cd $(dirname $0)/.. && pwd)
 
 if [ "$1" = "--module-path" ]; then
     test -n "${SPICY_MODULE_PATH}" && echo "${SPICY_MODULE_PATH}" && exit 0
-    test -d ${base}/build && echo ${base}/build/spicy-modules && exit 0
+    test -d ${base}/../build && echo ${base}/../build/spicy-modules && exit 0
 
     # Check for in Spicy in-tree build
     test -x ${base}/../../../tests/Scripts/build-directory && echo $(${base}/../../../tests/Scripts/build-directory)/zeek/spicy-analyzers/spicy-modules && exit 0

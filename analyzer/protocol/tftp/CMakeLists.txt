@@ -1,2 +1,2 @@
 
-spicy_add_analyzer(tftp tftp.spicy tftp.evt)
+spicy_add_analyzer(TFTP tftp.spicy tftp.evt)

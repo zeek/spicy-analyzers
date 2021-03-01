@@ -7,6 +7,9 @@ through [Spicy](https://github.com/zeek/spicy).
 
 Currently, the following analyzers are included:
 
+    - DHCP
+    - DNS
+    - HTTP
     - TFTP
 
 We are working to expand this set. If you have written a Spicy

@@ -6,7 +6,9 @@
 
 module TFTP;
 
+#@if HAVE_ZEEK
 import zeek;
+#@endif
 
 # Common header for all messages:
 #
@@ -53,8 +55,10 @@ type Request = unit(is_read: bool) {
     filename: bytes &until=b"\x00";
     mode:     bytes &until=b"\x00";
 
+#@if HAVE_ZEEK
     on %done  { zeek::confirm_protocol(); }
     on %error { zeek::reject_protocol("error while parsing TFTP request"); }
+#@endif
 };
 
 # Figure 5-2: DATA packet
