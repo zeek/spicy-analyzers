@@ -11,6 +11,7 @@ Currently, the following analyzers are included:
     - DNS
     - HTTP
     - TFTP
+    - Wireguard
 
 We are working to expand this set. If you have written a Spicy
 analyzer that you would like to see included here, please file a pull
