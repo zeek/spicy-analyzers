@@ -1,7 +1,7 @@
 
-all: test-build
+all: test
 
-test-build:
+test:
 	@btest -j -d
 
 clean:
