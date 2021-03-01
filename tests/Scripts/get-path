@@ -8,17 +8,25 @@ if [ "$1" = "--module-path" ]; then
 
     # Check for in Spicy in-tree build
     test -x ${base}/../../../tests/Scripts/build-directory && echo $(${base}/../../../tests/Scripts/build-directory)/zeek/spicy-analyzers/spicy-modules && exit 0
+    exit 1
 elif [ "$1" = "--plugin-path" ]; then
     test -n "${ZEEK_PLUGIN_PATH}" && echo "${ZEEK_PLUGIN_PATH}" && exit 0
 
     # Check for in Spicy in-tree build
     test -x ${base}/../../../tests/Scripts/build-directory && echo $(${base}/../../../tests/Scripts/build-directory)/zeek/plugin && exit 0
 
+    # Use Zeek default
+    ${base}/Scripts/run-zeek-config --plugin_dir || exit 1
+    exit 0
+
 elif [ "$1" = "--zeek-path" ]; then
     test -n "${ZEEKPATH}" && echo "${ZEEKPATH}" && exit 0
     echo $(cd ${base}/.. && pwd):$(${base}/Scripts/run-zeek-config --zeekpath)
     exit 0
+
+else
+    echo "usage: $(basename $0) --module-path | --plugin-path | --zeek-path"
+    exit 1
 fi
 
-exit 1
 

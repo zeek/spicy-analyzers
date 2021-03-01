@@ -10,6 +10,6 @@ if [ -z "${exe}" -a -x ${spicy_tests}/Scripts/build-directory ]; then
 fi
 
 test -z "${exe}" && exe="$(which spicy-config 2>/dev/null)"
-test -z "${exe}" && exit 1
+test -z "${exe}" && echo "cannot find spicy-config; make sure it is in PATH or set SPICY_CONFIG" >&2 && exit 1
 
 ${exe} $@

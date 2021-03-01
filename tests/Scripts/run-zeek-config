@@ -4,5 +4,6 @@ base=$(cd $(dirname $0)/.. && pwd)
 
 test -n "${ZEEK_CONFIG}" && exe="${ZEEK_CONFIG}"
 test -z "${exe}" && exe=$(${base}/Scripts/run-spicy-config --zeek | sed 's#/zeek$#/zeek-config#')
+test -z "${exe}" && exit 1
 
 ${exe} $@
