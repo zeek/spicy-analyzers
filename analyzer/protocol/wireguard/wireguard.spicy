@@ -1,3 +1,5 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+#
 # This is pretty much a straightforward implementation following https://www.wireguard.com/protocol/
 
 module Wireguard;

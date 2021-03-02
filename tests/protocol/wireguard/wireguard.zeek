@@ -1,3 +1,5 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
 # @TEST-EXEC: set >envs
 # @TEST-EXEC: ${ZEEK} -NN >zeek 2>&1
 # @TEST-EXEC: ${ZEEK} -C -B dpd -r ${TRACES}/wireguard.pcap %INPUT

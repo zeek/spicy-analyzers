@@ -1,3 +1,5 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project(SpicyAnalyzers NONE)

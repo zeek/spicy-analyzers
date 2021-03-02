@@ -1,3 +1,5 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
 module DHCP;
 
 # RFC-2131: DHCP message, Table 1.
