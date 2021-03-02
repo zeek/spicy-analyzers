@@ -1,0 +1,21 @@
+
+module Wireguard_Zeek;
+
+import Wireguard;
+import zeek;
+
+on Wireguard::HandshakeInitiation::%done {
+	zeek::confirm_protocol();
+}
+
+on Wireguard::HandshakeResponse::%done {
+	zeek::confirm_protocol();
+}
+
+on Wireguard::PacketCookieReply::%done {
+	zeek::confirm_protocol();
+}
+
+on Wireguard::WireGuardPacket::%error {
+	zeek::reject_protocol("error while parsing Wireguard packet");
+}
