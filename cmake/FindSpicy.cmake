@@ -11,69 +11,23 @@
 #
 #     If SPICY_FOUND is true:
 #
-#         SPICYC                      full path to spicyc
-#         SPICY_BUILD_MODE            Spicy's debug/release build mode
-#         SPICY_HAVE_ZEEK             true if Spicy was compiled with Zeek support
-#         SPICY_INCLUDE_DIRECTORIES   Spicy C++ include directories
-#         SPICY_PREFIX                Spicy installation prefix
-#         SPICY_VERSION               Spicy version as a string
-#         SPICY_VERSION_NUMBER        Spicy version as a numerical value
-#         SPICY_MODULE_OUTPUT_DIR     directory where our functions place compiled modules
-#
-#     If SPICY_HAVE_ZEEK is true:
-#
-#         SPICYZ                      full path to spicyz
-#         SPICYZ_FLAGS                flags for spicyz
-#         SPICY_ZEEK                  Zeek binary that Spicy was compiled against.
-#         SPICY_ZEEK_PLUGIN_PATH      path to the Spicy plugin for Zeel
-#         SPICY_ZEEK_VERSION_NUMBER   numerical Zeek version Spicy was compiled against
+#         SPICYC                        full path to spicyc
+#         SPICY_BUILD_MODE              Spicy's debug/release build mode
+#         SPICY_INCLUDE_DIRS_RUNTIME    Spicy C++ include directories for the runtime
+#         SPICY_INCLUDE_DIRS_TOOLCHAIN  Spicy C++ include directories for the toolchain
+#         SPICY_CXX_LIBRARY_DIRS_TOOLCHAIN        Spicy C++ library directories
+#         SPICY_CXX_LIBRARY_DIRS_RUNTIME        Spicy C++ library directories
+#         SPICY_CXX_FLAGS               Spicy C++ flags with include directories
+#         SPICY_PREFIX                  Spicy installation prefix
+#         SPICY_VERSION                 Spicy version as a string
+#         SPICY_VERSION_NUMBER          Spicy version as a numerical value
+#         SPICY_CMAKE_PATH              Spicy cmake directory
+#         SPICY_HAVE_TOOLCHAIN          True if the compiler is available
 
 ### Functions
 
-function(run_spicy_config output)
-    execute_process(COMMAND "${spicy_config}" ${ARGN}
-        OUTPUT_VARIABLE output_
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-    set(${output} "${output_}" PARENT_SCOPE)
-endfunction ()
-
-# Add target to build analyzer. Arguments are the name of the analyzer and a
-# variable number of source files for `spicyz`.
-function(spicy_add_analyzer name)
-    set(sources "${ARGN}")
-    string(TOLOWER "${name}" name_lower)
-    set(output "${SPICY_MODULE_OUTPUT_DIR}/${name_lower}.hlto")
-
-    add_custom_command(
-        OUTPUT ${output}
-        DEPENDS ${sources} spicyz
-        COMMENT "Compiling ${name} analyzer"
-        COMMAND mkdir -p ${SPICY_MODULE_OUTPUT_DIR}
-        COMMAND spicyz -o ${output} ${SPICYZ_FLAGS} ${sources}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        )
-
-    add_custom_target(${name} ALL DEPENDS ${output})
-
-    get_property(tmp GLOBAL PROPERTY __spicy_included_analyzers)
-    list(APPEND tmp "${name}")
-    set_property(GLOBAL PROPERTY __spicy_included_analyzers "${tmp}")
-endfunction()
-
-# Flag that analyzer is *not* being built. This is purely informational:
-# the cmake output will contain a corresponding note. Arguments are the
-# name of the analyzers and a descriptive string explaining why it's
-# being skipped.
-function(spicy_skip_analyzer name reason)
-    get_property(tmp GLOBAL PROPERTY __spicy_skipped_analyzers)
-    list(APPEND tmp "${name} ${reason}")
-    set_property(GLOBAL PROPERTY __spicy_skipped_analyzers "${tmp}")
-endfunction()
-
 macro(configure)
     ### Find spicy-config
-
     if ( NOT SPICY_CONFIG )
         set(SPICY_CONFIG "$ENV{SPICY_CONFIG}")
     endif ()
@@ -99,7 +53,9 @@ macro(configure)
         message(STATUS "cannot determine location of Spicy installation")
         set(HAVE_SPICY no)
     else ()
+        message(STATUS "Found spicy-config: ${spicy_config}")
         set(HAVE_SPICY yes)
+        set(SPICY_CONFIG "${spicy_config}" CACHE FILEPATH "")
 
         ### Determine properties.
 
@@ -108,27 +64,74 @@ macro(configure)
         run_spicy_config(SPICY_PREFIX "--prefix")
         run_spicy_config(SPICY_VERSION "--version")
         run_spicy_config(SPICY_VERSION_NUMBER "--version-number")
-        run_spicy_config(SPICY_ZEEK_PLUGIN_PATH "--zeek-plugin-path")
-        run_spicy_config(SPICY_ZEEK_VERSION "--zeek-version")
-        run_spicy_config(SPICY_ZEEK_VERSION_NUMBER "--zeek-version-number")
+        run_spicy_config(SPICY_CMAKE_PATH "--cmake-path")
+        run_spicy_config(SPICY_HAVE_TOOLCHAIN "--have-toolchain")
 
-        if ( SPICY_ZEEK_VERSION_NUMBER GREATER 0 )
-            set(SPICY_HAVE_ZEEK yes)
-        else ()
-            set(SPICY_HAVE_ZEEK no)
-        endif ()
+        run_spicy_config(SPICY_INCLUDE_DIRS_RUNTIME --include-dirs)
+        string(REPLACE " " ";" SPICY_INCLUDE_DIRS_RUNTIME "${SPICY_INCLUDE_DIRS_RUNTIME}")
 
-        get_filename_component(bindir "${SPICYC}" DIRECTORY)
-        find_program(SPICYZ spicyz PATHS ${bindir} NO_DEFAULT_PATH)
+        run_spicy_config(SPICY_LIBRARY_DIRS_RUNTIME --libdirs-cxx-runtime)
+        string(REPLACE " " ";" SPICY_LIBRARY_DIRS_RUNTIME "${SPICY_LIBRARY_DIRS_RUNTIME}")
 
-        run_spicy_config(SPICY_INCLUDE_DIRECTORIES --include-dirs --zeek-include-dirs)
-        string(REPLACE " " ";" SPICY_INCLUDE_DIRECTORIES "${SPICY_INCLUDE_DIRECTORIES}")
-        list(TRANSFORM SPICY_INCLUDE_DIRECTORIES PREPEND "-I")
-        string(REPLACE ";" " " SPICY_INCLUDE_DIRECTORIES "${SPICY_INCLUDE_DIRECTORIES}")
+        run_spicy_config(SPICY_INCLUDE_DIRS_TOOLCHAIN --include-dirs-toolchain)
+        string(REPLACE " " ";" SPICY_INCLUDE_DIRS_TOOLCHAIN "${SPICY_INCLUDE_DIRS_TOOLCHAIN}")
+
+        run_spicy_config(SPICY_LIBRARY_DIRS_TOOLCHAIN --libdirs-cxx-toolchain)
+        string(REPLACE " " ";" SPICY_LIBRARY_DIRS_TOOLCHAIN "${SPICY_LIBRARY_DIRS_TOOLCHAIN}")
+
+        #list(TRANSFORM SPICY_INCLUDE_DIRS PREPEND "-I" OUTPUT_VARIABLE SPICY_CXX_FLAGS)
+        #string(REPLACE ";" " " SPICY_CXX_FLAGS "${SPICY_CXX_FLAGS}")
     endif ()
 endmacro ()
 
-function(print_summary)
+function(spicy_require_version version version_number)
+    if ( "${SPICY_VERSION_NUMBER}" LESS "${version_number}" )
+        message(FATAL_ERROR "Package requires at least Spicy version ${version}, have ${SPICY_VERSION}")
+    endif ()
+endfunction()
+
+function(spicy_include_directories target)
+    if ( NOT SPICY_IN_TREE_BUILD )
+        target_include_directories(${target} "${ARGN}" ${SPICY_INCLUDE_DIRS_TOOLCHAIN} ${SPICY_INCLUDE_DIRS_RUNTIME})
+    endif ()
+endfunction ()
+
+function(spicy_link_libraries lib)
+    if ( SPICY_IN_TREE_BUILD )
+        if ( SPICY_HAVE_TOOLCHAIN )
+            hilti_link_libraries_in_tree(${lib} "${ARGN}")
+            spicy_link_libraries_in_tree(${lib} "${ARGN}")
+        else ()
+            hilti_link_object_libraries_in_tree(${lib} "${ARGN}")
+            spicy_link_object_libraries_in_tree(${lib} "${ARGN}")
+        endif ()
+    else ()
+        target_link_directories(${lib} PRIVATE ${SPICY_LIBRARY_DIRS_TOOLCHAIN} ${SPICY_LIBRARY_DIRS_RUNTIME})
+
+        if ( SPICY_HAVE_TOOLCHAIN )
+            target_link_libraries(${lib} "${ARGN}" hilti spicy)
+        endif ()
+    endif ()
+endfunction ()
+
+function(spicy_link_executable exe)
+    if ( SPICY_IN_TREE_BUILD )
+        spicy_link_executable_in_tree(${exe} PRIVATE)
+    else ()
+        spicy_link_libraries(${exe} PRIVATE)
+        set_property(TARGET ${exe} PROPERTY ENABLE_EXPORTS true)
+    endif ()
+endfunction ()
+
+function(run_spicy_config output)
+    execute_process(COMMAND "${spicy_config}" ${ARGN}
+        OUTPUT_VARIABLE output_
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    set(${output} "${output_}" PARENT_SCOPE)
+endfunction ()
+
+function(spicy_print_summary)
     message(
         "\n====================|  Spicy Installation Summary  |===================="
         "\n"
@@ -139,21 +142,10 @@ function(print_summary)
         message(
             "\nVersion:               ${SPICY_VERSION} (${SPICY_VERSION_NUMBER})"
             "\nPrefix:                ${SPICY_PREFIX}"
-            "\nBuild mode:            ${SPICY_BUILD_MODE}"
+            "\nBuild type:            ${SPICY_BUILD_MODE}"
+            "\nHave toolchain:        ${SPICY_HAVE_TOOLCHAIN}"
             "\nSpicy compiler:        ${SPICYC}"
-            #        "\nC++ include dirs:      ${SPICY_INCLUDE_DIRECTORIES}"
-            "\n"
-            "\nZeek support:          ${SPICY_HAVE_ZEEK}"
             )
-
-        if ( SPICY_HAVE_ZEEK )
-            message(
-                "Zeek version:          ${SPICY_ZEEK_VERSION} (${SPICY_ZEEK_VERSION_NUMBER})"
-                "\nZeek plugin path:      ${SPICY_ZEEK_PLUGIN_PATH}"
-                "\nZeek compiler:         ${SPICYZ} ${SPICYZ_FLAGS}"
-                )
-        endif ()
-
     else ()
         message("\n    Make sure spicy-config is in your PATH, or set SPICY_CONFIG to its location.")
     endif ()
@@ -161,53 +153,13 @@ function(print_summary)
     message("\n========================================================================\n")
 endfunction ()
 
-function(spicy_print_analyzers)
-    message("\n======================|  Spicy Analyzer Summary  |======================")
-
-    get_property(included GLOBAL PROPERTY __spicy_included_analyzers)
-    message("\nAvailable analyzers:\n")
-    foreach ( x ${included})
-        message("    ${x}")
-    endforeach ()
-
-    get_property(skipped GLOBAL PROPERTY __spicy_skipped_analyzers)
-    if ( skipped )
-        message("\nSkipped analyzers:\n")
-        foreach ( x ${skipped})
-            message("    ${x}")
-        endforeach ()
-    endif ()
-
-    message("\n========================================================================\n")
-endfunction()
-
 ### Main
 
 option(SPICY_IN_TREE_BUILD "Internal option to flag building from within the Spicy source tree" no)
 
-set(SPICY_MODULE_OUTPUT_DIR "${PROJECT_BINARY_DIR}/spicy-modules")
-
-set_property(GLOBAL PROPERTY __spicy_included_analyzers)
-set_property(GLOBAL PROPERTY __spicy_skipped_analyzers)
-
 if ( "${SPICY_IN_TREE_BUILD}" )
 else ()
     configure ()
-    print_summary ()
-
-    if ( ${HAVE_SPICY} )
-        add_executable(spicyz IMPORTED)
-        set_property(TARGET spicyz PROPERTY IMPORTED_LOCATION "${SPICYZ}")
-    endif ()
-
     include(FindPackageHandleStandardArgs)
-    find_package_handle_standard_args(Spicy DEFAULT_MSG HAVE_SPICY SPICY_HAVE_ZEEK)
+    find_package_handle_standard_args(Spicy DEFAULT_MSG HAVE_SPICY SPICY_CONFIG)
 endif()
-
-
-if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-    set(SPICYZ_FLAGS "-d")
-else ()
-    set(SPICYZ_FLAGS "")
-endif ()
-
