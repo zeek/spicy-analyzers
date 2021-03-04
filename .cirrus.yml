@@ -1,0 +1,24 @@
+package_ci_task:
+  timeout_in: 120m
+  container:
+    dockerfile: ci/Dockerfile
+    matrix:
+      # TODO(bbannier): Update this once packages for zeek-4.0.0 are available as zeek-lts.
+      - docker_arguments:
+        - ZEEK_LTS: 1
+        - ZEEK_VERSION: 3.0.13-0
+      - docker_arguments:
+        - ZEEK_LTS:
+        - ZEEK_VERSION: 3.2.4-0
+      - docker_arguments:
+        - ZEEK_LTS:
+        - ZEEK_VERSION: 4.0.0-0
+    cpu: 4
+    memory: 12G
+
+  install_package_script:
+    - zkg install --force .
+
+  check_install_script:
+    - zeek -NN _Zeek::Spicy | grep Analyzer
+    - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
