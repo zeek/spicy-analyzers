@@ -1,21 +1,11 @@
 module PNG;
 
-import spicy;
 #import Exif;
 
 public type File = unit {
-	signature: bytes &size=8; # has to be 137 80 78 71 13 10 26 10
+	signature: bytes &size=8 &requires=($$ == b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"); # has to be 137 80 78 71 13 10 26 10
 	var colour_type: uint8 = 0;
 	: Chunk(self)[] &eod;
-
-	on signature {
-		local d: spicy::Base64Stream;
-		local thesig : bytes = spicy::base64_decode(d, b"iVBORw0KGgo=");
-		thesig += spicy::base64_finish(d);
-		if ( self.signature != thesig ) {
-			throw "PNG signature not correct. Got %s" % self.signature;
-		}
-	}
 };
 
 type Chunk = unit(inout top: PNG::File) {
