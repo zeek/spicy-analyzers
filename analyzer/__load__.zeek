@@ -4,3 +4,4 @@
 @load ./protocol/dns
 @load ./protocol/http
 @load ./protocol/tftp
+@load ./protocol/wireguard
