@@ -55,11 +55,8 @@ redef record fa_file += {
 	png: Info &optional;
 };
 
-const png_mime_types = { "image/png" };
-
 event zeek_init() &priority=5
 	{
-	#Files::register_for_mime_types(Analyzer::get_tag("SPICY_PNG"), png_mime_types);
 	Log::create_stream(LOG, [$columns=Info, $ev=log_png, $path="png"]);
 	}
 
