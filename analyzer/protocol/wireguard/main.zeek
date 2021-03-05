@@ -43,7 +43,7 @@ export {
 	global wireguard::packet_cookie_reply:event(c: connection, is_orig: bool, receiver_index: count, nonce: string, encrypted_cookie: string);
 
 	## Event raised for the wireguard packet_data packet
-	global wireguard::packet_data: event(c: connection, is_orig: bool, receiver_index: count, counter: count, encapsulated_packet_length: count);
+	global wireguard::packet_data: event(c: connection, is_orig: bool, receiver_index: count, key_counter: count, encapsulated_packet_length: count);
 }
 
 
