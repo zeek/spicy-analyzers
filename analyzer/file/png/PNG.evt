@@ -1,0 +1,49 @@
+file analyzer spicy::PNG:
+	parse with PNG::File,
+	mime-type image/png;
+
+import Zeek_PNG;
+
+on PNG::Chunk -> event PNG::chunk($file, self.chunk_type, self.length);
+
+on PNG::IHDR -> event PNG::image_header($file, self.width, self.height, self.bit_depth, self.colour_type, self.compression_method, self.filter_method, self.interlace_method);
+
+on PNG::PLTE -> event PNG::palette($file, Zeek_PNG::makePalette(self));
+
+on PNG::iCCP -> event PNG::embedded_icc_profile($file, self.profile_name, self.compression_method, self.compressed_profile);
+
+on PNG::pHYs -> event PNG::physical_pixel_dimensions($file, self.ppux, self.ppuy, self.unit_specifier);
+
+on PNG::iTXt -> event PNG::international_textual_data($file, self.keyword, self.compression_flag, self.compression_method, self.language_tag, self.translated_keyword, self.text);
+
+on PNG::tEXt -> event PNG::textual_data($file, self.keyword, self.text_string);
+
+on PNG::zTXt -> event PNG::compressed_textual_data($file, self.keyword, self.compression_method, self.compressed_text);
+
+on PNG::cHRM -> event PNG::primary_chromaticities_and_white_point($file, self.white_point_x, self.white_point_y, self.red_x, self.red_y, self.green_x, self.green_y, self.blue_x, self.blue_y);
+
+on PNG::gAMA -> event PNG::gamma($file, self.gamma);
+
+on PNG::sRGB -> event PNG::standard_rgb_colour_space($file, self.rendering_intent);
+
+on PNG::sBIT if ( colour_type == 0 ) -> event PNG::significant_bits_greyscale($file, self.significant_greyscale_bits);
+
+on PNG::sBIT if ( colour_type == 2 ) -> event PNG::significant_bits_truecolour($file, self.significant_red_bits, self.significant_green_bits, self.significant_blue_bits);
+
+on PNG::sBIT if ( colour_type == 4 ) -> event PNG::significant_bits_greyscale_with_alpha($file, self.significant_greyscale_bits, self.significant_alpha_bits);
+
+on PNG::sBIT if ( colour_type == 6 ) -> event PNG::significant_bits_truecolour_with_alpha($file, self.significant_red_bits, self.significant_green_bits, self.significant_blue_bits, self.significant_alpha_bits);
+
+on PNG::bKGD if ( colour_type == 0 ) -> event PNG::background_colour_greyscale($file, self.greyscale);
+
+on PNG::bKGD if ( colour_type == 2 ) -> event PNG::background_colour_truecolour($file, self.red, self.green, self.blue);
+
+on PNG::bKGD if ( colour_type == 3 ) -> event PNG::background_colour_indexed_colour($file, self.palette_index);
+
+on PNG::tRNS if ( colour_type == 0 ) -> event PNG::transparency_greyscale($file, self.grey_sample_value);
+
+on PNG::tRNS if ( colour_type == 2 ) -> event PNG::transparency_truecolour($file, self.red_sample_value, self.green_sample_value, self.blue_sample_value);
+
+on PNG::tRNS if ( colour_type == 3 ) -> event PNG::transparency_indexed_colour($file, self.alpha);
+
+on PNG::tIME -> event PNG::last_modification_time($file, self.year, self.month, self.day, self.hour, self.minute, self.second);

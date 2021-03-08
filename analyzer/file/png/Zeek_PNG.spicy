@@ -1,0 +1,18 @@
+module Zeek_PNG;
+
+import PNG;
+
+type PaletteEntry = tuple <
+	red: uint8,
+	green: uint8,
+	blue: uint8>;
+
+public function makePalette(p: PNG::PLTE): vector<PaletteEntry>
+	{
+	local out: vector<PaletteEntry>;
+
+	for ( i in p.entries)
+		out.push_back(tuple(i.red, i.green, i.blue));
+
+	return out;
+	}

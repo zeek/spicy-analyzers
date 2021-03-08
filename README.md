@@ -10,6 +10,7 @@ Currently, the following analyzers are included:
     - DHCP
     - DNS
     - HTTP
+    - PNG
     - TFTP
     - Wireguard
 
