@@ -12,6 +12,7 @@ Currently, the following analyzers are included:
     - HTTP
     - PNG
     - TFTP
+    - TLS
     - Wireguard
 
 We are working to expand this set. If you have written a Spicy
