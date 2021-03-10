@@ -1,0 +1,23 @@
+#! /bin/sh
+#
+# Infers the build directory and returns it.
+
+base=$(cd $(dirname $0)/.. && pwd)
+
+test_dir() {
+    test -d $1 -a -e $1/CMakeCache.txt && cd $1 && pwd
+}
+
+# 1. Explicit override through environment.
+if [ -n "${SPICY_ZEEK_BUILD_DIRECTORY}" ]; then
+    echo ${SPICY_ZEEK_BUILD_DIRECTORY}
+    exit 0
+fi
+
+# 2. Obviously named local build directory.
+test_dir ${base}/../build && exit 0
+
+# 3. In-tree Spicy build.
+test -x ${base}/../../../tests/Scripts/build-directory && ${base}/../../../tests/Scripts/build-directory && exit 0
+
+exit 1
