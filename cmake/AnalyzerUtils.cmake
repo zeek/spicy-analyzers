@@ -10,6 +10,7 @@ function(spicy_add_analyzer name)
     set(sources "${ARGN}")
     string(TOLOWER "${name}" name_lower)
     set(output "${SPICY_MODULE_OUTPUT_DIR}/${name_lower}.hlto")
+    set(output_install "${SPICY_MODULE_OUTPUT_DIR_INSTALL}/${name_lower}.hlto")
 
     if ( "${SPICY_IN_TREE_BUILD}" )
         set(deps "spicyz;zeek-spicy-plugin") # ensure the plugin's built already
@@ -27,10 +28,11 @@ function(spicy_add_analyzer name)
         )
 
     add_custom_target(${name} ALL DEPENDS ${output})
-    add_dependencies(spicy-analyzers ${name})
+    add_dependencies(build-spicy-analyzers ${name})
 
     if ( SPICY_MODULE_OUTPUT_DIR_INSTALL )
-        install(FILES ${output} DESTINATION "${SPICY_MODULE_OUTPUT_DIR_INSTALL}")
+        install(FILES ${output} DESTINATION "${SPICY_MODULE_OUTPUT_DIR_INSTALL}"
+                COMPONENT spicy-analyzers EXCLUDE_FROM_ALL)
     endif ()
 
     get_property(tmp GLOBAL PROPERTY __spicy_included_analyzers)
@@ -158,5 +160,9 @@ else ()
     set(SPICY_MODULE_OUTPUT_DIR_INSTALL "${CMAKE_INSTALL_FULL_LIBDIR}/spicy/zeek" CACHE STRING "")
 endif ()
 
-add_custom_target(spicy-analyzers)
-add_custom_target(install-spicy-analyzers DEPENDS install)
+add_custom_target(build-spicy-analyzers)
+
+# Separate installation target to install the analyzers, which are normally excluded.
+add_custom_target(install-spicy-analyzers 
+                  DEPENDS build-spicy-analyzers
+                  COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=spicy-analyzers -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake")
