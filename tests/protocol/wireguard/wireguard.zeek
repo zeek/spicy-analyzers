@@ -24,7 +24,7 @@ event wireguard::packet_cookie_reply(c: connection, is_orig: bool, receiver_inde
 	print "packet_cookie_reply", receiver_index;
 	}
 
-event wireguard::packet_data(c: connection, is_orig: bool, receiver_index: count, counter: count, encapsulated_packet_length: count)
+event wireguard::packet_data(c: connection, is_orig: bool, receiver_index: count, key_counter: count, encapsulated_packet_length: count)
 	{
 	print "packet_data", receiver_index, encapsulated_packet_length;
 	}
