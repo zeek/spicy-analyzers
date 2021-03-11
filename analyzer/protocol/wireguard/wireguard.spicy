@@ -37,6 +37,7 @@ type HandshakeInitiation = unit {
 	encrypted_timestamp: bytes &size=AEAD_LEN(12);
 	mac1: bytes &size=16;
 	mac2: bytes &size=16;
+	nothing: bytes &eod &requires=(|$$| == 0);
 };
 
 type HandshakeResponse = unit {
@@ -46,12 +47,14 @@ type HandshakeResponse = unit {
 	encrypted_nothing: bytes &size=AEAD_LEN(0);
 	mac1: bytes &size=16;
 	mac2: bytes &size=16;
+	nothing: bytes &eod &requires=(|$$| == 0);
 };
 
 type PacketCookieReply = unit {
 	receiver_index: uint32;
 	nonce: bytes &size=24;
 	encrypted_cookie: bytes &size=AEAD_LEN(16);
+	nothing: bytes &eod &requires=(|$$| == 0);
 };
 
 type PacketData = unit {
