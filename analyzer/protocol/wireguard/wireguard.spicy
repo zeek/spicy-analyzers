@@ -21,7 +21,7 @@ function AEAD_LEN(num: uint64) : uint64 {
 
 public type WireGuardPacket = unit {
 	message_type: uint8;
-	reserved_zero: bytes &size=3;
+	reserved_zero: bytes &size=3 &requires=($$ == b"\x00\x00\x00");
 	switch ( MessageType(self.message_type) ) {
 		MessageType::handshake_initiation -> handshake_initiation: HandshakeInitiation;
 		MessageType::handshake_response -> handshake_response: HandshakeResponse;
