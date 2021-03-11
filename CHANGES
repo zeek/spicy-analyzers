@@ -1,5 +1,7 @@
 
--- TODO: Not yet maintained.
+0.1.0-2 | 2021-03-11 07:01:38 +0000
+
+  * Tweaking CMake setup. (Robin Sommer, Corelight)
 
 0.1.0 | 2021-02-18 13:23:44 +0000
 

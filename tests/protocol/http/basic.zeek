@@ -1,3 +1,5 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
 # @TEST-EXEC: ${ZEEK} -r ${TRACES}/http-post.pcap frameworks/files/hash-all-files %INPUT
 # @TEST-EXEC: cat files.log | sed 's/SHA1,MD5/MD5,SHA1/g' >files.log.tmp && mv -f files.log.tmp files.log
 # @TEST-EXEC: btest-diff conn.log
