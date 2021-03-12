@@ -1,4 +1,9 @@
 
+0.1.0-6 | 2021-03-12 17:37:22 +0000
+
+  * Fix missing installation of compiled modules in standalone build.
+    (Robin Sommer, Corelight)
+
 0.1.0-4 | 2021-03-11 13:39:37 +0000
 
   * Tweaking CMake setup. (Robin Sommer, Corelight)

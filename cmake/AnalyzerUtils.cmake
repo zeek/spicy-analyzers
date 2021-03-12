@@ -31,8 +31,13 @@ function(spicy_add_analyzer name)
     add_dependencies(build-spicy-analyzers ${name})
 
     if ( SPICY_MODULE_OUTPUT_DIR_INSTALL )
-        install(FILES ${output} DESTINATION "${SPICY_MODULE_OUTPUT_DIR_INSTALL}"
-                COMPONENT spicy-analyzers EXCLUDE_FROM_ALL)
+        if ( SPICY_IN_TREE_BUILD )
+            # Do not install by default but tie to install-spicy-analyzers target.
+            install(FILES ${output} DESTINATION "${SPICY_MODULE_OUTPUT_DIR_INSTALL}"
+                    COMPONENT spicy-analyzers EXCLUDE_FROM_ALL)
+        else ()
+            install(FILES ${output} DESTINATION "${SPICY_MODULE_OUTPUT_DIR_INSTALL}")
+        endif()
     endif ()
 
     get_property(tmp GLOBAL PROPERTY __spicy_included_analyzers)
@@ -162,7 +167,9 @@ endif ()
 
 add_custom_target(build-spicy-analyzers)
 
-# Separate installation target to install the analyzers, which are normally excluded.
-add_custom_target(install-spicy-analyzers
-                  DEPENDS build-spicy-analyzers
-                  COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=spicy-analyzers -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake")
+if ( "${SPICY_IN_TREE_BUILD}" )
+    # Separate installation target to install the analyzers, which are normally excluded.
+    add_custom_target(install-spicy-analyzers
+                      DEPENDS build-spicy-analyzers
+                      COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=spicy-analyzers -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake")
+endif ()
