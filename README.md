@@ -7,16 +7,20 @@ through [Spicy](https://github.com/zeek/spicy).
 
 Currently, the following analyzers are included:
 
-- DHCP
-- DNS
-- HTTP
+- DHCP <sup>[1]</sup>
+- DNS <sup>[1]</sup>
+- HTTP <sup>[1]</sup>
 - PNG
+- Portable Executable (PE) <sup>[2]</sup>
 - TFTP
 - Wireguard
 
 We are working to expand this set. If you have written a Spicy
 analyzer that you would like to see included here, please file a pull
 request.
+
+<sup>[1] replaces the corresponding Zeek analyzer</sup>\
+<sup>[2] replaces and extends the corresponding Zeek analyzer</sup>
 
 ## Prerequisites
 
@@ -90,6 +94,29 @@ Now `zeek -NN _Zeek::Spicy` should show similar output as above.
 
 When you run Zeek, add `spicy-analyzers` to the command line to load
 the analyzer scripts.
+
+## Configuration
+
+By default, all included analyzers will be activated, and they will
+automatically disable any standard analyzers that they replace. If you
+want to disable one of the Spicy analyzers, you can do so by calling
+one of the built-in functions
+[disable_protocol_analyzer/disable_file_analyzer()](https://docs.zeek.org/projects/spicy/en/latest/zeek.html#functions).
+For example, to disable the HTTP analyzer, add this to your
+`site.zeek`:
+
+```.zeek
+    event zeek_init()
+        {
+        Spicy::disable_protocol_analyzer(Analyzer::ANALYZER_SPICY_HTTP);
+        }
+```
+
+You can find the `ANALYZER_*` value to use for an analyzer in the
+output of `zeek -N _Zeek::Spicy`.
+
+(Note that `disable_file_analyzer()` requires a current development
+version of Zeek to be available.)
 
 ## License
 

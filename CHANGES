@@ -1,4 +1,28 @@
 
+0.1.0-16 | 2021-03-15 18:46:56 +0000
+
+  * Split CI zkg run into separate test and install steps, and fix
+    test execution. (Robin Sommer, Corelight)
+
+0.1.0-12 | 2021-03-15 13:55:57 +0000
+
+  * Add Portable Executable (PE) file format parser. The current
+    parses headers along with import/export tables. (Jon Siwek,
+    Corelight)
+
+0.1.0-9 | 2021-03-15 10:18:38 +0000
+
+  * [Wireguard] Check zeroes in protocol and tighten DPD. (Johanna
+    Amann, Corelight)
+
+  * [Wireguard] GH-13: Check there is no data after handshake
+    messages. (Johanna Amann, Corelight)
+
+0.1.0-6 | 2021-03-12 17:37:22 +0000
+
+  * Fix missing installation of compiled modules in standalone build.
+    (Robin Sommer, Corelight)
+
 0.1.0-4 | 2021-03-11 13:39:37 +0000
 
   * Tweaking CMake setup. (Robin Sommer, Corelight)

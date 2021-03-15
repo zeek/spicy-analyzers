@@ -21,12 +21,19 @@ package_ci_task:
     - rm -rf spicy-plugin
     - zeek -N _Zeek::Spicy
 
+  test_script:
+    - zkg test .
+
   install_script:
-    - zkg install --force .
+    # --force avoids prompts, --skiptests because tests ran already
+    - zkg install --force --skiptests .
 
   check_script:
     - zeek -NN _Zeek::Spicy | grep Analyzer
     - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
+
+  always:
+      stderr_script: ./ci/show-zkg-stderr
 
 standalone_ci_task:
   timeout_in: 120m
@@ -46,7 +53,7 @@ standalone_ci_task:
     - zeek -N _Zeek::Spicy
 
   install_script:
-    - (mkdir build && cd build && PATH=/opt/spicy-plugin/bin:$PATH cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-analyzers -G Ninja .. && ninja && ninja install)
+    - (mkdir build && cd build && PATH=/opt/spicy-plugin/bin:$PATH cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-analyzers -G Ninja .. && ninja -j 2 && ninja install)
     - rm -rf build
 
   check_script:
