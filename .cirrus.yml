@@ -21,8 +21,11 @@ package_ci_task:
     - rm -rf spicy-plugin
     - zeek -N _Zeek::Spicy
 
+  test_script:
+    - zkg test .
+
   install_script:
-    - zkg install --force .
+    - zkg install --force --skiptests .
 
   check_script:
     - zeek -NN _Zeek::Spicy | grep Analyzer
