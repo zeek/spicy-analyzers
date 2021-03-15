@@ -25,11 +25,15 @@ package_ci_task:
     - zkg test .
 
   install_script:
+    # --force avoids prompts, --skiptests because tests ran already
     - zkg install --force --skiptests .
 
   check_script:
     - zeek -NN _Zeek::Spicy | grep Analyzer
     - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
+
+  always:
+      stderr_script: ./ci/show-zkg-stderr
 
 standalone_ci_task:
   timeout_in: 120m
