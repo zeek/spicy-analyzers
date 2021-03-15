@@ -10,26 +10,46 @@ protocol analyzer spicy::DNS over UDP:
 
 import Zeek_DNS;
 
+
+@if ZEEK_VERSION >= 30200
+    # Zeek >= 3.2 adds an additional parameter with the query in its original spelling.
+
+    on DNS::Question if ( msg.header.flags.qr == 0 )
+        -> event dns_request($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname).lower(), self.qtype, self.qclass, Zeek_DNS::name(self.qname));
+
+    on DNS::Question if ( msg.header.flags.qr == 1 && ! msg.header.rejected )
+        -> event dns_query_reply($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname).lower(), self.qtype, self.qclass, Zeek_DNS::name(self.qname));
+
+    on DNS::Question if ( msg.header.flags.qr == 1 && msg.header.rejected )
+        -> event dns_rejected($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname).lower(), self.qtype, self.qclass, Zeek_DNS::name(self.qname));
+
+    on DNS::Message if ( |self.question| == 0 && ! self.header.rejected )
+        -> event dns_query_reply($conn, Zeek_DNS::message(self.header), b"<no query>", cast<uint64>(0), cast<uint64>(0), b"<no query>");
+
+    on DNS::Message if ( |self.question| == 0 && self.header.rejected )
+        -> event dns_rejected($conn, Zeek_DNS::message(self.header), b"<no query>", cast<uint64>(0), cast<uint64>(0), b"<no query>");
+@else
+    on DNS::Question if ( msg.header.flags.qr == 0 )
+        -> event dns_request($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname).lower(), self.qtype, self.qclass);
+
+    on DNS::Question if ( msg.header.flags.qr == 1 && ! msg.header.rejected )
+        -> event dns_query_reply($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname).lower(), self.qtype, self.qclass);
+
+    on DNS::Question if ( msg.header.flags.qr == 1 && msg.header.rejected )
+        -> event dns_rejected($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname).lower(), self.qtype, self.qclass);
+
+    on DNS::Message if ( |self.question| == 0 && ! self.header.rejected )
+        -> event dns_query_reply($conn, Zeek_DNS::message(self.header), b"<no query>", cast<uint64>(0), cast<uint64>(0));
+
+    on DNS::Message if ( |self.question| == 0 && self.header.rejected )
+        -> event dns_rejected($conn, Zeek_DNS::message(self.header), b"<no query>", cast<uint64>(0), cast<uint64>(0));
+@endif
+
    # TODO: Length of raw payload?
 on DNS::Message::header -> event dns_message($conn, Zeek_DNS::is_query(self.header), Zeek_DNS::message(self.header), cast<uint64>(0));
 
-on DNS::Question if ( msg.header.flags.qr == 0 )
-    -> event dns_request($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname), self.qtype, self.qclass);
-
-on DNS::Question if ( msg.header.flags.qr == 1 && ! msg.header.rejected )
-    -> event dns_query_reply($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname), self.qtype, self.qclass);
-
-on DNS::Question if ( msg.header.flags.qr == 1 && msg.header.rejected )
-    -> event dns_rejected($conn, Zeek_DNS::message(msg.header), Zeek_DNS::name(self.qname), self.qtype, self.qclass);
-
 on DNS::Message
     -> event dns_end($conn, Zeek_DNS::message(self.header));
-
-on DNS::Message if ( |self.question| == 0 && ! self.header.rejected )
-    -> event dns_query_reply($conn, Zeek_DNS::message(self.header), b"<no query>", cast<uint64>(0), cast<uint64>(0));
-
-on DNS::Message if ( |self.question| == 0 && self.header.rejected )
-    -> event dns_rejected($conn, Zeek_DNS::message(self.header), b"<no query>", cast<uint64>(0), cast<uint64>(0));
 
 on DNS::ResourceRecord if ( self.ty == DNS::RDType::A )
     -> event dns_A_reply($conn, Zeek_DNS::message(msg.header), Zeek_DNS::answer(self, rrtype), self.a);
