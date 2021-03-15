@@ -11,6 +11,7 @@ Currently, the following analyzers are included:
 - DNS
 - HTTP
 - PNG
+- Portable Executable (PE)
 - TFTP
 - Wireguard
 

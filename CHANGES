@@ -1,4 +1,10 @@
 
+0.1.0-12 | 2021-03-15 13:55:57 +0000
+
+  * Add Portable Executable (PE) file format parser. The current
+    parses headers along with import/export tables. (Jon Siwek,
+    Corelight)
+
 0.1.0-9 | 2021-03-15 10:18:38 +0000
 
   * [Wireguard] Check zeroes in protocol and tighten DPD. (Johanna
