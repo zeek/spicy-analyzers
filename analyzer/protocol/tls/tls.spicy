@@ -520,12 +520,22 @@ type TLSCiphers = enum {
   TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256 = 0xCC15
 };
 
+type Share = unit {
+  var chosen_version_sh: uint16;
+  var chosen_cipher: uint16;
+  var ccs_seen: uint8;
+
+  on %init {
+    self.ccs_seen = 0;
+  }
+};
+
 public type Message = unit {
+  %context = Share;
+
   sink handshakesink;
   sink alertsink;
   var record_version: uint16;
-  var chosen_version_sh: uint16;
-  var chosen_cipher: uint16;
   var encrypted : bool = False;
 
   on %init {
@@ -555,12 +565,16 @@ type RecordFragment = unit(handshakesink: sink, alertsink: sink, inout msg: Mess
     print "Unhandled content type", self.content_type;
   }
   on ccs {
-    # everything in this connection will be encrypted from now on.
-    # close all sinks
-    print "Closing sink";
-    handshakesink.close();
-    alertsink.close();
-    msg.encrypted = True;
+    # ignore duplicate ccs
+    if ( ! msg.encrypted ) {
+      # everything in this connection will be encrypted from now on.
+      # close all sinks
+      print "Closing sink";
+      handshakesink.close();
+      alertsink.close();
+      msg.encrypted = True;
+      msg.context().ccs_seen++;
+    }
   }
   on version {
     msg.record_version = self.version;
@@ -658,10 +672,10 @@ type ServerHello = unit(len: uint64, inout msg: Message) {
   extensions: Extension(False)[] &size=self.extensions_length if ( len > self.offset() );
 
   on cipher_suite {
-    msg.chosen_cipher = self.cipher_suite;
+    msg.context().chosen_cipher = self.cipher_suite;
   }
   on server_version {
-    msg.chosen_version_sh = self.server_version;
+    msg.context().chosen_version_sh = self.server_version;
   }
 };
 
@@ -688,7 +702,7 @@ type Extension = unit(client_hello: bool) {
     Extensions::pre_shared_key -> pre_shared_key: PreSharedKey(client_hello);
     * -> unknown : bytes &size=self.length;
   };
-  
+
   on unknown {
     print "Unknown extension", self.code;
   }
@@ -876,7 +890,7 @@ type RenegotiationInfo = unit {
 # exchange messages is only sent for ECDHE, ECDH-anon, DHE, and DH-anon cipher
 # suites.
 type ServerKeyExchange = unit(msg: Message, len: uint64) {
-  switch ( TLSCiphers(msg.chosen_cipher) ) {
+  switch ( TLSCiphers(msg.context().chosen_cipher) ) {
     # ECDHE suites
     TLSCiphers::TLS_ECDHE_ECDSA_WITH_NULL_SHA,
     TLSCiphers::TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,
@@ -1058,7 +1072,7 @@ type ServerKeyExchange = unit(msg: Message, len: uint64) {
 type EcdheServerKeyExchange = unit(len: uint64, msg: Message) {
   curve_type: uint8;
   switch ( ECCurveType(self.curve_type) ) {
-    ECCurveType::NAMED_CURVE -> 
+    ECCurveType::NAMED_CURVE ->
       {
       params: ServerECDHParamsAndSignature;
       signed_params: ServerKeyExchangeSignature(msg);
@@ -1070,7 +1084,7 @@ type EcdheServerKeyExchange = unit(len: uint64, msg: Message) {
 function uses_signature_and_hashalgorithm(msg: Message) : bool
   {
   # larger TLS11 and not DTLSv10
-  if ( msg.chosen_version_sh > 0x0302 && msg.chosen_version_sh != 0xFEFF )
+  if ( msg.context().chosen_version_sh > 0x0302 && msg.context().chosen_version_sh != 0xFEFF )
     return True;
 
   return False;
@@ -1126,15 +1140,13 @@ type DhAnonServerKeyExchange = unit(len: uint64) {
   data: bytes &size=len-(2+self.dh_p_length+2+self.dh_g_length+2+self.dh_Ys_length);
 };
 
-## Note - the following event cannot work. We don't have the ability to pass
-## in the information about the ciphersuite of the server yet.
 # Parse a ClientKeyExchange message. For RSA cipher suites, this consists of an
 # encrypted pre-master secret. For DH, DH-anon, and DHE cipher suites, this
 # consists of the client public finite-field Diffie-Hellman value. For ECDH,
 # ECDH-anon, and ECDHE cipher suites, this consists of the client public
 # elliptic curve point.
 type ClientKeyExchange = unit(msg: Message, len: uint64) {
-  switch ( TLSCiphers(msg.chosen_cipher) ) {
+  switch ( TLSCiphers(msg.context().chosen_cipher) ) {
     # RSA suites
     TLSCiphers::TLS_RSA_WITH_NULL_MD5,
     TLSCiphers::TLS_RSA_WITH_NULL_SHA,

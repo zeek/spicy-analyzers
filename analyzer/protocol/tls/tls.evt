@@ -19,6 +19,8 @@ on TLS::NewSessionTicket -> event ssl_session_ticket_handshake($conn, self.ticke
 
 on TLS::RecordFragment::ccs -> event ssl_change_cipher_spec($conn, $is_orig);
 
+on TLS::RecordFragment::ccs if ( msg.context().ccs_seen == 2 ) -> event ssl_established($conn);
+
 on TLS::Handshake_message -> event ssl_handshake_message($conn, $is_orig, self.msg_type, self.length);
 
 on TLS::SignatureAlgorithms -> event ssl_extension_signature_algorithm($conn, $is_orig, Zeek_TLS::convert_signature_algorithms(self));
