@@ -9,7 +9,7 @@ import zeek;
 
 # Create an http_message_state instance. We only set a subset of the fields that we happen to know Zeek needs.
 public function create_http_message_stats(msg: HTTP::Message) : tuple<time, bool, bytes, uint64, uint64, uint64> {
-    return (cast<time>(0), False, b"", (msg.has_body ? msg.body_len : 0), 0 , 0);
+    return (cast<time>(0), False, b"", (msg?.body_len ? msg.body_len : 0), 0 , 0);
 }
 
 # Create an map of all headers as http_all_headers() expects it. Version for Zeek < 3.2)
