@@ -3,11 +3,15 @@
 
 FROM ubuntu:focal
 
+# Increase this to force a rebuild of the Docker image (in Cirrus, in particular).
+ENV IMAGE_VERSION=1
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ARG SKIP_BUILD=
 ARG ZEEK_LTS=1
 ARG ZEEK_VERSION=3.0.11-0
+
 ARG SPICY_BRANCH=master
 
 CMD ["sh"]
@@ -15,7 +19,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/opt/spicy/bin:/opt/zeek/bin:${PATH}"
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends curl ca-certificates gnupg2 \
+ && apt-get install -y --no-install-recommends curl ca-certificates gnupg2 less sudo \
  # Install Zeek.
  && mkdir -p /tmp/zeek-packages \
  && cd /tmp/zeek-packages \
@@ -39,11 +43,12 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends git cmake ninja-build ccache bison flex g++ libfl-dev zlib1g-dev jq locales-all make \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
- # Configure zkg.
+ # Configure zkg \
  && zkg autoconfig \
- && echo "@load packages" >>"$(zeek-config --site_dir)"/local.zeek \
- # Install Spicy.
- && git clone --branch=${SPICY_BRANCH} --recurse-submodules https://github.com/zeek/spicy /opt/spicy/src \
- && cd /opt/spicy/src && ./configure --generator=Ninja --prefix=/opt/spicy --with-zeek=/opt/zeek \
+ && echo "@load packages" >>"$(zeek-config --site_dir)"/local.zeek
+
+# Install Spicy.
+RUN git clone --branch=${SPICY_BRANCH} --recurse-submodules https://github.com/zeek/spicy /opt/spicy/src \
+ && cd /opt/spicy/src && ./configure --generator=Ninja --prefix=/opt/spicy --with-zeek=/opt/zeek --build-zeek-plugin=no \
  && ninja -C build -j 4 install \
  && rm -rf build

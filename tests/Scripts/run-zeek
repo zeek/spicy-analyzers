@@ -2,10 +2,13 @@
 #
 # Wrapper around Zeek to set environment.
 
+base=$(cd $(dirname $0)/.. && pwd)
+
 if [ "${SPICY_ZKG}" = "1" ]; then
-   unset ZEEKPATH
-   unset ZEEK_PLUGIN_PATH
+    # zkg sets this but we want our own
+    unset ZEEKPATH
+    export ZEEKPATH=$(${base}/Scripts/get-path --zeek-path)
 fi
 
-zeek="$(spicy-config --zeek) -G $(dirname $0)/../random.seed"
+zeek="$(${base}/Scripts/run-zeek-config --prefix)/bin/zeek -G ${base}/random.seed"
 LD_PRELOAD=${ZEEK_LD_PRELOAD} DYLD_INSERT_LIBRARIES=${ZEEK_LD_PRELOAD} ASAN_OPTIONS=detect_leaks=0:detect_odr_violation=0 ${zeek} $@

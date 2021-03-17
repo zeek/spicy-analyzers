@@ -3,7 +3,6 @@ package_ci_task:
   container:
     dockerfile: ci/Dockerfile
     matrix:
-      # TODO(bbannier): Update this once packages for zeek-4.0.0 are available as zeek-lts.
       - docker_arguments:
         - ZEEK_LTS: 1
         - ZEEK_VERSION: 3.0.13-0
@@ -16,9 +15,47 @@ package_ci_task:
     cpu: 4
     memory: 12G
 
-  install_package_script:
-    - zkg install --force .
+  prepare_script:
+    - git clone --branch=main --recurse-submodules https://github.com/zeek/spicy-plugin
+    - zkg install --skiptests --force spicy-plugin
+    - rm -rf spicy-plugin
+    - zeek -N _Zeek::Spicy
 
-  check_install_script:
+  test_script:
+    - zkg test .
+
+  install_script:
+    # --force avoids prompts, --skiptests because tests ran already
+    - zkg install --force --skiptests .
+
+  check_script:
     - zeek -NN _Zeek::Spicy | grep Analyzer
     - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
+
+  always:
+      stderr_script: ./ci/show-zkg-stderr
+
+standalone_ci_task:
+  timeout_in: 120m
+  container:
+    dockerfile: ci/Dockerfile
+    matrix:
+      - docker_arguments:
+        - ZEEK_LTS:
+        - ZEEK_VERSION: 4.0.0-0
+    cpu: 4
+    memory: 12G
+
+  prepare_script:
+    - git clone --branch=main --recurse-submodules https://github.com/zeek/spicy-plugin
+    - (cd spicy-plugin && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-plugin -G Ninja .. && ninja install)
+    - rm -rf spicy-plugin
+    - zeek -N _Zeek::Spicy
+
+  install_script:
+    - (mkdir build && cd build && PATH=/opt/spicy-plugin/bin:$PATH cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-analyzers -G Ninja .. && ninja -j 2 && ninja install)
+    - rm -rf build
+
+  check_script:
+    - zeek -NN _Zeek::Spicy | grep Analyzer
+    - PATH=/opt/spicy-plugin/bin:$PATH make -C tests test-install
