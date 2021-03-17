@@ -4,7 +4,7 @@
 FROM ubuntu:focal
 
 # Increase this to force a rebuild of the Docker image (in Cirrus, in particular).
-ENV IMAGE_VERSION=1
+ENV IMAGE_VERSION=2
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
