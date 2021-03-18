@@ -1,4 +1,10 @@
 
+0.2.1 | 2021-03-18 09:47:44 +0000
+
+  * GH-817: Extend PNG test to catch Spicy's #817. (Robin Sommer, Corelight)
+
+  * Add file tests to btest config. (Robin Sommer, Corelight)
+
 0.2.0 | 2021-03-15 19:20:12 +0000
 
   * Release 0.2.0.
