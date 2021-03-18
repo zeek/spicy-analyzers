@@ -1,4 +1,9 @@
 
+0.2.2 | 2021-03-18 12:25:10 +0000
+
+  * GH-10: [HTTP] Fix potential analyzer error reporting unset field.
+    (Robin Sommer, Corelight)
+
 0.2.1 | 2021-03-18 09:47:44 +0000
 
   * GH-817: Extend PNG test to catch Spicy's #817. (Robin Sommer, Corelight)
