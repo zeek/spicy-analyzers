@@ -15,6 +15,11 @@ package_ci_task:
     cpu: 4
     memory: 12G
 
+  install_spicy_script:
+    - curl -o spicy.deb https://api.cirrus-ci.com/v1/artifact/github/zeek/spicy/docker_ubuntu20/packages/spicy.deb
+    - dpkg --install spicy.deb
+    - rm spicy.deb
+
   prepare_script:
     - git clone --branch=main --recurse-submodules https://github.com/zeek/spicy-plugin
     - zkg install --skiptests --force spicy-plugin
@@ -45,6 +50,11 @@ standalone_ci_task:
         - ZEEK_VERSION: 4.0.0-0
     cpu: 4
     memory: 12G
+
+  install_spicy_script:
+    - curl -o spicy.deb https://api.cirrus-ci.com/v1/artifact/github/zeek/spicy/docker_ubuntu20/packages/spicy.deb
+    - dpkg --install spicy.deb
+    - rm spicy.deb
 
   prepare_script:
     - git clone --branch=main --recurse-submodules https://github.com/zeek/spicy-plugin
