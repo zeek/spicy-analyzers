@@ -12,8 +12,6 @@ ARG SKIP_BUILD=
 ARG ZEEK_LTS=1
 ARG ZEEK_VERSION=3.0.11-0
 
-ARG SPICY_BRANCH=master
-
 CMD ["sh"]
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/opt/spicy/bin:/opt/zeek/bin:${PATH}"
@@ -46,9 +44,3 @@ RUN apt-get update \
  # Configure zkg \
  && zkg autoconfig \
  && echo "@load packages" >>"$(zeek-config --site_dir)"/local.zeek
-
-# Install Spicy.
-RUN git clone --branch=${SPICY_BRANCH} --recurse-submodules https://github.com/zeek/spicy /opt/spicy/src \
- && cd /opt/spicy/src && ./configure --generator=Ninja --prefix=/opt/spicy --with-zeek=/opt/zeek --build-zeek-plugin=no \
- && ninja -C build -j 4 install \
- && rm -rf build
