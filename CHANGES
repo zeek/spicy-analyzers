@@ -1,4 +1,13 @@
 
+0.2.2-6 | 2021-03-18 15:41:07 +0100
+
+  * Cleanup CI platforms for zeek-4.0.0 as LTS release. (Benjamin
+    Bannier)
+
+  * Disable JIT parallelism in CI. (Benjamin Bannier)
+
+  * Install Spicy from upstream package. (Benjamin Bannier)
+
 0.2.2 | 2021-03-18 12:25:10 +0000
 
   * GH-10: [HTTP] Fix potential analyzer error reporting unset field.
