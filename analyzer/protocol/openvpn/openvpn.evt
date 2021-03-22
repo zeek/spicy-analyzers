@@ -1,0 +1,22 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
+protocol analyzer spicy::OpenVPN_UDP over UDP:
+	parse with OpenVPN::OpenVPNRecords;
+
+protocol analyzer spicy::OpenVPN_UDP_HMAC over UDP:
+	parse with OpenVPN::OpenVPNRecordsHMAC;
+
+protocol analyzer spicy::OpenVPN_TCP over TCP:
+	parse with OpenVPN::OpenVPNRecordsTCP;
+
+protocol analyzer spicy::OpenVPN_TCP_HMAC over TCP:
+	parse with OpenVPN::OpenVPNRecordsTCPHMAC;
+
+import OpenVPN;
+import OpenVPN_Zeek;
+
+on OpenVPN::ControlMessage -> event OpenVPN::control_message($conn, $is_orig, OpenVPN_Zeek::create_controlmsg(self));
+
+on OpenVPN::DataMessage -> event OpenVPN::data_message($conn, $is_orig, OpenVPN_Zeek::create_datamsg(self));
+
+on OpenVPN::AckMessage -> event OpenVPN::ack_message($conn, $is_orig, OpenVPN_Zeek::create_ackmsg(self));

@@ -1,0 +1,85 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
+module OpenVPN_Zeek;
+
+import OpenVPN;
+import zeek;
+
+on OpenVPN::ControlMessage::%done {
+	if ((self.opcode == OpenVPN::Opcode::P_CONTROL_HARD_RESET_CLIENT_V1 ||
+		 self.opcode == OpenVPN::Opcode::P_CONTROL_HARD_RESET_SERVER_V2 ||
+		 self.opcode == OpenVPN::Opcode::P_CONTROL_SOFT_RESET_V1 ||
+		 self.opcode == OpenVPN::Opcode::P_CONTROL_HARD_RESET_CLIENT_V2 ||
+		 self.opcode == OpenVPN::Opcode::P_CONTROL_HARD_RESET_SERVER_V2)
+	     && |self.ssl_data| > 0)
+		zeek::reject_protocol("should not have ssl_data.");
+	zeek::confirm_protocol();
+}
+
+on OpenVPN::OpenVPNRecord::%error {
+	zeek::reject_protocol("error while parsing OpenVPN record");
+}
+
+on OpenVPN::OpenVPNRecordTCP::%error {
+	zeek::reject_protocol("error while parsing OpenVPN record");
+}
+
+public function create_controlmsg(msg: OpenVPN::ControlMessage):
+    tuple<
+        opcode: uint8,
+        key_id: uint8,
+        session_id: optional<bytes>,
+        packet_id_ack_array: optional<vector<uint32>>,
+        remote_session_id: optional<bytes>,
+        packet_id: optional<uint32>,
+        data_len: uint64> {
+	local rs: optional<bytes>;
+	local acks: optional<vector<uint32>>;
+	if (msg.packet_id_array_len > 0)
+		{
+		rs = msg.remote_session_id;
+		acks = msg.packet_id_array;
+		}
+    return (
+        cast<uint8>(msg.opcode),
+        msg.key_id,
+        msg.session_id,
+        acks,
+        rs,
+        msg.packet_id,
+        |msg.ssl_data|
+    );
+}
+
+public function create_ackmsg(msg: OpenVPN::AckMessage):
+    tuple<
+        opcode: uint8,
+        key_id: uint8,
+        session_id: optional<bytes>,
+        packet_id_ack_array: optional<vector<uint32>>,
+        remote_session_id: optional<bytes>> {
+    return (
+        cast<uint8>(msg.opcode),
+        msg.key_id,
+        msg.session_id,
+        msg.packet_id_array,
+        msg.remote_session_id
+    );
+}
+
+public function create_datamsg(msg: OpenVPN::DataMessage):
+    tuple<
+        opcode: uint8,
+        key_id: uint8,
+        data_len: uint64,
+        peer_id: optional<bytes>> {
+	local mypeerid: optional<bytes>;
+	if (msg.opcode == OpenVPN::Opcode::P_DATA_V2)
+		mypeerid = msg.peer_id;
+    return (
+        cast<uint8>(msg.opcode),
+        msg.key_id,
+        |msg.payload|,
+        mypeerid
+    );
+}
