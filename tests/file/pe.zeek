@@ -4,8 +4,6 @@
 # @TEST-EXEC: btest-diff out
 #
 # @TEST-DOC: Test PE analyzer with an executable transferred over FTP.
-#
-# @TEST-KNOWN-FAILURE: This test currently fails, output is not matching baseline
 
 @load spicy-analyzers/file/pe
 
