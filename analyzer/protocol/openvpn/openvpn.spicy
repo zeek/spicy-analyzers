@@ -58,25 +58,7 @@ public type OpenVPNRecordsTCPHMAC = unit {
 public type OpenVPNRecordTCP = unit(has_hmac: bool) {
 	packet_length: uint16;
 
-	# TODO:  This isn't working.  Not sure why.
-	#record: OpenVPNRecord(has_hmac) &size=self.packet_length-1;
-
-	message_type: bitfield(8) {
-		opcode: 3..7 &convert=Opcode($$);
-		key_id: 0..2;
-	};
-
-	switch ( self.message_type.opcode ) {
-		Opcode::P_CONTROL_HARD_RESET_CLIENT_V1 -> control_hard_reset_client_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac) &size=self.packet_length-1;
-		Opcode::P_CONTROL_HARD_RESET_SERVER_V1 -> control_hard_reset_server_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac) &size=self.packet_length-1;
-		Opcode::P_CONTROL_SOFT_RESET_V1 -> control_soft_reset_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac) &size=self.packet_length-1;
-		Opcode::P_CONTROL_V1 -> control_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac) &size=self.packet_length-1;
-		Opcode::P_ACK_V1 -> ack_v1: AckMessage(self.message_type.opcode, self.message_type.key_id, has_hmac) &size=self.packet_length-1;
-		Opcode::P_DATA_V1 -> data_v1: DataMessage(self.message_type.opcode, self.message_type.key_id, False) &size=self.packet_length-1;
-		Opcode::P_CONTROL_HARD_RESET_SERVER_V2 -> control_hard_reset_server_v2: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac) &size=self.packet_length-1;
-		Opcode::P_CONTROL_HARD_RESET_CLIENT_V2 -> control_hard_reset_client_v2: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac) &size=self.packet_length-1;
-		Opcode::P_DATA_V2 -> data_v2: DataMessage(self.message_type.opcode, self.message_type.key_id, True) &size=self.packet_length-1;
-	};
+	record: OpenVPNRecord(has_hmac) &size=self.packet_length;
 };
 
 type HMACInfo = unit {
