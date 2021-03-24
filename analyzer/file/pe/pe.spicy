@@ -4,7 +4,6 @@
 #   https://en.wikipedia.org/wiki/Portable_Executable
 
 # TODOs:
-#  - limit NullTerminatedString parsing with MaxStringSize and &max-size
 #  - parse the data from remaining directory sections
 #  - allowing tuning/control of parsing contraints would be nice, but
 #    something that Spicy would have to support, see discussion:
@@ -56,7 +55,7 @@ type Dir = enum {
 };
 
 type NullTerminatedString = unit {
-    s: bytes &until=b"\x00";
+    s: bytes &until=b"\x00" &max-size=MaxStringSize;
 } &convert=self.s;
 
 public type ImageFile = unit {

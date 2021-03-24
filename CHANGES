@@ -1,4 +1,9 @@
 
+0.2.3-2 | 2021-03-24 07:05:49 +0000
+
+  * Limit parsing of a PE file's strings to 512 bytes (Jon Siwek,
+    Corelight)
+
 0.2.3 | 2021-03-22 16:47:25 +0000
 
   * Add OpenVPN protocol analyzer. (Keith Jones, Corelight)
