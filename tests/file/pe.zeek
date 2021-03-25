@@ -45,7 +45,6 @@ event pe_optional_header(f: fa_file, h: PE::OptionalHeader)
 
 event pe_section_header(f: fa_file, h: PE::SectionHeader)
 	{
-	print fmt("pe_section_header: %s", h);
 	# TODO(bbannier): Since set order is not stable across zeek-3.x and
 	# zeek-4.x we print the file header by hand so we can canonify
 	# `characteristics`. Once we drop support for zeek-3.x this function
