@@ -28,7 +28,7 @@ elif [ "$1" = "--plugin-path-for-installation" ]; then
     # 3. If we have spicyz in path, derive from module path.
     # TODO: Could add seperate --print-plugin-dir to spicyz.
     spicyz=$(which spicyz 2>/dev/null)
-    test -n "${spicyz}" && echo $(cd $(${spicyz} --print-module-path)/../_Zeek_Spicy && pwd) && exit 0
+    test -n "${spicyz}" && (cd "$(${spicyz} --print-module-path)"/../../_Zeek_Spicy && pwd) && exit 0
 
     exit 1
 

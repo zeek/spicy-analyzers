@@ -35,6 +35,7 @@ package_ci_task:
     - zkg install --force --skiptests .
 
   check_script:
+    - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
     - zeek -NN _Zeek::Spicy | grep Analyzer
     - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
 
@@ -70,3 +71,4 @@ standalone_ci_task:
   check_script:
     - zeek -NN _Zeek::Spicy | grep Analyzer
     - PATH=/opt/spicy-plugin/bin:$PATH make -C tests test-install
+    - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap spicy-analyzers && test -e tftp.log && grep rfc1350.txt tftp.log)

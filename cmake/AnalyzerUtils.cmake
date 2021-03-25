@@ -78,6 +78,7 @@ function(print_analyzers include_list)
             "\nPlugin version:        ${SPICY_ZEEK_PLUGIN_VERSION} (${SPICY_ZEEK_PLUGIN_VERSION_NUMBER})"
             "\nSpicy compiler:        ${spicyz_}"
             "\nModule directory:      ${SPICY_MODULE_OUTPUT_DIR_INSTALL}"
+            "\nScripts directory:     ${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}"
             )
 
         if ( NOT SPICYZ )
@@ -152,6 +153,11 @@ if ( SPICYZ )
         OUTPUT_STRIP_TRAILING_WHITESPACE)
     set(SPICY_MODULE_OUTPUT_DIR_INSTALL "${output}" CACHE STRING "")
 
+    execute_process(COMMAND "${SPICYZ}" "--print-scripts-path"
+        OUTPUT_VARIABLE output
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(SPICY_SCRIPTS_OUTPUT_DIR_INSTALL "${output}" CACHE STRING "")
+
     execute_process(COMMAND "${SPICYZ}" "--version"
         OUTPUT_VARIABLE output
         OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -162,7 +168,8 @@ if ( SPICYZ )
         OUTPUT_STRIP_TRAILING_WHITESPACE)
     set(SPICY_ZEEK_PLUGIN_VERSION_NUMBER "${output}" CACHE STRING "")
 else ()
-    set(SPICY_MODULE_OUTPUT_DIR_INSTALL "${CMAKE_INSTALL_FULL_LIBDIR}/spicy/zeek" CACHE STRING "")
+    set(SPICY_MODULE_OUTPUT_DIR_INSTALL "${CMAKE_INSTALL_FULL_LIBDIR}/spicy/zeek/modules" CACHE STRING "")
+    set(SPICY_SCRIPTS_OUTPUT_DIR_INSTALL "${CMAKE_INSTALL_FULL_LIBDIR}/spicy/zeek/scripts" CACHE STRING "")
 endif ()
 
 add_custom_target(build-spicy-analyzers)
