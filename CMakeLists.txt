@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
-project(SpicyAnalyzers LANGUAGES CXX)
+project(SpicyAnalyzers LANGUAGES C)
 
 set(mininmum_spicy_version        "0.4")
 set(mininmum_spicy_version_number 00400)
