@@ -43,8 +43,10 @@ export {
 	## Event raised for the wireguard packet_data packet
 	global wireguard::packet_data: event(c: connection, is_orig: bool, receiver_index: count, key_counter: count, encapsulated_packet_length: count);
 
+@ifdef ( Conn::register_removal_hook )
 	## Wireguard finalization hook; wireguard information is logged in it
 	global finalize_wireguard: Conn::RemovalHook;
+@endif
 }
 
 redef record connection += {
@@ -56,7 +58,9 @@ function set_session(c: connection)
 	if ( ! c?$wireguard )
 		{
 		c$wireguard = Info($uid=c$uid, $id=c$id);
+@ifdef ( Conn::register_removal_hook )
 		Conn::register_removal_hook(c, finalize_wireguard);
+@endif
 		}
 	}
 
@@ -80,7 +84,11 @@ event wireguard::handshake_response(c: connection, is_orig: bool, sender_index: 
 		c$wireguard$established = T;
 	}
 
+@ifdef ( Conn::register_removal_hook )
 hook finalize_wireguard(c: connection)
+@else
+event connection_state_remove(c: connection)
+@endif
 	{
 	Log::write(LOG, c$wireguard);
 	}
