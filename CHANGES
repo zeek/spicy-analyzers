@@ -1,4 +1,8 @@
 
+0.2.3-14 | 2021-03-25 19:38:52 +0100
+
+  * Fix test & CI instabilities. (Benjamin Bannier, Corelight)
+
 0.2.3-2 | 2021-03-24 07:05:49 +0000
 
   * Limit parsing of a PE file's strings to 512 bytes (Jon Siwek,
