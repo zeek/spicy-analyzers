@@ -1,4 +1,5 @@
 [package]
+depends = zeek/spicy-plugin *
 script_dir = analyzer
 plugin_dir = build/spicy-modules
 
