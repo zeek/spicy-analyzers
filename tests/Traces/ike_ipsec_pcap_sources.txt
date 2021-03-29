@@ -1,0 +1,12 @@
+The four pcaps used for testing were downloaded from:
+
+https://www.cloudshark.org/captures/9e63e31f9f56
+
+https://github.com/wireshark/wireshark/blob/master/test/captures/ikev1-certs.pcap
+
+https://www.cloudshark.org/captures/ff740838f1c2
+
+https://www.cloudshark.org/captures/e51f5c8a6b24
+
+Each of the pcaps are redistributed here only under their original license(s)
+and for testing purposes only.
