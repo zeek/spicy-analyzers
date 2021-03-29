@@ -1,5 +1,5 @@
 
-0.2.4 | 2021-03-29 12:35:20 +0000
+0.2.5 | 2021-03-29 12:38:45 +0000
 
   * [Wireguard] Change logging to only have one line per connection
     that tracks connection establishment as well as the number of
