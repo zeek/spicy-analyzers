@@ -6,8 +6,7 @@
 #unset_field	-
 #path	wireguard
 #open XXXX-XX-XX-XX-XX-XX
-#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	packet_type	sender_index	receiver_index
-#types	time	string	addr	port	addr	port	enum	count	count
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	established	initiations	responses
+#types	time	string	addr	port	addr	port	bool	count	count
 #close XXXX-XX-XX-XX-XX-XX
-XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	188.166.170.114	45965	188.166.170.115	51194	Wireguard::WG_HANDSHAKE_INITIATION	3294832738	-
-XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	188.166.170.114	45965	188.166.170.115	51194	Wireguard::WG_HANDSHAKE_RESPONSE	182872200	3294832738
+XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	188.166.170.114	45965	188.166.170.115	51194	T	1	1

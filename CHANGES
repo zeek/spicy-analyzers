@@ -1,4 +1,13 @@
 
+0.2.4 | 2021-03-29 12:35:20 +0000
+
+  * [Wireguard] Change logging to only have one line per connection
+    that tracks connection establishment as well as the number of
+    handshake initiation and response packets. (Johanna Amann,
+    Corelight)
+
+  * [Wireguard] Fix Zeek 3.x compatibility (Johanna Amann, Corelight)
+
 0.2.4-2 | 2021-03-26 16:36:52 +0000
 
   * Fix for in-tree Spicy build. (Robin Sommer, Corelight)
