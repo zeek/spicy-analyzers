@@ -42,6 +42,46 @@ package_ci_task:
   always:
       stderr_script: ./ci/show-zkg-stderr
 
+macos_ci_task:
+  timeout_in: 120m
+
+  osx_instance:
+    image: big-sur-base
+
+  env:
+    PATH: /opt/spicy/bin:${PATH}
+
+  install_zeek_script:
+    - brew install zeek
+
+  install_spicy_script:
+    - curl -o spicy-dev.tar.gz https://api.cirrus-ci.com/v1/artifact/github/zeek/spicy/macos_big_sur/packages/build/spicy-dev.tar.gz
+    - sudo tar xzmpovf spicy-dev.tar.gz -C / --strip-components 1
+    - rm spicy-dev.tar.gz
+
+  prepare_script:
+    - pip3 install zkg btest
+    - zkg autoconfig && echo "@load packages" >>"$(zeek-config --site_dir)"/local.zeek
+    - git clone --branch=main --recurse-submodules https://github.com/zeek/spicy-plugin
+    - zkg install --skiptests --force spicy-plugin
+    - rm -rf spicy-plugin
+    - zeek -N _Zeek::Spicy
+
+  test_script:
+    - zkg test .
+
+  install_script:
+    # --force avoids prompts, --skiptests because tests ran already
+    - zkg install --force --skiptests .
+
+  check_script:
+    - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
+    - zeek -NN _Zeek::Spicy | grep Analyzer
+    - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
+
+  always:
+      stderr_script: ./ci/show-zkg-stderr
+
 standalone_ci_task:
   timeout_in: 120m
   container:
