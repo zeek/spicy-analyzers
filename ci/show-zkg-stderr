@@ -2,7 +2,7 @@
 #
 # Gather debug output from zkg
 
-for root in in /root/.zkg /opt/zeek/var/lib/zkg; do # root differs by Zeek version
+for root in in $HOME/.zkg /opt/zeek/var/lib/zkg; do # root differs by Zeek version
     test -d "${root}" && find "${root}" -name *build.log -exec 'cat' '{}' ';'
     test -d "${root}" && find "${root}" -name zkg.*.stderr -exec 'cat' '{}' ';'
 done
