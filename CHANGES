@@ -1,4 +1,8 @@
 
+0.2.8 | 2021-03-31 15:54:20 +0000
+
+  * [Wireguard] Add missing existence check. (Keith Jones, Corelight)
+
 0.2.7 | 2021-03-31 09:55:16 +0000
 
   * GH-36: [DNS] Implement SVR resource record. (Robin Sommer, Corelight)

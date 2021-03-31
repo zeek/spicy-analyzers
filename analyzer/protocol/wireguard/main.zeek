@@ -90,5 +90,8 @@ hook finalize_wireguard(c: connection)
 event connection_state_remove(c: connection)
 @endif
 	{
-	Log::write(LOG, c$wireguard);
+	if (c?$wireguard)
+		{
+		Log::write(LOG, c$wireguard);
+		}
 	}
