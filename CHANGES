@@ -1,4 +1,12 @@
 
+0.2.5-5 | 2021-03-31 08:24:57 +0000
+
+  * Document the sources of our traces files. (Robin Sommer, Corelight)
+
+  * GH-40: Add MacOS Big Sur CI task. (Benjamin Bannier, Corelight)
+
+  * Allow running CI as non-root user. (Benjamin Bannier, Corelight)
+
 0.2.5 | 2021-03-29 12:38:45 +0000
 
   * [Wireguard] Change logging to only have one line per connection
