@@ -82,4 +82,4 @@ on DNS::ResourceRecord if ( self.ty == DNS::RDType::WKS )
     -> event dns_WKS_reply($conn, Zeek_DNS::message(msg.header), Zeek_DNS::answer(self, rrtype));
 
 on DNS::ResourceRecord if ( self.ty == DNS::RDType::SRV )
-    -> event dns_SRV_reply($conn, Zeek_DNS::message(msg.header), Zeek_DNS::answer(self, rrtype));
+    -> event dns_SRV_reply($conn, Zeek_DNS::message(msg.header), Zeek_DNS::answer(self, rrtype), Zeek_DNS::name(self.srv.target), self.srv.priority_, self.srv.weight, self.srv.port_);

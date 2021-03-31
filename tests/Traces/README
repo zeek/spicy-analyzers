@@ -8,6 +8,7 @@ DHCP
 
 DNS
 - [dns53.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/dns53.pcap)
+- dns-svr.pcap (self-made)
 
 HTTP
 - [http-post.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/http/post.trace)

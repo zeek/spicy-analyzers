@@ -76,6 +76,7 @@ type ResourceRecord = unit(msg: Message, rrtype: RRType) {
         RDType::AAAA -> a:       addr &ipv6;
         RDType::MX   -> mx:      RDataMX(msg);
         RDType::SOA  -> soa:     RDataSOA(msg);
+        RDType::SRV  -> srv:     RDataSRV(msg);
         RDType::TXT  -> txt:     (CharacterString(msg))[self.rdlen];
 
         *            -> rdata:   bytes &size=self.rdlen;
@@ -95,6 +96,13 @@ type RDataSOA = unit(msg: Message) {
     retry:      uint32 &convert=cast<interval>($$);
     expire:     uint32 &convert=cast<interval>($$);
     minimum:    uint32 &convert=cast<interval>($$);
+};
+
+type RDataSRV = unit(msg: Message) {
+    priority_:  uint16;
+    weight:     uint16;
+    port_:      uint16;
+    target:     Name(msg);
 };
 
 type CharacterString = unit(msg: Message) {
