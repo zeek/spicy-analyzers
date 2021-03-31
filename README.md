@@ -10,6 +10,7 @@ Currently, the following analyzers are included:
 - DHCP <sup>[1]</sup>
 - DNS <sup>[1]</sup>
 - HTTP <sup>[1]</sup>
+- IPSec
 - OpenVPN
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
