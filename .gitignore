@@ -1,6 +1,6 @@
 build
+.idea/
+cmake-build-debug/
 .DS_Store
 *.swp
 *.tmp
-.idea
-cmake-build-debug/
