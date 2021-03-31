@@ -1,4 +1,8 @@
 
+0.2.7 | 2021-03-31 09:55:16 +0000
+
+  * GH-36: [DNS] Implement SVR resource record. (Robin Sommer, Corelight)
+
 0.2.6 | 2021-03-31 09:42:47 +0000
 
   * Add IPSec analyzer. (Keith Jones, Corelight)
