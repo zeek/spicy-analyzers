@@ -5,7 +5,7 @@ protocol analyzer spicy::ipsec_udp over UDP:
 	ports {4500/udp, 4501/udp};
 
 protocol analyzer spicy::ipsec_ike_udp over UDP:
-	parse with ipsec::IPSecIKEWrapper,
+	parse with ipsec::IPSecIKE,
 	ports {500/udp};
 
 protocol analyzer spicy::ipsec_tcp over TCP:

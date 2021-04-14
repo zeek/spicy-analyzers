@@ -248,10 +248,6 @@ type IPSecPacketTCP = unit() {
 	rec: IPSecPacketUDP &size=self.packet_len;
 };
 
-public type IPSecIKEWrapper = unit {
-	rec: IPSecIKE();
-};
-
 type SharedInfo = unit {
 	var next_payload: PayloadType;
 };

@@ -533,7 +533,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_sa_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_SA_Msg);
+	global ipsec::ikev1_sa_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_SA_Msg);
 
 	## Fires on every IKEv1 vendor ID payload.
 	##
@@ -542,7 +542,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_vid_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_VENDORID_Msg);
+	global ipsec::ikev1_vid_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_VENDORID_Msg);
 
 	## Fires on every IKEv1 key exchange payload.
 	##
@@ -551,7 +551,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_ke_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_KE_Msg);
+	global ipsec::ikev1_ke_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_KE_Msg);
 
 	## Fires on every IKEv1 nonce payload.
 	##
@@ -560,7 +560,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_nonce_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_NONCE_Msg);
+	global ipsec::ikev1_nonce_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_NONCE_Msg);
 
 	## Fires on every IKEv1 certificate payload.
 	##
@@ -569,7 +569,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_cert_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_CERT_Msg);
+	global ipsec::ikev1_cert_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_CERT_Msg);
 
 	## Fires on every IKEv1 certificate request payload.
 	##
@@ -578,7 +578,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_certreq_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_CERTREQ_Msg);
+	global ipsec::ikev1_certreq_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_CERTREQ_Msg);
 
 	## Fires on every IKEv1 ID payload.
 	##
@@ -587,7 +587,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_id_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_ID_Msg);
+	global ipsec::ikev1_id_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_ID_Msg);
 
 	## Fires on every IKEv1 hash payload.
 	##
@@ -596,7 +596,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_hash_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_HASH_Msg);
+	global ipsec::ikev1_hash_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_HASH_Msg);
 
 	## Fires on every IKEv1 signature payload.
 	##
@@ -605,7 +605,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_sig_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_SIG_Msg);
+	global ipsec::ikev1_sig_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_SIG_Msg);
 
 	## Fires on every IKEv1 proposal payload.
 	##
@@ -614,7 +614,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_p_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_P_Msg);
+	global ipsec::ikev1_p_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_P_Msg);
 
 	## Fires on every IKEv1 transform payload.
 	##
@@ -623,7 +623,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_t_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_T_Msg);
+	global ipsec::ikev1_t_payload: event(c: connection, is_orig: bool, msg: ipsec::IKEv1_T_Msg);
 
 	## Fires on every IKEv1 notification payload.
 	##
@@ -632,7 +632,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_notify_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_NOTIFY_Msg);
+	global ipsec::ikev1_notify_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_NOTIFY_Msg);
 
 	## Fires on every IKEv1 delete payload.
 	##
@@ -641,7 +641,7 @@ export {
 	## is_orig: True if the message was sent by the originator.
 	##
 	## msg: The parsed IPSec message.
-    global ipsec::ikev1_delete_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_DELETE_Msg);
+	global ipsec::ikev1_delete_payload: event(c: connection, is_orig: bool, msg: ipsec::IKE_DELETE_Msg);
 
 }
 
