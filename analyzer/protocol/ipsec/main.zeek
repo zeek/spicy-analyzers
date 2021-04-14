@@ -672,8 +672,8 @@ function set_session(c: connection)
 event protocol_confirmation(c: connection, atype: Analyzer::Tag, aid: count) &priority=5
 	{
 	if ( atype == Analyzer::ANALYZER_SPICY_IPSEC_IKE_UDP ||
-	     atype == Analyzer::ANALYZER_SPICY_IPSEC_TCP ||
-	     atype == Analyzer::ANALYZER_SPICY_IPSEC_UDP )
+		 atype == Analyzer::ANALYZER_SPICY_IPSEC_TCP ||
+		 atype == Analyzer::ANALYZER_SPICY_IPSEC_UDP )
 		{
 		set_session(c);
 		c$ipsec$analyzer_id = aid;
@@ -734,14 +734,14 @@ function ipsec::do_vendorid(c: connection, is_orig: bool, msg: ipsec::IKE_VENDOR
 	}
 
 event ipsec::ikev2_vendorid_payload(c: connection, is_orig: bool, msg: ipsec::IKE_VENDORID_Msg)
- 	{
- 	ipsec::do_vendorid(c, is_orig, msg);
- 	}
+	{
+	ipsec::do_vendorid(c, is_orig, msg);
+	}
 
 event ipsec::ikev1_vid_payload(c: connection, is_orig: bool, msg: ipsec::IKE_VENDORID_Msg)
- 	{
- 	ipsec::do_vendorid(c, is_orig, msg);
- 	}
+	{
+	ipsec::do_vendorid(c, is_orig, msg);
+	}
 
 function ipsec::do_notify(c: connection, is_orig: bool, msg: ipsec::IKE_NOTIFY_Msg)
 	{
