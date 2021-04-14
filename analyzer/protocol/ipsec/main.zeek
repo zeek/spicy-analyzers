@@ -672,8 +672,8 @@ function set_session(c: connection)
 event protocol_confirmation(c: connection, atype: Analyzer::Tag, aid: count) &priority=5
 	{
 	if ( atype == Analyzer::ANALYZER_SPICY_IPSEC_IKE_UDP ||
-		 atype == Analyzer::ANALYZER_SPICY_IPSEC_TCP ||
-		 atype == Analyzer::ANALYZER_SPICY_IPSEC_UDP )
+         atype == Analyzer::ANALYZER_SPICY_IPSEC_TCP ||
+         atype == Analyzer::ANALYZER_SPICY_IPSEC_UDP )
 		{
 		set_session(c);
 		c$ipsec$analyzer_id = aid;
