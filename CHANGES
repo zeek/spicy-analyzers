@@ -1,4 +1,8 @@
 
+0.2.8-4 | 2021-04-16 08:40:20 +0000
+
+  * [IPSec] Small cleanup. (Keith Jones, Corelight)
+
 0.2.8 | 2021-03-31 15:54:20 +0000
 
   * [Wireguard] Add missing existence check. (Keith Jones, Corelight)
