@@ -349,8 +349,7 @@ export {
 		["draft-ietf-ipsec-nat-t-ike"] = /^4df37928e9fc4fd1b3262170d515c662/,
 		["draft-ietf-ipsec-nat-t-ike-00"] = /^4485152d18b6bbcd0be8a8469579ddcc/,
 		["draft-ietf-ipsec-nat-t-ike-01"] = /^16f6ca16e4a4066d83821a0f0aeaa862/,
-		["draft-ietf-ipsec-nat-t-ike-02\n"] = /^90cb80913ebb696e086381b5ec427b1f/,
-		["draft-ietf-ipsec-nat-t-ike-02"] = /^cd60464335df21f87cfdb2fc68b6a448/,
+		["draft-ietf-ipsec-nat-t-ike-02"] = /^(90cb80913ebb696e086381b5ec427b1f|cd60464335df21f87cfdb2fc68b6a448)/,
 		["draft-ietf-ipsec-nat-t-ike-03"] = /^7d9419a65310ca6f2c179d9215529d56/,
 		["draft-ietf-ipsec-nat-t-ike-04"] = /^9909b64eed937c6573de52ace952fa6b/,
 		["draft-ietf-ipsec-nat-t-ike-05"] = /^80d0bb3def54565ee84645d4c85ce3ee/,
@@ -362,8 +361,7 @@ export {
 		["RFC XXXX"] = /^810fa565f8ab14369105d706fbd57279/,
 		["RFC 3947 NAT-T"] = /^4a131c81070358455c5728f20e95452f/,
 		["MS NT5 ISAKMPOAKLEY"] = /^1e2b516905991c7d7c96fcbfb587e461/,
-		["A GSS-API Authentication Method for IKE"] = /^ad2c0dd0b9c32083ccba25b8861ec455/,
-		["A GSS-API Authentication Method for IKE\n"] = /^b46d8914f3aaa3f2fedeb7c7db2943ca/,
+		["A GSS-API Authentication Method for IKE"] = /^(ad2c0dd0b9c32083ccba25b8861ec455|b46d8914f3aaa3f2fedeb7c7db2943ca)/,
 		["GSSAPI"] = /^621b04bb09882ac1e15935fefa24aeee/,
 		["NLBS_PRESENT"] = /^72872B95FCDA2EB708EFE322119B4971/,
 		["MS-MamieExists"] = /^214ca4faffa7f32d6748e5303395ae83/,
@@ -762,7 +760,17 @@ export {
 		["StoneGate-02"] = /^baeb239037e17787d730eed9d95d48aa/,
 		["Symantec-Raptor-v8.1"] = /^526170746f7220506f77657256706e20536572766572205b56382e315d/,
 		["Symantec-Raptor"] = /^526170746f7220506f77657256706e20536572766572/,
-		["Teldat"] = /^..................54656c646174/
+		["Teldat"] = /^..................54656c646174/,
+		["Cisco-Anyconnect-EAP"] = /^434953434f2d414e59434f4e4e4543542d454150/,
+		["Cisco-Anyconnect-Strap"] = /^434953434f2d414e59434f4e4e4543542d5354524150/,
+		["CiscoVPN-Rev-02"] = /^434953434f56504e2d5245562d3032/,
+		["FlexVPN-Supported"] = /^464c455856504e2d535550504f52544544/,
+		["Cisco Copyright 2009"] = /^434953434f28434f505952494748542926436f7079726967687420286329203230303920436973636f2053797374656d732c20496e632e/,
+		["Cisco-GRE-Mode"] = /^434953434f2d4752452d4d4f44450./,
+		["Cisco-NGE-Level"] = /^434953434f2d4e47452d4c4556454c03/,
+		["Cisco-Delete-Reason"] = /^434953434f2d44454c4554452d524541534f4e/,
+		["Cisco-Dynamic-Route"] = /^434953434f2d44594e414d49432d524f555445/,
+		["Cisco Fragmentation"] = /^4048b7d56ebce88525e7de7f00d6c2d3/
 	};
 
 }
