@@ -1,4 +1,9 @@
 
+0.2.9 | 2021-04-22 11:58:38 +0000
+
+  * [IPSec] Fix various vector parsing issues and remove typing from a
+    type where we don't know all cases yet. (Keith Jones, Corelight)
+
 0.2.8-6 | 2021-04-20 07:11:11 +0000
 
   * GH-47: Update source for trace file. (Robin Sommer, Corelight)
