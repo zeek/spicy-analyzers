@@ -384,7 +384,7 @@ public function create_configuration_attr_msg(msg: ipsec::ConfigureAttribute):
     return (
     	msg.message_id,
     	cast<uint8>(msg.cfg_type),
-    	cast<uint16>(msg.attribute_type.the_type),
+    	msg.attribute_type.the_type,
     	msg.length,
     	msg.value
     );
