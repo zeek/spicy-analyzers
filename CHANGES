@@ -1,4 +1,8 @@
 
+0.2.10 | 2021-04-23 10:52:52 +0000
+
+  * [IPSec] Add more vendor IDs. (Keith Jones, Corelight)
+
 0.2.9 | 2021-04-22 11:58:38 +0000
 
   * [IPSec] Fix various vector parsing issues and remove typing from a
