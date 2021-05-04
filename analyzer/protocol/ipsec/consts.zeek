@@ -770,8 +770,7 @@ export {
 		["Cisco-GRE-Mode"] = /^434953434f2d4752452d4d4f44450./,
 		["Cisco-NGE-Level"] = /^434953434f2d4e47452d4c4556454c03/,
 		["Cisco-Delete-Reason"] = /^434953434f2d44454c4554452d524541534f4e/,
-		["Cisco-Dynamic-Route"] = /^434953434f2d44594e414d49432d524f555445/,
-		["Cisco Fragmentation"] = /^4048b7d56ebce88525e7de7f00d6c2d3/
+		["Cisco-Dynamic-Route"] = /^434953434f2d44594e414d49432d524f555445/
 	};
 
 }
