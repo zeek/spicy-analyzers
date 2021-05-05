@@ -761,6 +761,13 @@ export {
 		["Symantec-Raptor-v8.1"] = /^526170746f7220506f77657256706e20536572766572205b56382e315d/,
 		["Symantec-Raptor"] = /^526170746f7220506f77657256706e20536572766572/,
 		["Teldat"] = /^..................54656c646174/,
+		# Aruba info via https://github.com/wireshark/wireshark/blob/eb5f4eea99593b92298bacecc5c9d885cc13a9ad/epan/dissectors/packet-isakmp.c#L2929
+		["Aruba Networks Remote AP"] = /^ca3e2b854ba8030017dc1023a4fde2041f9f7463/,
+		["Aruba Networks Controller"] = /^3c8e70bdf9c7d74add53e4100915dc2e4bb51274/,
+		["Aruba Networks Client"] = /^88f0e3149b3fa48b05aa7f685f0b766be186ccb8/,
+		["Aruba Networks Auth Profile"] = /^56494120417574682050726f66696c65203a20/,
+		# Found in the wild often associated with the VIDs above
+		["Aruba Networks"] = /^1725f0892742ea523b79ec848c97201a3094d6c5/,
 		["Cisco-Anyconnect-EAP"] = /^434953434f2d414e59434f4e4e4543542d454150/,
 		["Cisco-Anyconnect-Strap"] = /^434953434f2d414e59434f4e4e4543542d5354524150/,
 		["CiscoVPN-Rev-02"] = /^434953434f56504e2d5245562d3032/,
