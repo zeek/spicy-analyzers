@@ -1,0 +1,34 @@
+protocol analyzer spicy::ldap_tcp over TCP:
+  parse with ldap::Messages,
+  ports {389/tcp, 3268/tcp};
+
+# TODO: UDP hasn't been tested/implemented yet
+# TODO: test this, will it be Message or Messages?
+# protocol analyzer spicy::ldap_udp over UDP:
+#   parse with ldap::Messages,
+#   ports {389/udp, 3268/udp};
+
+import ldap;
+import ldap_zeek;
+
+on ldap::Message -> event ldap::message($conn,
+                                        self.messageID,
+                                        self.opcode,
+                                        self.result.code,
+                                        self.result.matchedDN,
+                                        self.result.diagnosticMessage,
+                                        self.obj,
+                                        self.arg);
+
+on ldap::SearchRequest -> event ldap::searchreq($conn,
+                                                message.messageID,
+                                                self.baseObject,
+                                                self.scope,
+                                                self.deref,
+                                                self.sizeLimit,
+                                                self.timeLimit,
+                                                self.typesOnly);
+
+on ldap::SearchResultEntry -> event ldap::searchres($conn,
+                                                    message.messageID,
+                                                    self.objectName);
