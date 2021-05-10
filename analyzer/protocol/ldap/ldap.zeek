@@ -114,6 +114,9 @@ export {
     [ldap::ProtocolOpcode_INTERMEDIATE_RESPONSE] = "intermediate"
   } &default = "unknown";
 
+  const BIND_SIMPLE = "bind simple";
+  const BIND_SASL = "bind SASL";
+
   const RESULT_CODES = {
     [ldap::ResultCode_SUCCESS] = "success",
     [ldap::ResultCode_OPERATIONS_ERROR] = "operations error",
@@ -327,6 +330,11 @@ event ldap::message(c: connection,
     }
 
     if (opcode in OPCODES_FINISHED) {
+      if ((BIND_SIMPLE in c$ldap_messages[message_id]$opcode) ||
+          (BIND_SASL in c$ldap_messages[message_id]$opcode)) {
+        # don't have both "bind" and "bind <method>" in the operations list
+        delete c$ldap_messages[message_id]$opcode[PROTOCOL_OPCODES[ldap::ProtocolOpcode_BIND_REQUEST]];
+      }
       Log::write(ldap::LDAP_LOG, c$ldap_messages[message_id]);
       delete c$ldap_messages[message_id];
     }
@@ -388,6 +396,16 @@ event ldap::bindreq(c: connection,
 
   if ( ! c$ldap_messages[message_id]?$version )
     c$ldap_messages[message_id]$version = version;
+
+  if ( ! c$ldap_messages[message_id]?$opcode )
+    c$ldap_messages[message_id]$opcode = set();
+
+  if (authType == ldap::BindAuthType_BIND_AUTH_SIMPLE) {
+    add c$ldap_messages[message_id]$opcode[BIND_SIMPLE];
+  } else if (authType == ldap::BindAuthType_BIND_AUTH_SASL) {
+    add c$ldap_messages[message_id]$opcode[BIND_SASL];
+  }
+
 }
 
 #############################################################################
@@ -398,6 +416,10 @@ event connection_state_remove(c: connection) {
   if ( c?$ldap_messages && (|c$ldap_messages| > 0) ) {
     for ( [mid], m in c$ldap_messages ) {
       if (mid > 0) {
+        if ((BIND_SIMPLE in m$opcode) || (BIND_SASL in m$opcode)) {
+          # don't have both "bind" and "bind <method>" in the operations list
+          delete m$opcode[PROTOCOL_OPCODES[ldap::ProtocolOpcode_BIND_REQUEST]];
+        }
         Log::write(ldap::LDAP_LOG, m);
       }
     }
