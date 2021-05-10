@@ -152,7 +152,7 @@ public type Message = unit {
 # Bind Operation
 # https://tools.ietf.org/html/rfc4511#section-4.2
 
-type BindAuthType = enum {
+public type BindAuthType = enum {
   BIND_AUTH_SIMPLE = 0,
   BIND_AUTH_SASL = 3,
   NOT_SET = 127

@@ -21,6 +21,9 @@ export {
     # Message ID
     message_id: int &log &optional;
 
+    # LDAP version
+    version: int &log &optional;
+
     # normalized operations (e.g., bind_request and bind_response to "bind")
     opcode: set[string] &log &optional;
 
@@ -338,6 +341,20 @@ event ldap::searchres(c: connection,
 }
 
 #############################################################################
+event ldap::bindreq(c: connection,
+                    message_id: int,
+                    version: int,
+                    name: string,
+                    authType: ldap::BindAuthType,
+                    authInfo: string) {
+
+  set_session(c, message_id, ldap::ProtocolOpcode_BIND_REQUEST);
+
+  if ( ! c$ldap_messages[message_id]?$version )
+    c$ldap_messages[message_id]$version = version;
+}
+
+#############################################################################
 event connection_state_remove(c: connection) {
 
   # log any "pending" unlogged LDAP messages/searches
@@ -361,3 +378,4 @@ event connection_state_remove(c: connection) {
   }
 
 }
+

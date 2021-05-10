@@ -20,6 +20,13 @@ on ldap::Message -> event ldap::message($conn,
                                         self.obj,
                                         self.arg);
 
+on ldap::BindRequest -> event ldap::bindreq($conn,
+                                            message.messageID,
+                                            self.version,
+                                            self.name,
+                                            self.authType,
+                                            message.arg);
+
 on ldap::SearchRequest -> event ldap::searchreq($conn,
                                                 message.messageID,
                                                 self.baseObject,
