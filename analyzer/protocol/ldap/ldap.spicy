@@ -394,7 +394,7 @@ type SearchFilter = unit(depth: uint32) {
                                                   &parse-from=self.filterBytes;
     FilterType::FILTER_EXT     -> FILTER_EXT:     asn1::ASN1Message(True, depth+1)
                                                   &parse-from=self.filterBytes;
-    * -> unknownFilter: void;
+    * -> : void;
   };
 };
 
