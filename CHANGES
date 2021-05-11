@@ -1,3 +1,7 @@
+0.2.11 | 2021-05-17 09:39:00 +0200
+
+  * Remove `analyzer_id` from scripts for IPSec. (Keith Jones)
+
 0.2.10-4 | 2021-05-05 11:49:06 +0200
 
   * Add Aruba Networks vendor ID info. (Keith Jones, Corelight)
