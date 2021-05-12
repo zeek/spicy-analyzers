@@ -20,6 +20,9 @@ export {
     # The connection's 4-tuple of endpoint addresses/ports.
     id: conn_id &log;
 
+    # transport protocol
+    proto: string &log &optional;
+
     # Message ID
     message_id: int &log &optional;
 
@@ -55,6 +58,9 @@ export {
 
     # The connection's 4-tuple of endpoint addresses/ports.
     id: conn_id &log;
+
+    # transport protocol
+    proto: string &log &optional;
 
     # Message ID
     message_id: int &log &optional;
@@ -230,6 +236,7 @@ global OPCODES_SEARCH: set[ldap::ProtocolOpcode] = { ldap::ProtocolOpcode_SEARCH
 
 #############################################################################
 redef record connection += {
+  ldap_proto: string &optional;
   ldap_messages: table[int] of Message &optional;
   ldap_searches: table[int] of Search &optional;
 };
@@ -268,7 +275,9 @@ function set_session(c: connection, message_id: int, opcode: ldap::ProtocolOpcod
 #############################################################################
 event protocol_confirmation(c: connection, atype: Analyzer::Tag, aid: count) &priority=5 {
 
-  # todo: do we really need to do anything here?
+  if ( atype == Analyzer::ANALYZER_SPICY_LDAP_TCP ) {
+    c$ldap_proto = "tcp";
+  }
 
 }
 
@@ -296,6 +305,9 @@ event ldap::message(c: connection,
         c$ldap_searches[message_id]$diagnostic_message = vector();
       c$ldap_searches[message_id]$diagnostic_message += diagnostic_message;
     }
+
+    if (( ! c$ldap_searches[message_id]?$proto ) && c?$ldap_proto)
+      c$ldap_searches[message_id]$proto = c$ldap_proto;
 
     Log::write(ldap::LDAP_SEARCH_LOG, c$ldap_searches[message_id]);
     delete c$ldap_searches[message_id];
@@ -332,11 +344,16 @@ event ldap::message(c: connection,
     }
 
     if (opcode in OPCODES_FINISHED) {
+
       if ((BIND_SIMPLE in c$ldap_messages[message_id]$opcode) ||
           (BIND_SASL in c$ldap_messages[message_id]$opcode)) {
         # don't have both "bind" and "bind <method>" in the operations list
         delete c$ldap_messages[message_id]$opcode[PROTOCOL_OPCODES[ldap::ProtocolOpcode_BIND_REQUEST]];
       }
+
+      if (( ! c$ldap_messages[message_id]?$proto ) && c?$ldap_proto)
+        c$ldap_messages[message_id]$proto = c$ldap_proto;
+
       Log::write(ldap::LDAP_LOG, c$ldap_messages[message_id]);
       delete c$ldap_messages[message_id];
     }
@@ -418,10 +435,15 @@ event connection_state_remove(c: connection) {
   if ( c?$ldap_messages && (|c$ldap_messages| > 0) ) {
     for ( [mid], m in c$ldap_messages ) {
       if (mid > 0) {
+
         if ((BIND_SIMPLE in m$opcode) || (BIND_SASL in m$opcode)) {
           # don't have both "bind" and "bind <method>" in the operations list
           delete m$opcode[PROTOCOL_OPCODES[ldap::ProtocolOpcode_BIND_REQUEST]];
         }
+
+        if (( ! m?$proto ) && c?$ldap_proto)
+          m$proto = c$ldap_proto;
+
         Log::write(ldap::LDAP_LOG, m);
       }
     }
@@ -431,6 +453,10 @@ event connection_state_remove(c: connection) {
   if ( c?$ldap_searches && (|c$ldap_searches| > 0) ) {
     for ( [mid], s in c$ldap_searches ) {
       if (mid > 0) {
+
+        if (( ! s?$proto ) && c?$ldap_proto)
+          s$proto = c$ldap_proto;
+
         Log::write(ldap::LDAP_SEARCH_LOG, s);
       }
     }
