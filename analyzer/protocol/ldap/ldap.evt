@@ -1,12 +1,10 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
 protocol analyzer spicy::ldap_tcp over TCP:
   parse with ldap::Messages,
   ports {389/tcp, 3268/tcp};
 
-# TODO: UDP hasn't been tested/implemented yet
-# TODO: test this, will it be Message or Messages?
-# protocol analyzer spicy::ldap_udp over UDP:
-#   parse with ldap::Messages,
-#   ports {389/udp, 3268/udp};
+# TODO: LDAP can also use UDP transport
 
 import ldap;
 import ldap_zeek;

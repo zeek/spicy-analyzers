@@ -1,3 +1,5 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
 module asn1;
 
 ###############################################################################
@@ -16,31 +18,26 @@ module asn1;
 
 import spicy;
 
-# set asn1::DEBUG_PRINT to True to enable debug printing of ASN.1 body values
-const DEBUG_PRINT = False;
-# DEBUG_SPACES is used with *.depth to print nested ASN.1 structures
-const DEBUG_SPACES = "                                                       ";
-
 #- ASN.1 data types ----------------------------------------------------------
 # https://www.obj-sys.com/asn1tutorial/node124.html
 # https://www.obj-sys.com/asn1tutorial/node10.html
 
 public type ASN1Type = enum {
-  BOOLEAN = 1,
-  INTEGER = 2,
-  BITSTRING = 3,
-  OCTETSTRING = 4,
-  NULLVAL = 5,
-  OBJECTIDENTIFIER = 6,
+  Boolean = 1,
+  Integer = 2,
+  BitString = 3,
+  OctetString = 4,
+  NullVal = 5,
+  ObjectIdentifier = 6,
   ObjectDescriptor = 7,
-  INSTANCEOF = 8,
-  REAL = 9,
-  ENUMERATED = 10,
-  EMBEDDEDPDV = 11,
+  InstanceOf = 8,
+  Real = 9,
+  Enumerated = 10,
+  EmbeddedPDV = 11,
   UTF8String = 12,
-  RELATIVEOID = 13,
-  SEQUENCE = 16,
-  SET = 17,
+  RelativeOID = 13,
+  Sequence = 16,
+  Set = 17,
   NumericString = 18,
   PrintableString = 19,
   TeletextString = 20,
@@ -52,17 +49,17 @@ public type ASN1Type = enum {
   VisibleString = 26,
   GeneralString = 27,
   UniversalString = 28,
-  CHARACTERSTRING = 29,
+  CharacterString = 29,
   BMPString = 30
 };
 
 #- ASN.1 data classes --------------------------------------------------------
 
 public type ASN1Class = enum {
-  UNIVERSAL = 0,
-  APPLICATION = 1,
-  CONTEXT_SPECIFIC = 2,
-  PRIVATE = 3
+  Universal = 0,
+  Application = 1,
+  ContextSpecific = 2,
+  Private = 3
 };
 
 #- ASN.1 tag definition (including length) ------------------------------------
@@ -79,8 +76,9 @@ type LengthType = unit {
   var tag_len: uint8;
 
   switch ( self.data.islong ) {
-    0 -> : b"" {
-      self.len = self.data.num; self.tag_len = 1;
+    0 -> : void {
+      self.len = self.data.num;
+      self.tag_len = 1;
     }
     1 -> length_parse: bytes &size=self.data.num
                              &convert=$$.to_uint(spicy::ByteOrder::Network) {
@@ -91,7 +89,7 @@ type LengthType = unit {
 };
 
 type ASN1Tag = unit {
-  var tpe: ASN1Type;
+  var type_: ASN1Type;
   var len: uint8 = 1;
   var class: ASN1Class;
   var constructed: bool;
@@ -100,10 +98,8 @@ type ASN1Tag = unit {
     num: 0..4;
     constructed: 5;
     class: 6..7;
-  };
-
-  on %done {
-    self.tpe = ASN1Type(self.data.num);
+  } {
+    self.type_ = ASN1Type(self.data.num);
     self.class = ASN1Class(self.data.class);
     self.constructed = cast<bool>(self.data.constructed);
   }
@@ -117,6 +113,7 @@ type ASN1BitString = unit(len: uint64, constructed: bool) {
   value_bits: bytes &size=(len - 1);
 
   # TODO - constructed form
+  # https://github.com/zeek/spicy/issues/921
   # `bytes` needs << and >> support before we can implement complex bitstrings
 };
 
@@ -140,29 +137,43 @@ type ASN1OctetString = unit(len: uint64, constructed: bool) {
 type ASN1String = unit(tag: ASN1Tag, len: uint64) {
   var value: string = "";
 
-  octetstring: ASN1OctetString(len, tag.constructed) {
+  octetstring: ASN1OctetString(len, tag.constructed);
 
-    if ((tag.tpe == ASN1Type::PrintableString) ||
-        (tag.tpe == ASN1Type::GeneralizedTime) ||
-        (tag.tpe == ASN1Type::UTCTime)) {
+  switch ( tag.type_ ) {
+
+    # see "Restricted Character String Types" in
+    # "Generic String Encoding Rules (GSER) for ASN.1 Types"
+    # (https://datatracker.ietf.org/doc/html/rfc3641#section-3.2)
+
+    ASN1Type::PrintableString,
+    ASN1Type::GeneralizedTime,
+    ASN1Type::UTCTime -> : void {
       self.value = self.octetstring.value.decode(hilti::Charset::ASCII);
-
-    } else if (tag.tpe == ASN1Type::UTF8String) {
-      self.value = self.octetstring.value.decode(hilti::Charset::UTF8);
-
-    } else {
-      # this would include ASN1Type::BMPString and ASN1Type::UniversalString because
-      # hilti::Charset::UTF16BE and hilti::Charset::UTF32BE don't exist any more
-      throw "Unsupported ASN1String type";
     }
-  }
 
+    ASN1Type::UTF8String,
+    ASN1Type::GeneralString,
+    ASN1Type::CharacterString,
+    ASN1Type::GraphicString,
+    ASN1Type::IA5String,
+    ASN1Type::NumericString,
+    ASN1Type::TeletextString,
+    ASN1Type::VideotextString,
+    ASN1Type::VisibleString,
+    # TODO: RFC3641 mentions special UTF-8 mapping rules for
+    # BMPString and UniversalString. This *may* not be correct.
+    ASN1Type::BMPString,
+    ASN1Type::UniversalString -> : void {
+      self.value = self.octetstring.value.decode(hilti::Charset::UTF8);
+    }
+
+  };
 };
 
 #- ASN.1 OID ------------------------------------------------------------------
 # https://www.obj-sys.com/asn1tutorial/node124.html
 
-type oidnibble = unit {
+type ASN1ObjectIdentifierNibble = unit {
   data : bitfield(8) {
     num: 0..6;
     more: 7;
@@ -184,7 +195,7 @@ type ASN1ObjectIdentifier = unit(len: uint64) {
     self.temp = 0;
   }
 
-  sublist: oidnibble[len - 1] foreach {
+  sublist: ASN1ObjectIdentifierNibble[len - 1] foreach {
     self.temp = ( self.temp<<7 ) | $$.data.num;
     if ( $$.data.more != 1 ) {
       self.oid.push_back(self.temp);
@@ -200,144 +211,86 @@ type ASN1ObjectIdentifier = unit(len: uint64) {
 
 public type ASN1Header = unit {
   tag: ASN1Tag;
-
-  var total_length: uint64;
-
-  len: LengthType {
-    self.total_length = self.len.len + self.tag.len + self.len.tag_len;
-  }
+  len: LengthType;
 };
 
 #- ASN.1 message body ---------------------------------------------------------
 
-public type ASN1Body = unit(head: ASN1Header, recursive: bool, depth: uint32) {
-  switch ( head.tag.tpe ) {
+public type ASN1Body = unit(head: ASN1Header, recursive: bool) {
+  switch ( head.tag.type_ ) {
 
-    ASN1Type::BOOLEAN -> bool_value: uint8 &convert=cast<bool>($$) {
-      if (head.len.len != 1) {
-        throw "ASN1Type::BOOLEAN detected with length != 1";
-      }
-    }
+    ASN1Type::Boolean -> bool_value: uint8 &convert=cast<bool>($$) &requires=head.len.len==1;
 
-    ASN1Type::INTEGER,
-    ASN1Type::ENUMERATED -> num_value: bytes &size=head.len.len
+    ASN1Type::Integer,
+    ASN1Type::Enumerated -> num_value: bytes &size=head.len.len
                                              &convert=$$.to_int(spicy::ByteOrder::Big);
 
-    ASN1Type::NULLVAL -> : void {
-      if (head.len.len != 0) {
-        throw "ASN1Type::NULLVAL detected with non-zero length";
-      }
-    }
+    ASN1Type::NullVal -> null_value: bytes &size=0 &requires=head.len.len==0;
 
-    ASN1Type::BITSTRING -> bitstring: ASN1BitString(head.len.len, head.tag.constructed);
+    ASN1Type::BitString -> bitstr_value: ASN1BitString(head.len.len, head.tag.constructed);
 
-    ASN1Type::OCTETSTRING -> octetstring: ASN1OctetString(head.len.len, head.tag.constructed)
-                                          &convert=$$.value.decode(hilti::Charset::ASCII);
+    ASN1Type::OctetString -> str_value: ASN1OctetString(head.len.len, head.tag.constructed)
+                                        &convert=$$.value.decode(hilti::Charset::ASCII);
 
-    ASN1Type::OBJECTIDENTIFIER -> objectidentifier: ASN1ObjectIdentifier(head.len.len)
-                                                    &convert=$$.oidstring;
+    ASN1Type::ObjectIdentifier -> str_value: ASN1ObjectIdentifier(head.len.len)
+                                             &convert=$$.oidstring;
 
-    ASN1Type::PrintableString,
+    ASN1Type::BMPString,
+    ASN1Type::CharacterString,
     ASN1Type::GeneralizedTime,
+    ASN1Type::GeneralString,
+    ASN1Type::GraphicString,
+    ASN1Type::IA5String,
+    ASN1Type::NumericString,
+    ASN1Type::PrintableString,
+    ASN1Type::TeletextString,
     ASN1Type::UTCTime,
     ASN1Type::UTF8String,
-    ASN1Type::BMPString,
-    ASN1Type::UniversalString -> asn1string: ASN1String(head.tag, head.len.len)
-                                             &convert=$$.value;
+    ASN1Type::VideotextString,
+    ASN1Type::VisibleString,
+    ASN1Type::UniversalString -> str_value: ASN1String(head.tag, head.len.len)
+                                            &convert=$$.value;
 
-    ASN1Type::SEQUENCE, ASN1Type::SET -> seq: ASN1SubMessages(head.len.len, depth+1) if (recursive);
+    ASN1Type::Sequence, ASN1Type::Set -> seq: ASN1SubMessages(head.len.len) if (recursive);
 
-    * -> : bytes &size=head.len.len {
-      throw "Unsupported ASN1Body type";
-    }
+    # TODO: ASN1Type values not handled yet
+    ASN1Type::ObjectDescriptor,
+    ASN1Type::InstanceOf,
+    ASN1Type::Real,
+    ASN1Type::EmbeddedPDV,
+    ASN1Type::RelativeOID -> unimplemented_value: bytes &size=head.len.len;
+
+    # unknown (to me) ASN.1 enumeration, skip over silently
+    * -> unimplemented_value: bytes &size=head.len.len;
   };
 
-  on %done {
-    if (DEBUG_PRINT == True) {
-      if (self?.bool_value) {
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "BOOLEAN"), self.bool_value;
-      } else if (self?.num_value) {
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "NUMBER"), self.num_value;
-      } else if (self?.bitstring) {
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "BITSTRING"), self.bitstring, head.tag.constructed;
-      } else if (self?.octetstring) {
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "OCTETSTRING"), self.octetstring, head.tag.constructed;
-      } else if (self?.objectidentifier) {
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "OBJECTIDENTIFIER"), self.objectidentifier;
-      } else if (self?.asn1string) {
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "STRING"), self.asn1string;
-      } else if (self?.seq) {
-        # TODO: this combination of stringification, tuples, and |...| was triggering a CI error.
-        # Using a local variable for the |...| as a workaround.
-        # This could be reverted once PR https://github.com/zeek/spicy/pull/919 is in.
-        local num_submessages = |self.seq.submessages|;
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "SEQUENCE|SET"), num_submessages, head.len.len;
-      } else {
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe);
-      }
-    }
-  }
 };
 
 #- ASN.1 array of ASN.1 sequence/set sub-messages (up to msgLen bytes) --------
 
-public type ASN1SubMessages = unit(msgLen: uint64, depth: uint32) {
-  submessages: ASN1Message(True, depth)[] &eod;
+public type ASN1SubMessages = unit(msgLen: uint64) {
+  submessages: ASN1Message(True)[] &eod;
 } &size=msgLen;
 
 #- ASN.1 message with header and body -----------------------------------------
-# UNIVERSAL or APPLICATION/CONTEXT_SPECIFIC/PRIVATE
-# - if UNIVERSAL, body:ASN1Body is parsed
+# Universal or Application/ContextSpecific/Private
+# - if Universal, body:ASN1Body is parsed
 # - else, application_data:bytes stores data array
 
-public type ASN1Message = unit(recursive: bool, depth: uint32) {
-  var depth: uint32 = depth;
+public type ASN1Message = unit(recursive: bool) {
+  var application_id: int32;
 
   head: ASN1Header;
-  body: ASN1Body(self.head, recursive, depth) if ( self.head.tag.class == ASN1Class::UNIVERSAL );
+  switch ( self.head.tag.class ) {
 
-  var application_id: int32;
-  application_data: bytes &size=self.head.len.len if ( self.head.tag.class != ASN1Class::UNIVERSAL ) {
-    self.application_id = self.head.tag.data.num;
-  }
+    ASN1Class::Universal -> body: ASN1Body(self.head, recursive);
 
-  on %done {
-    if (DEBUG_PRINT == True) {
-      if ( self.head.tag.class != ASN1Class::UNIVERSAL ) {
-        print "%.*s%s %d %s %d" % ((depth*2)+1, DEBUG_SPACES, self.head.tag.class, self.application_id, self.head.tag.constructed, self.head.len.len), self.head;
-      }
+    ASN1Class::Application,
+    ASN1Class::ContextSpecific,
+    ASN1Class::Private -> application_data: bytes &size=self.head.len.len {
+      self.application_id = self.head.tag.data.num;
     }
-  }
-};
 
-#- ASN.1 message (headless) ---------------------------------------------------
-# same rules as ASN1Message for body/application_data
+  };
 
-public type ASN1MessageHeadless = unit(head: ASN1Header, recursive: bool, depth: uint32) {
-  var depth: uint32 = depth;
-
-  body: ASN1Body(head, recursive, depth) if ( head.tag.class == ASN1Class::UNIVERSAL );
-
-  var application_id: int32;
-  application_data: bytes &size=head.len.len if ( head.tag.class != ASN1Class::UNIVERSAL ) {
-    self.application_id = head.tag.data.num;
-  }
-
-  on %done {
-    if (DEBUG_PRINT == True) {
-      if ( head.tag.class != ASN1Class::UNIVERSAL ) {
-        print "%.*s%s %d %s %d" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, self.application_id, head.tag.constructed, head.len.len), head;
-      }
-    }
-  }
-};
-
-#- ASN.1 message helper units for recursive (set/sequence) vs. not ------------
-
-public type ASN1MessageBaseRecursive = unit {
-  msg : ASN1Message(True, 0);
-};
-
-public type ASN1MessageBase = unit {
-  msg : ASN1Message(False, 0);
 };
