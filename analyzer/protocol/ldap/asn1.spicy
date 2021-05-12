@@ -65,7 +65,6 @@ public type ASN1Class = enum {
 #- ASN.1 tag definition (including length) ------------------------------------
 
 type LengthType = unit {
-
   data : bitfield(8) {
     num: 0..6;
     islong: 7;
@@ -90,7 +89,6 @@ type LengthType = unit {
 
 type ASN1Tag = unit {
   var type_: ASN1Type;
-  var len: uint8 = 1;
   var class: ASN1Class;
   var constructed: bool;
 
