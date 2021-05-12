@@ -267,7 +267,11 @@ public type ASN1Body = unit(head: ASN1Header, recursive: bool, depth: uint32) {
       } else if (self?.asn1string) {
         print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "STRING"), self.asn1string;
       } else if (self?.seq) {
-        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "SEQUENCE|SET"), |self.seq.submessages|, head.len.len;
+        # TODO: this combination of stringification, tuples, and |...| was triggering a CI error.
+        # Using a local variable for the |...| as a workaround.
+        # This could be reverted once PR https://github.com/zeek/spicy/pull/919 is in.
+        local num_submessages = |self.seq.submessages|;
+        print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe, "SEQUENCE|SET"), num_submessages, head.len.len;
       } else {
         print "%.*s%s %s %s" % ((depth*2)+1, DEBUG_SPACES, head.tag.class, head.tag.tpe);
       }
