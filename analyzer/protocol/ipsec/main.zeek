@@ -58,10 +58,6 @@ export {
 		## Cipher hash of this IPSec transaction info:
 		## vendor_ids, notify_messages, transforms, ke_dh_groups, and proposals
 		hash: string &log &optional;
-		# The analyzer ID used for the analyzer instance attached
-		# to each connection.  It is not used for logging since it's a
-		# meaningless arbitrary number.
-		analyzer_id: count &optional;
 	};
 
 	# Event that can be handled to access the IPSec record as it is sent on
@@ -666,17 +662,6 @@ function set_session(c: connection)
 		c$ipsec$proposals = vector();
 		c$ipsec$certificates = vector();
 		c$ipsec$transform_attributes = vector();
-		}
-	}
-
-event protocol_confirmation(c: connection, atype: Analyzer::Tag, aid: count) &priority=5
-	{
-	if ( atype == Analyzer::ANALYZER_SPICY_IPSEC_IKE_UDP ||
-		 atype == Analyzer::ANALYZER_SPICY_IPSEC_TCP ||
-		 atype == Analyzer::ANALYZER_SPICY_IPSEC_UDP )
-		{
-		set_session(c);
-		c$ipsec$analyzer_id = aid;
 		}
 	}
 
