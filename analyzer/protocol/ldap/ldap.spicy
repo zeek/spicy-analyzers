@@ -222,7 +222,7 @@ type BindRequest = unit(inout message: Message) {
         message.arg = self.simpleCreds;
       }
     } else {
-      self.saslData == $$.application_data;
+      self.saslData = $$.application_data;
     }
   }
   saslCreds: SaslCredentials() &parse-from=self.saslData if (self?.saslData) {
