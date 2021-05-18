@@ -117,7 +117,7 @@ public type ResultCode = enum {
 };
 
 #-----------------------------------------------------------------------------
-public type Result = unit() {
+public type Result = unit {
   code: asn1::ASN1Message(True) &convert=cast<ResultCode>(cast<uint8>($$.body.num_value))
                                 &default=ResultCode::NOT_SET;
   matchedDN: asn1::ASN1Message(True) &convert=$$.body.str_value
@@ -208,24 +208,23 @@ type BindRequest = unit(inout message: Message) {
     message.obj = self.name;
   }
   var authType: BindAuthType = BindAuthType::NOT_SET;
+  var authData: bytes = b"";
   var simpleCreds: string = "";
-  var saslData: bytes;
 
   : asn1::ASN1Message(True) {
     if ($$?.application_id) {
       self.authType = cast<BindAuthType>(cast<uint8>($$.application_id));
+      self.authData = $$.application_data;
     }
-    if ((self.authType == BindAuthType::BIND_AUTH_SIMPLE) &&
-        (|$$.application_data| > 0)) {
-      self.simpleCreds = $$.application_data.decode();
+    if ((self.authType == BindAuthType::BIND_AUTH_SIMPLE) && (|self.authData| > 0)) {
+      self.simpleCreds = self.authData.decode();
       if (|self.simpleCreds| > 0) {
         message.arg = self.simpleCreds;
       }
-    } else {
-      self.saslData = $$.application_data;
     }
   }
-  saslCreds: SaslCredentials() &parse-from=self.saslData if (self?.saslData) {
+  saslCreds: SaslCredentials() &parse-from=self.authData if ((self.authType == BindAuthType::BIND_AUTH_SASL) &&
+                                                             (|self.authData| > 0)) {
     message.arg = self.saslCreds.mechanism;
   }
 } &requires=((self?.authType) && (self.authType != BindAuthType::NOT_SET));
@@ -283,7 +282,7 @@ type FilterType = enum {
   NOT_SET        = 255
 };
 
-type AttributeSelection = unit() {
+type AttributeSelection = unit {
   var attributes: vector<string>;
 
   # TODO: parse AttributeSelection as per
@@ -301,7 +300,7 @@ type AttributeSelection = unit() {
   }
 };
 
-type AttributeValueAssertion = unit() {
+type AttributeValueAssertion = unit {
   var desc: string = "";
   var val: string = "";
 
@@ -319,7 +318,7 @@ type AttributeValueAssertion = unit() {
   }
 };
 
-type SubstringFilter = unit() {
+type SubstringFilter = unit {
   var ftype: string = "";
   var substrings: asn1::ASN1Message;
 
@@ -341,7 +340,7 @@ type SubstringFilter = unit() {
   }
 };
 
-type SearchFilter = unit() {
+type SearchFilter = unit {
   var filterType: FilterType = FilterType::NOT_SET;
   var filterBytes: bytes = b"";
   var filterLen: uint64 = 0;
