@@ -184,7 +184,6 @@ public type Message = unit {
   };
   # TODO: add support for switch-level &parse-from/&parse-at
   # https://github.com/zeek/spicy/issues/913
-
 } &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::NOT_SET));
 
 #-----------------------------------------------------------------------------
@@ -204,36 +203,36 @@ type SaslCredentials = unit() {
 };
 
 type BindRequest = unit(inout message: Message) {
-
   version: asn1::ASN1Message(True) &convert=$$.body.num_value;
   name: asn1::ASN1Message(True) &convert=$$.body.str_value {
     message.obj = self.name;
   }
   var authType: BindAuthType = BindAuthType::NOT_SET;
   var simpleCreds: string = "";
+  var saslData: bytes;
 
-  authentication: asn1::ASN1Message(True) {
-    if (self.authentication?.application_id) {
-      self.authType = cast<BindAuthType>(cast<uint8>(self.authentication.application_id));
+  : asn1::ASN1Message(True) {
+    if ($$?.application_id) {
+      self.authType = cast<BindAuthType>(cast<uint8>($$.application_id));
     }
     if ((self.authType == BindAuthType::BIND_AUTH_SIMPLE) &&
-        (|self.authentication.application_data| > 0)) {
-      self.simpleCreds = self.authentication.application_data.decode();
+        (|$$.application_data| > 0)) {
+      self.simpleCreds = $$.application_data.decode();
       if (|self.simpleCreds| > 0) {
         message.arg = self.simpleCreds;
       }
+    } else {
+      self.saslData == $$.application_data;
     }
   }
-  saslCreds: SaslCredentials() &parse-from=self.authentication.application_data if (self.authType == BindAuthType::BIND_AUTH_SASL) {
+  saslCreds: SaslCredentials() &parse-from=self.saslData if (self?.saslData) {
     message.arg = self.saslCreds.mechanism;
   }
-
 } &requires=((self?.authType) && (self.authType != BindAuthType::NOT_SET));
 
 type BindResponse = unit(inout message: Message) {
-
-  result: Result {
-    message.result = self.result;
+  : Result {
+    message.result = $$;
   }
 
   # TODO: if we want to parse SASL credentials returned
@@ -318,7 +317,6 @@ type AttributeValueAssertion = unit() {
       }
     }
   }
-
 };
 
 type SubstringFilter = unit() {
@@ -341,7 +339,6 @@ type SubstringFilter = unit() {
     #
     #}
   }
-
 };
 
 type SearchFilter = unit() {
@@ -391,7 +388,6 @@ type SearchFilter = unit() {
 };
 
 type SearchRequest = unit(inout message: Message) {
-
   baseObject: asn1::ASN1Message(True) &convert=$$.body.str_value {
     message.obj = self.baseObject;
   }
@@ -409,19 +405,16 @@ type SearchRequest = unit(inout message: Message) {
 };
 
 type SearchResultEntry = unit(inout message: Message) {
-
   objectName: asn1::ASN1Message(True) &convert=$$.body.str_value {
     message.obj = self.objectName;
   }
   # TODO: if we want to descend down into PartialAttributeList
   attributes: asn1::ASN1Message(True);
-
 };
 
 type SearchResultDone = unit(inout message: Message) {
-
-  result: Result {
-    message.result = self.result;
+  : Result {
+    message.result = $$;
   }
 };
 
@@ -435,7 +428,6 @@ type SearchResultDone = unit(inout message: Message) {
 # https://tools.ietf.org/html/rfc4511#section-4.6
 
 type ModifyRequest = unit(inout message: Message) {
-
   objectName: asn1::ASN1Message(True) &convert=$$.body.str_value {
     message.obj = self.objectName;
   }
@@ -444,9 +436,8 @@ type ModifyRequest = unit(inout message: Message) {
 };
 
 type ModifyResponse = unit(inout message: Message) {
-
-  result: Result {
-    message.result = self.result;
+  : Result {
+    message.result = $$;
   }
 };
 
@@ -461,9 +452,8 @@ type ModifyResponse = unit(inout message: Message) {
 # };
 
 type AddResponse = unit(inout message: Message) {
-
-  result: Result {
-    message.result = self.result;
+  : Result {
+    message.result = $$;
   }
 };
 
@@ -472,16 +462,14 @@ type AddResponse = unit(inout message: Message) {
 # https://tools.ietf.org/html/rfc4511#section-4.8
 
 type DelRequest = unit(inout message: Message) {
-
   objectName: asn1::ASN1Message(True) &convert=$$.body.str_value {
     message.obj = self.objectName;
   }
 };
 
 type DelResponse = unit(inout message: Message) {
-
-  result: Result {
-    message.result = self.result;
+  : Result {
+    message.result = $$;
   }
 };
 
@@ -495,9 +483,8 @@ type DelResponse = unit(inout message: Message) {
 # };
 
 type ModDNResponse = unit(inout message: Message) {
-
-  result: Result {
-    message.result = self.result;
+  : Result {
+    message.result = $$;
   }
 };
 
@@ -511,9 +498,8 @@ type ModDNResponse = unit(inout message: Message) {
 # };
 
 type CompareResponse = unit(inout message: Message) {
-
-  result: Result {
-    message.result = self.result;
+  : Result {
+    message.result = $$;
   }
 };
 

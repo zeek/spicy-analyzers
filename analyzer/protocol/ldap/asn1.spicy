@@ -65,23 +65,23 @@ public type ASN1Class = enum {
 #- ASN.1 tag definition (including length) ------------------------------------
 
 type LengthType = unit {
+  var len: uint64;
+  var tag_len: uint8;
+
   data : bitfield(8) {
     num: 0..6;
     islong: 7;
   };
 
-  var len: uint64;
-
-  var tag_len: uint8;
 
   switch ( self.data.islong ) {
     0 -> : void {
       self.len = self.data.num;
       self.tag_len = 1;
     }
-    1 -> length_parse: bytes &size=self.data.num
-                             &convert=$$.to_uint(spicy::ByteOrder::Network) {
-      self.len = self.length_parse;
+    1 -> : bytes &size=self.data.num
+           &convert=$$.to_uint(spicy::ByteOrder::Network) {
+      self.len = $$;
       self.tag_len = self.data.num + 1;
     }
   };
@@ -92,14 +92,14 @@ type ASN1Tag = unit {
   var class: ASN1Class;
   var constructed: bool;
 
-  data : bitfield(8) {
+  : bitfield(8) {
     num: 0..4;
     constructed: 5;
     class: 6..7;
   } {
-    self.type_ = ASN1Type(self.data.num);
-    self.class = ASN1Class(self.data.class);
-    self.constructed = cast<bool>(self.data.constructed);
+    self.type_ = ASN1Type($$.num);
+    self.class = ASN1Class($$.class);
+    self.constructed = cast<bool>($$.constructed);
   }
 };
 
@@ -107,26 +107,22 @@ type ASN1Tag = unit {
 # https://www.obj-sys.com/asn1tutorial/node10.html
 
 type ASN1BitString = unit(len: uint64, constructed: bool) {
-  unused_bits: uint8;
+  : uint8; # unused bits
   value_bits: bytes &size=(len - 1);
 
   # TODO - constructed form
   # https://github.com/zeek/spicy/issues/921
   # `bytes` needs << and >> support before we can implement complex bitstrings
+  #
 };
 
 #- ASN.1 octet string ---------------------------------------------------------
 # https://www.obj-sys.com/asn1tutorial/node10.html
 
 type ASN1OctetString = unit(len: uint64, constructed: bool) {
-  var len: uint64;
   value: bytes &size = len;
 
   # TODO - constructed form
-
-  on %done {
-    self.len = len;
-  }
 };
 
 #- ASN.1 various string types -------------------------------------------------
@@ -135,37 +131,36 @@ type ASN1OctetString = unit(len: uint64, constructed: bool) {
 type ASN1String = unit(tag: ASN1Tag, len: uint64) {
   var value: string = "";
 
-  octetstring: ASN1OctetString(len, tag.constructed);
+  : ASN1OctetString(len, tag.constructed) {
+    switch ( tag.type_ ) {
 
-  switch ( tag.type_ ) {
+      # see "Restricted Character String Types" in
+      # "Generic String Encoding Rules (GSER) for ASN.1 Types"
+      # (https://datatracker.ietf.org/doc/html/rfc3641#section-3.2)
 
-    # see "Restricted Character String Types" in
-    # "Generic String Encoding Rules (GSER) for ASN.1 Types"
-    # (https://datatracker.ietf.org/doc/html/rfc3641#section-3.2)
+      case ASN1Type::PrintableString,
+           ASN1Type::GeneralizedTime,
+           ASN1Type::UTCTime: {
+        self.value = $$.value.decode(hilti::Charset::ASCII);
+      }
 
-    ASN1Type::PrintableString,
-    ASN1Type::GeneralizedTime,
-    ASN1Type::UTCTime -> : void {
-      self.value = self.octetstring.value.decode(hilti::Charset::ASCII);
+      case ASN1Type::UTF8String,
+           ASN1Type::GeneralString,
+           ASN1Type::CharacterString,
+           ASN1Type::GraphicString,
+           ASN1Type::IA5String,
+           ASN1Type::NumericString,
+           ASN1Type::TeletextString,
+           ASN1Type::VideotextString,
+           ASN1Type::VisibleString,
+           # TODO: RFC3641 mentions special UTF-8 mapping rules for
+           # BMPString and UniversalString. This *may* not be correct.
+           ASN1Type::BMPString,
+           ASN1Type::UniversalString: {
+        self.value = $$.value.decode(hilti::Charset::UTF8);
+      }
     }
-
-    ASN1Type::UTF8String,
-    ASN1Type::GeneralString,
-    ASN1Type::CharacterString,
-    ASN1Type::GraphicString,
-    ASN1Type::IA5String,
-    ASN1Type::NumericString,
-    ASN1Type::TeletextString,
-    ASN1Type::VideotextString,
-    ASN1Type::VisibleString,
-    # TODO: RFC3641 mentions special UTF-8 mapping rules for
-    # BMPString and UniversalString. This *may* not be correct.
-    ASN1Type::BMPString,
-    ASN1Type::UniversalString -> : void {
-      self.value = self.octetstring.value.decode(hilti::Charset::UTF8);
-    }
-
-  };
+  }
 };
 
 #- ASN.1 OID ------------------------------------------------------------------
@@ -176,32 +171,31 @@ type ASN1ObjectIdentifierNibble = unit {
     num: 0..6;
     more: 7;
   };
-};
+} &convert=self.data;
 
 type ASN1ObjectIdentifier = unit(len: uint64) {
   var oid: vector<uint64>;
   var temp: uint64;
   var oidstring: string;
 
-  first: uint8 if ( len >= 1 ) {
-    self.temp = self.first / 40;
+  : uint8 if ( len >= 1 ) {
+    self.temp = $$ / 40;
     self.oid.push_back( self.temp );
     self.oidstring = "%d" % (self.temp);
-    self.temp = self.first % 40;
+    self.temp = $$ % 40;
     self.oid.push_back( self.temp );
     self.oidstring = self.oidstring + ".%d" % (self.temp);
     self.temp = 0;
   }
 
   sublist: ASN1ObjectIdentifierNibble[len - 1] foreach {
-    self.temp = ( self.temp<<7 ) | $$.data.num;
-    if ( $$.data.more != 1 ) {
+    self.temp = ( self.temp<<7 ) | $$.num;
+    if ( $$.more != 1 ) {
       self.oid.push_back(self.temp);
       self.oidstring = self.oidstring + ".%d" % (self.temp);
       self.temp = 0;
     }
   }
-
 };
 
 
@@ -261,7 +255,6 @@ public type ASN1Body = unit(head: ASN1Header, recursive: bool) {
     # unknown (to me) ASN.1 enumeration, skip over silently
     * -> unimplemented_value: bytes &size=head.len.len;
   };
-
 };
 
 #- ASN.1 array of ASN.1 sequence/set sub-messages (up to msgLen bytes) --------
@@ -286,9 +279,8 @@ public type ASN1Message = unit(recursive: bool) {
     ASN1Class::Application,
     ASN1Class::ContextSpecific,
     ASN1Class::Private -> application_data: bytes &size=self.head.len.len {
-      self.application_id = self.head.tag.data.num;
+      self.application_id = cast<int32>(self.head.tag.type_);
     }
 
   };
-
 };
