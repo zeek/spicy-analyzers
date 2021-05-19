@@ -1,0 +1,536 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
+module LDAP;
+
+import ASN1;
+
+# https://tools.ietf.org/html/rfc4511#
+# https://ldap.com/ldapv3-wire-protocol-reference-asn1-ber/
+# https://lapo.it/asn1js
+
+#- Operation opcode ----------------------------------------------------------
+public type ProtocolOpcode = enum {
+  BIND_REQUEST            = 0,
+  BIND_RESPONSE           = 1,
+  UNBIND_REQUEST          = 2,
+  SEARCH_REQUEST          = 3,
+  SEARCH_RESULT_ENTRY     = 4,
+  SEARCH_RESULT_DONE      = 5,
+  MODIFY_REQUEST          = 6,
+  MODIFY_RESPONSE         = 7,
+  ADD_REQUEST             = 8,
+  ADD_RESPONSE            = 9,
+  DEL_REQUEST             = 10,
+  DEL_RESPONSE            = 11,
+  MOD_DN_REQUEST          = 12,
+  MOD_DN_RESPONSE         = 13,
+  COMPARE_REQUEST         = 14,
+  COMPARE_RESPONSE        = 15,
+  ABANDON_REQUEST         = 16,
+  SEARCH_RESULT_REFERENCE = 19,
+  EXTENDED_REQUEST        = 23,
+  EXTENDED_RESPONSE       = 24,
+  INTERMEDIATE_RESPONSE   = 25,
+  # TODO: remove once zeek/spicy-plugin#35 is fixed
+  NOT_SET                 = 255
+};
+
+#- Result code ---------------------------------------------------------------
+public type ResultCode = enum {
+  SUCCESS                         = 0,
+  OPERATIONS_ERROR                = 1,
+  PROTOCOL_ERROR                  = 2,
+  TIME_LIMIT_EXCEEDED             = 3,
+  SIZE_LIMIT_EXCEEDED             = 4,
+  COMPARE_FALSE                   = 5,
+  COMPARE_TRUE                    = 6,
+  AUTH_METHOD_NOT_SUPPORTED       = 7,
+  STRONGER_AUTH_REQUIRED          = 8,
+  PARTIAL_RESULTS                 = 9,
+  REFERRAL                        = 10,
+  ADMIN_LIMIT_EXCEEDED            = 11,
+  UNAVAILABLE_CRITICAL_EXTENSION  = 12,
+  CONFIDENTIALITY_REQUIRED        = 13,
+  SASL_BIND_IN_PROGRESS           = 14,
+  NO_SUCH_ATTRIBUTE               = 16,
+  UNDEFINED_ATTRIBUTE_TYPE        = 17,
+  INAPPROPRIATE_MATCHING          = 18,
+  CONSTRAINT_VIOLATION            = 19,
+  ATTRIBUTE_OR_VALUE_EXISTS       = 20,
+  INVALID_ATTRIBUTE_SYNTAX        = 21,
+  NO_SUCH_OBJECT                  = 32,
+  ALIAS_PROBLEM                   = 33,
+  INVALID_DNSYNTAX                = 34,
+  ALIAS_DEREFERENCING_PROBLEM     = 36,
+  INAPPROPRIATE_AUTHENTICATION    = 48,
+  INVALID_CREDENTIALS             = 49,
+  INSUFFICIENT_ACCESS_RIGHTS      = 50,
+  BUSY                            = 51,
+  UNAVAILABLE                     = 52,
+  UNWILLING_TO_PERFORM            = 53,
+  LOOP_DETECT                     = 54,
+  SORT_CONTROL_MISSING            = 60,
+  OFFSET_RANGE_ERROR              = 61,
+  NAMING_VIOLATION                = 64,
+  OBJECT_CLASS_VIOLATION          = 65,
+  NOT_ALLOWED_ON_NON_LEAF         = 66,
+  NOT_ALLOWED_ON_RDN              = 67,
+  ENTRY_ALREADY_EXISTS            = 68,
+  OBJECT_CLASS_MODS_PROHIBITED    = 69,
+  RESULTS_TOO_LARGE               = 70,
+  AFFECTS_MULTIPLE_DSAS           = 71,
+  CONTROL_ERROR                   = 76,
+  OTHER                           = 80,
+  SERVER_DOWN                     = 81,
+  LOCAL_ERROR                     = 82,
+  ENCODING_ERROR                  = 83,
+  DECODING_ERROR                  = 84,
+  TIMEOUT                         = 85,
+  AUTH_UNKNOWN                    = 86,
+  FILTER_ERROR                    = 87,
+  USER_CANCELED                   = 88,
+  PARAM_ERROR                     = 89,
+  NO_MEMORY                       = 90,
+  CONNECT_ERROR                   = 91,
+  NOT_SUPPORTED                   = 92,
+  CONTROL_NOT_FOUND               = 93,
+  NO_RESULTS_RETURNED             = 94,
+  MORE_RESULTS_TO_RETURN          = 95,
+  CLIENT_LOOP                     = 96,
+  REFERRAL_LIMIT_EXCEEDED         = 97,
+  INVALID_RESPONSE                = 100,
+  AMBIGUOUS_RESPONSE              = 101,
+  TLS_NOT_SUPPORTED               = 112,
+  INTERMEDIATE_RESPONSE           = 113,
+  UNKNOWN_TYPE                    = 114,
+  LCUP_INVALID_DATA               = 115,
+  LCUP_UNSUPPORTED_SCHEME         = 116,
+  LCUP_RELOAD_REQUIRED            = 117,
+  CANCELED                        = 118,
+  NO_SUCH_OPERATION               = 119,
+  TOO_LATE                        = 120,
+  CANNOT_CANCEL                   = 121,
+  ASSERTION_FAILED                = 122,
+  AUTHORIZATION_DENIED            = 123,
+  # TODO: remove once zeek/spicy-plugin#35 is fixed
+  NOT_SET                         = 255
+};
+
+#-----------------------------------------------------------------------------
+public type Result = unit {
+  code: ASN1::ASN1Message(True) &convert=cast<ResultCode>(cast<uint8>($$.body.num_value))
+                                &default=ResultCode::NOT_SET;
+  matchedDN: ASN1::ASN1Message(True) &convert=$$.body.str_value
+                                     &default="";
+  diagnosticMessage: ASN1::ASN1Message(True) &convert=$$.body.str_value
+                                             &default="";
+
+  # TODO: if we want to parse referral URIs in result
+  # https://tools.ietf.org/html/rfc4511#section-4.1.10
+};
+
+#-----------------------------------------------------------------------------
+public type Messages = unit {
+  : Message[];
+};
+
+public type Message = unit {
+  var messageID: int64;
+  var opcode: ProtocolOpcode = ProtocolOpcode::NOT_SET;
+  var applicationBytes: bytes;
+  var unsetResultDefault: Result;
+  var result: Result& = self.unsetResultDefault;
+  var obj: string = "";
+  var arg: string = "";
+
+  : ASN1::ASN1Message(True) {
+    if (($$.head.tag.type_ == ASN1::ASN1Type::Sequence) &&
+        ($$.body?.seq) &&
+        (|$$.body.seq.submessages| >= 2)) {
+      if ($$.body.seq.submessages[0].body?.num_value) {
+        self.messageID = $$.body.seq.submessages[0].body.num_value;
+      }
+      if ($$.body.seq.submessages[1]?.application_id) {
+        self.opcode = cast<ProtocolOpcode>(cast<uint8>($$.body.seq.submessages[1].application_id));
+        self.applicationBytes = $$.body.seq.submessages[1].application_data;
+      }
+    }
+  }
+
+  switch ( self.opcode ) {
+    ProtocolOpcode::BIND_REQUEST            -> BIND_REQUEST:            BindRequest(self)           &parse-from=self.applicationBytes;
+    ProtocolOpcode::BIND_RESPONSE           -> BIND_RESPONSE:           BindResponse(self)          &parse-from=self.applicationBytes;
+    ProtocolOpcode::UNBIND_REQUEST          -> UNBIND_REQUEST:          UnbindRequest(self)         &parse-from=self.applicationBytes;
+    ProtocolOpcode::SEARCH_REQUEST          -> SEARCH_REQUEST:          SearchRequest(self)         &parse-from=self.applicationBytes;
+    ProtocolOpcode::SEARCH_RESULT_ENTRY     -> SEARCH_RESULT_ENTRY:     SearchResultEntry(self)     &parse-from=self.applicationBytes;
+    ProtocolOpcode::SEARCH_RESULT_DONE      -> SEARCH_RESULT_DONE:      SearchResultDone(self)      &parse-from=self.applicationBytes;
+    ProtocolOpcode::MODIFY_REQUEST          -> MODIFY_REQUEST:          ModifyRequest(self)         &parse-from=self.applicationBytes;
+    ProtocolOpcode::MODIFY_RESPONSE         -> MODIFY_RESPONSE:         ModifyResponse(self)        &parse-from=self.applicationBytes;
+    ProtocolOpcode::ADD_RESPONSE            -> ADD_RESPONSE:            AddResponse(self)           &parse-from=self.applicationBytes;
+    ProtocolOpcode::DEL_REQUEST             -> DEL_REQUEST:             DelRequest(self)            &parse-from=self.applicationBytes;
+    ProtocolOpcode::DEL_RESPONSE            -> DEL_RESPONSE:            DelResponse(self)           &parse-from=self.applicationBytes;
+    ProtocolOpcode::MOD_DN_RESPONSE         -> MOD_DN_RESPONSE:         ModDNResponse(self)         &parse-from=self.applicationBytes;
+    ProtocolOpcode::COMPARE_RESPONSE        -> COMPARE_RESPONSE:        CompareResponse(self)       &parse-from=self.applicationBytes;
+    ProtocolOpcode::ABANDON_REQUEST         -> ABANDON_REQUEST:         AbandonRequest(self)        &parse-from=self.applicationBytes;
+
+    # TODO: not yet implemented
+    # ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             AddRequest(self)            &parse-from=self.applicationBytes;
+    # ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         CompareRequest(self)        &parse-from=self.applicationBytes;
+    # ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        ExtendedRequest(self)       &parse-from=self.applicationBytes;
+    # ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       ExtendedResponse(self)      &parse-from=self.applicationBytes;
+    # ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   IntermediateResponse(self)  &parse-from=self.applicationBytes;
+    # ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          ModDNRequest(self)          &parse-from=self.applicationBytes;
+    # ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: SearchResultReference(self) &parse-from=self.applicationBytes;
+  };
+  # TODO: add support for switch-level &parse-from/&parse-at
+  # https://github.com/zeek/spicy/issues/913
+} &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::NOT_SET));
+
+#-----------------------------------------------------------------------------
+# Bind Operation
+# https://tools.ietf.org/html/rfc4511#section-4.2
+
+public type BindAuthType = enum {
+  BIND_AUTH_SIMPLE = 0,
+  BIND_AUTH_SASL = 3,
+  # TODO: remove once zeek/spicy-plugin#35 is fixed
+  NOT_SET = 127
+};
+
+type SaslCredentials = unit() {
+  mechanism: ASN1::ASN1Message(True) &convert=$$.body.str_value;
+  # TODO: if we want to parse the (optional) credentials string
+};
+
+type BindRequest = unit(inout message: Message) {
+  version: ASN1::ASN1Message(True) &convert=$$.body.num_value;
+  name: ASN1::ASN1Message(True) &convert=$$.body.str_value {
+    message.obj = self.name;
+  }
+  var authType: BindAuthType = BindAuthType::NOT_SET;
+  var authData: bytes = b"";
+  var simpleCreds: string = "";
+
+  : ASN1::ASN1Message(True) {
+    if ($$?.application_id) {
+      self.authType = cast<BindAuthType>(cast<uint8>($$.application_id));
+      self.authData = $$.application_data;
+    }
+    if ((self.authType == BindAuthType::BIND_AUTH_SIMPLE) && (|self.authData| > 0)) {
+      self.simpleCreds = self.authData.decode();
+      if (|self.simpleCreds| > 0) {
+        message.arg = self.simpleCreds;
+      }
+    }
+  }
+  saslCreds: SaslCredentials() &parse-from=self.authData if ((self.authType == BindAuthType::BIND_AUTH_SASL) &&
+                                                             (|self.authData| > 0)) {
+    message.arg = self.saslCreds.mechanism;
+  }
+} &requires=((self?.authType) && (self.authType != BindAuthType::NOT_SET));
+
+type BindResponse = unit(inout message: Message) {
+  : Result {
+    message.result = $$;
+  }
+
+  # TODO: if we want to parse SASL credentials returned
+};
+
+#-----------------------------------------------------------------------------
+# Unbind Operation
+# https://tools.ietf.org/html/rfc4511#section-4.3
+
+type UnbindRequest = unit(inout message: Message) {
+  # this page intentionally left blank
+};
+
+#-----------------------------------------------------------------------------
+# Search Operation
+# https://tools.ietf.org/html/rfc4511#section-4.5
+
+public type SearchScope = enum {
+  SEARCH_BASE    = 0,
+  SEARCH_SINGLE  = 1,
+  SEARCH_TREE    = 2,
+  # TODO: remove once zeek/spicy-plugin#35 is fixed
+  NOT_SET        = 255
+};
+
+public type SearchDerefAlias = enum {
+  DEREF_NEVER        = 0,
+  DEREF_IN_SEARCHING = 1,
+  DEREF_FINDING_BASE = 2,
+  DEREF_ALWAYS       = 3,
+  # TODO: remove once zeek/spicy-plugin#35 is fixed
+  NOT_SET            = 255
+};
+
+type FilterType = enum {
+  FILTER_AND     = 0,
+  FILTER_OR      = 1,
+  FILTER_NOT     = 2,
+  FILTER_EQ      = 3,
+  FILTER_SUBSTR  = 4,
+  FILTER_GE      = 5,
+  FILTER_LE      = 6,
+  FILTER_PRESENT = 7,
+  FILTER_APPROX  = 8,
+  FILTER_EXT     = 9,
+  FILTER_INVALID = 254,
+  # TODO: remove once zeek/spicy-plugin#35 is fixed
+  NOT_SET        = 255
+};
+
+type AttributeSelection = unit {
+  var attributes: vector<string>;
+
+  # TODO: parse AttributeSelection as per
+  # https://tools.ietf.org/html/rfc4511#section-4.5.1
+  # and decide how deep that should be fleshed out.
+  : ASN1::ASN1Message(True) {
+    if (($$.head.tag.type_ == ASN1::ASN1Type::Sequence) &&
+        ($$.body?.seq)) {
+      for (i in $$.body.seq.submessages) {
+        if (i.body?.str_value) {
+          self.attributes.push_back(i.body.str_value);
+        }
+      }
+    }
+  }
+};
+
+type AttributeValueAssertion = unit {
+  var desc: string = "";
+  var val: string = "";
+
+  : ASN1::ASN1Message(True) {
+    if (($$.head.tag.type_ == ASN1::ASN1Type::Sequence) &&
+        ($$.body?.seq) &&
+        (|$$.body.seq.submessages| >= 2)) {
+      if ($$.body.seq.submessages[0].body?.str_value) {
+        self.desc = $$.body.seq.submessages[0].body.str_value;
+      }
+      if ($$.body.seq.submessages[1].body?.str_value) {
+        self.val = $$.body.seq.submessages[1].body.str_value;
+      }
+    }
+  }
+};
+
+type SubstringFilter = unit {
+  var ftype: string = "";
+  var substrings: ASN1::ASN1Message;
+
+  : ASN1::ASN1Message(True) {
+    if (($$.head.tag.type_ == ASN1::ASN1Type::Sequence) &&
+        ($$.body?.seq) &&
+        (|$$.body.seq.submessages| >= 2)) {
+      if ($$.body.seq.submessages[0].body?.str_value) {
+        self.ftype = $$.body.seq.submessages[0].body.str_value;
+      }
+      if ($$.body.seq.submessages[1].head.tag.type_ == ASN1::ASN1Type::Sequence) {
+        self.substrings = $$.body.seq.submessages[1];
+      }
+    }
+    # TODO: if we want to descend deeper into the substrings filter
+    # if (self?.substrings) {
+    #
+    #}
+  }
+};
+
+type SearchFilter = unit {
+  var filterType: FilterType = FilterType::NOT_SET;
+  var filterBytes: bytes = b"";
+  var filterLen: uint64 = 0;
+
+  : ASN1::ASN1Message(True) {
+    if ($$?.application_id) {
+      self.filterType = cast<FilterType>(cast<uint8>($$.application_id));
+      self.filterBytes = $$.application_data;
+      self.filterLen = $$.head.len.len;
+    } else {
+      self.filterType = FilterType::FILTER_INVALID;
+    }
+  }
+
+  # TODO: parse search request filter as per
+  #    https://tools.ietf.org/html/rfc4511#section-4.5.1.7
+  # This descent gets pretty involved... I wonder what is
+  # the best way to represent this as a string in a log.
+  # I've just left some of them as ASN1::ASN1Message for now.
+
+  switch ( self.filterType ) {
+    FilterType::FILTER_AND     -> FILTER_AND:     ASN1::ASN1Message(True)
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_OR      -> FILTER_OR:      ASN1::ASN1Message(True)
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_NOT     -> FILTER_NOT:     SearchFilter()
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_EQ      -> FILTER_EQ:      AttributeValueAssertion()
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_SUBSTR  -> FILTER_SUBSTR:  SubstringFilter()
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_GE      -> FILTER_GE:      AttributeValueAssertion()
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_LE      -> FILTER_LE:      AttributeValueAssertion()
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_PRESENT -> FILTER_PRESENT: ASN1::ASN1OctetString(self.filterLen, False)
+                                                  &convert=$$.value.decode(hilti::Charset::ASCII)
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_APPROX  -> FILTER_APPROX:  AttributeValueAssertion()
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_EXT     -> FILTER_EXT:     ASN1::ASN1Message(True)
+                                                  &parse-from=self.filterBytes;
+  };
+};
+
+type SearchRequest = unit(inout message: Message) {
+  baseObject: ASN1::ASN1Message(True) &convert=$$.body.str_value {
+    message.obj = self.baseObject;
+  }
+  scope: ASN1::ASN1Message(True) &convert=cast<SearchScope>(cast<uint8>($$.body.num_value))
+                                 &default=SearchScope::NOT_SET {
+    message.arg = "%s" % self.scope;
+  }
+  deref: ASN1::ASN1Message(True) &convert=cast<SearchDerefAlias>(cast<uint8>($$.body.num_value))
+                                 &default=SearchDerefAlias::NOT_SET;
+  sizeLimit: ASN1::ASN1Message(True) &convert=$$.body.num_value &default=0;
+  timeLimit: ASN1::ASN1Message(True) &convert=$$.body.num_value &default=0;
+  typesOnly: ASN1::ASN1Message(True) &convert=$$.body.bool_value &default=False;
+  filter: SearchFilter;
+  attributes: AttributeSelection;
+};
+
+type SearchResultEntry = unit(inout message: Message) {
+  objectName: ASN1::ASN1Message(True) &convert=$$.body.str_value {
+    message.obj = self.objectName;
+  }
+  # TODO: if we want to descend down into PartialAttributeList
+  attributes: ASN1::ASN1Message(True);
+};
+
+type SearchResultDone = unit(inout message: Message) {
+  : Result {
+    message.result = $$;
+  }
+};
+
+# TODO: implement SearchResultReference
+# type SearchResultReference = unit(inout message: Message) {
+#
+# };
+
+#-----------------------------------------------------------------------------
+# Modify Operation
+# https://tools.ietf.org/html/rfc4511#section-4.6
+
+type ModifyRequest = unit(inout message: Message) {
+  objectName: ASN1::ASN1Message(True) &convert=$$.body.str_value {
+    message.obj = self.objectName;
+  }
+
+  # TODO: parse changes
+};
+
+type ModifyResponse = unit(inout message: Message) {
+  : Result {
+    message.result = $$;
+  }
+};
+
+#-----------------------------------------------------------------------------
+# Add Operation
+# https://tools.ietf.org/html/rfc4511#section-4.7
+
+# TODO: implement AddRequest
+# type AddRequest = unit(inout message: Message) {
+#
+#
+# };
+
+type AddResponse = unit(inout message: Message) {
+  : Result {
+    message.result = $$;
+  }
+};
+
+#-----------------------------------------------------------------------------
+# Delete Operation
+# https://tools.ietf.org/html/rfc4511#section-4.8
+
+type DelRequest = unit(inout message: Message) {
+  objectName: ASN1::ASN1Message(True) &convert=$$.body.str_value {
+    message.obj = self.objectName;
+  }
+};
+
+type DelResponse = unit(inout message: Message) {
+  : Result {
+    message.result = $$;
+  }
+};
+
+#-----------------------------------------------------------------------------
+# Modify DN Operation
+# https://tools.ietf.org/html/rfc4511#section-4.8
+
+# TODO: implement ModDNRequest
+# type ModDNRequest = unit(inout message: Message) {
+#
+# };
+
+type ModDNResponse = unit(inout message: Message) {
+  : Result {
+    message.result = $$;
+  }
+};
+
+#-----------------------------------------------------------------------------
+# Compare Operation
+# https://tools.ietf.org/html/rfc4511#section-4.10
+
+# TODO: implement CompareRequest
+# type CompareRequest = unit(inout message: Message) {
+#
+# };
+
+type CompareResponse = unit(inout message: Message) {
+  : Result {
+    message.result = $$;
+  }
+};
+
+#-----------------------------------------------------------------------------
+# Abandon Operation
+# https://tools.ietf.org/html/rfc4511#section-4.11
+
+type AbandonRequest = unit(inout message: Message) {
+  messageID: ASN1::ASN1Message(True) &convert=$$.body.num_value {
+    message.obj = "%d" % (self.messageID);
+  }
+};
+
+#-----------------------------------------------------------------------------
+# Extended Operation
+# https://tools.ietf.org/html/rfc4511#section-4.12
+
+# TODO: implement ExtendedRequest
+# type ExtendedRequest = unit(inout message: Message) {
+#
+# };
+
+# TODO: implement ExtendedResponse
+# type ExtendedResponse = unit(inout message: Message) {
+#
+# };
+
+#-----------------------------------------------------------------------------
+# IntermediateResponse Message
+# https://tools.ietf.org/html/rfc4511#section-4.13
+
+# TODO: implement IntermediateResponse
+# type IntermediateResponse = unit(inout message: Message) {
+#
+# };

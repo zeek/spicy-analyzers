@@ -11,6 +11,7 @@ Currently, the following analyzers are included:
 - DNS <sup>[1]</sup>
 - HTTP <sup>[1]</sup>
 - IPSec
+- LDAP
 - OpenVPN
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
