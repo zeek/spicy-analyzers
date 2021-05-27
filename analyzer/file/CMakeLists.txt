@@ -2,3 +2,4 @@
 
 add_subdirectory(png)
 add_subdirectory(pe)
+add_subdirectory(zip)

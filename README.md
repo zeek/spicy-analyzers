@@ -17,6 +17,7 @@ Currently, the following analyzers are included:
 - Portable Executable (PE) <sup>[2]</sup>
 - TFTP
 - Wireguard
+- ZIP archives
 
 We are working to expand this set. If you have written a Spicy
 analyzer that you would like to see included here, please file a pull
