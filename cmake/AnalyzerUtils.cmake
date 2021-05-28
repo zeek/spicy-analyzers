@@ -115,12 +115,8 @@ if ( NOT "${SPICY_IN_TREE_BUILD}" )
         set(SPICYZ "$ENV{SPICYZ}")
     endif ()
 
-    if ( SPICYZ )
-        if ( EXISTS "${SPICYZ}" )
-            set(spicyz "${SPICYZ}")
-        else ()
-            message(STATUS "'${SPICYZ}' does not exist")
-        endif ()
+    if ( SPICYZ AND EXISTS "${SPICYZ}" )
+        set(spicyz "${SPICYZ}")
     else ()
         find_program(spicyz spicyz
             HINTS
