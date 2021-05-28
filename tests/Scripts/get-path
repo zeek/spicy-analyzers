@@ -14,7 +14,10 @@ if [ "$1" = "--plugin-path" ]; then
     dir=$(${base}/Scripts/build-directory)/zeek/spicy-plugin/plugin
     test -d ${dir} && echo ${dir} && exit 0
 
-    # 4. Use Zeek default
+    # 4. Alternate/explicit override (e.g. zkg may set this)
+    test -n "${ZEEK_PLUGIN_PATH}" && echo "${ZEEK_PLUGIN_PATH}" && exit 0
+
+    # 5. Use Zeek default
     ${base}/Scripts/run-zeek-config --plugin_dir || exit 1
     exit 0
 
