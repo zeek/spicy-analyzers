@@ -1,3 +1,11 @@
+
+0.2.14 | 2021-05-31 12:53:33 +0200
+
+  * Add ZIP analyzer. (Robin Sommer, Corelight)
+
+    This decompresses ZIP files and feeds their content back recursively
+    into Zeek's file analysis.
+
 0.2.13 | 2021-05-31 12:03:12 +0200
 
   * Make parallel build and test opt-out instead of opt-in. (Benjamin Bannier,

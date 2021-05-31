@@ -10,4 +10,4 @@
 #types	time	string	addr	port	addr	port	string	int	int	set[string]	set[string]	vector[string]	vector[string]	vector[string]
 #close XXXX-XX-XX-XX-XX-XX
 XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	10.0.0.1	25936	10.0.0.2	3268	tcp	1	3	bind simple	success	-	xxxxxxxxxxx@xx.xxx.xxxxx.net	passwor8d1
-XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	10.0.0.1	25936	10.0.0.2	3268	tcp	3	3	bind simple	success	-	CN=xxxxxxxx\x2cOU=Users\x2cOU=Accounts\x2cDC=xx\x2cDC=xxx\x2cDC=xxxxx\x2cDC=net	/dev/rdsk/c0t0d0s0
+XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	10.0.0.1	25936	10.0.0.2	3268	tcp	3	3	bind simple	success	-	CN=xxxxxxxx\x2cOU=Users\x2cOU=Accounts\x2cDC=xx\x2cDC=xxx\x2cDC=xxxxx\x2cDC=net	<...>/c0t0d0s0
