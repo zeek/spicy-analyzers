@@ -294,7 +294,7 @@ event LDAP::message(c: connection,
   if (opcode == LDAP::ProtocolOpcode_SEARCH_RESULT_DONE) {
     set_session(c, message_id, opcode);
 
-    if ( result != LDAP::ResultCode_NOT_SET ) {
+    if ( result != LDAP::ResultCode_Undef ) {
       if ( ! c$ldap_searches[message_id]?$result )
         c$ldap_searches[message_id]$result = set();
       add c$ldap_searches[message_id]$result[RESULT_CODES[result]];
@@ -319,7 +319,7 @@ event LDAP::message(c: connection,
       c$ldap_messages[message_id]$opcode = set();
     add c$ldap_messages[message_id]$opcode[PROTOCOL_OPCODES[opcode]];
 
-    if ( result != LDAP::ResultCode_NOT_SET ) {
+    if ( result != LDAP::ResultCode_Undef ) {
       if ( ! c$ldap_messages[message_id]?$result )
         c$ldap_messages[message_id]$result = set();
       add c$ldap_messages[message_id]$result[RESULT_CODES[result]];
@@ -373,13 +373,13 @@ event LDAP::searchreq(c: connection,
 
   set_session(c, message_id, LDAP::ProtocolOpcode_SEARCH_REQUEST);
 
-  if ( scope != LDAP::SearchScope_NOT_SET ) {
+  if ( scope != LDAP::SearchScope_Undef ) {
     if ( ! c$ldap_searches[message_id]?$scope )
       c$ldap_searches[message_id]$scope = set();
     add c$ldap_searches[message_id]$scope[SEARCH_SCOPES[scope]];
   }
 
-  if ( deref != LDAP::SearchDerefAlias_NOT_SET ) {
+  if ( deref != LDAP::SearchDerefAlias_Undef ) {
     if ( ! c$ldap_searches[message_id]?$deref )
       c$ldap_searches[message_id]$deref = set();
     add c$ldap_searches[message_id]$deref[SEARCH_DEREF_ALIASES[deref]];
