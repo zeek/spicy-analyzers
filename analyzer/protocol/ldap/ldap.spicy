@@ -154,32 +154,30 @@ public type Message = unit {
   }
 
   switch ( self.opcode ) {
-    ProtocolOpcode::BIND_REQUEST            -> BIND_REQUEST:            BindRequest(self)           &parse-from=self.applicationBytes;
-    ProtocolOpcode::BIND_RESPONSE           -> BIND_RESPONSE:           BindResponse(self)          &parse-from=self.applicationBytes;
-    ProtocolOpcode::UNBIND_REQUEST          -> UNBIND_REQUEST:          UnbindRequest(self)         &parse-from=self.applicationBytes;
-    ProtocolOpcode::SEARCH_REQUEST          -> SEARCH_REQUEST:          SearchRequest(self)         &parse-from=self.applicationBytes;
-    ProtocolOpcode::SEARCH_RESULT_ENTRY     -> SEARCH_RESULT_ENTRY:     SearchResultEntry(self)     &parse-from=self.applicationBytes;
-    ProtocolOpcode::SEARCH_RESULT_DONE      -> SEARCH_RESULT_DONE:      SearchResultDone(self)      &parse-from=self.applicationBytes;
-    ProtocolOpcode::MODIFY_REQUEST          -> MODIFY_REQUEST:          ModifyRequest(self)         &parse-from=self.applicationBytes;
-    ProtocolOpcode::MODIFY_RESPONSE         -> MODIFY_RESPONSE:         ModifyResponse(self)        &parse-from=self.applicationBytes;
-    ProtocolOpcode::ADD_RESPONSE            -> ADD_RESPONSE:            AddResponse(self)           &parse-from=self.applicationBytes;
-    ProtocolOpcode::DEL_REQUEST             -> DEL_REQUEST:             DelRequest(self)            &parse-from=self.applicationBytes;
-    ProtocolOpcode::DEL_RESPONSE            -> DEL_RESPONSE:            DelResponse(self)           &parse-from=self.applicationBytes;
-    ProtocolOpcode::MOD_DN_RESPONSE         -> MOD_DN_RESPONSE:         ModDNResponse(self)         &parse-from=self.applicationBytes;
-    ProtocolOpcode::COMPARE_RESPONSE        -> COMPARE_RESPONSE:        CompareResponse(self)       &parse-from=self.applicationBytes;
-    ProtocolOpcode::ABANDON_REQUEST         -> ABANDON_REQUEST:         AbandonRequest(self)        &parse-from=self.applicationBytes;
+    ProtocolOpcode::BIND_REQUEST            -> BIND_REQUEST:            BindRequest(self);
+    ProtocolOpcode::BIND_RESPONSE           -> BIND_RESPONSE:           BindResponse(self);
+    ProtocolOpcode::UNBIND_REQUEST          -> UNBIND_REQUEST:          UnbindRequest(self);
+    ProtocolOpcode::SEARCH_REQUEST          -> SEARCH_REQUEST:          SearchRequest(self);
+    ProtocolOpcode::SEARCH_RESULT_ENTRY     -> SEARCH_RESULT_ENTRY:     SearchResultEntry(self);
+    ProtocolOpcode::SEARCH_RESULT_DONE      -> SEARCH_RESULT_DONE:      SearchResultDone(self);
+    ProtocolOpcode::MODIFY_REQUEST          -> MODIFY_REQUEST:          ModifyRequest(self);
+    ProtocolOpcode::MODIFY_RESPONSE         -> MODIFY_RESPONSE:         ModifyResponse(self);
+    ProtocolOpcode::ADD_RESPONSE            -> ADD_RESPONSE:            AddResponse(self);
+    ProtocolOpcode::DEL_REQUEST             -> DEL_REQUEST:             DelRequest(self);
+    ProtocolOpcode::DEL_RESPONSE            -> DEL_RESPONSE:            DelResponse(self);
+    ProtocolOpcode::MOD_DN_RESPONSE         -> MOD_DN_RESPONSE:         ModDNResponse(self);
+    ProtocolOpcode::COMPARE_RESPONSE        -> COMPARE_RESPONSE:        CompareResponse(self);
+    ProtocolOpcode::ABANDON_REQUEST         -> ABANDON_REQUEST:         AbandonRequest(self);
 
     # TODO: not yet implemented
-    # ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             AddRequest(self)            &parse-from=self.applicationBytes;
-    # ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         CompareRequest(self)        &parse-from=self.applicationBytes;
-    # ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        ExtendedRequest(self)       &parse-from=self.applicationBytes;
-    # ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       ExtendedResponse(self)      &parse-from=self.applicationBytes;
-    # ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   IntermediateResponse(self)  &parse-from=self.applicationBytes;
-    # ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          ModDNRequest(self)          &parse-from=self.applicationBytes;
-    # ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: SearchResultReference(self) &parse-from=self.applicationBytes;
-  };
-  # TODO: add support for switch-level &parse-from/&parse-at
-  # https://github.com/zeek/spicy/issues/913
+    # ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             AddRequest(self);
+    # ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         CompareRequest(self);
+    # ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        ExtendedRequest(self);
+    # ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       ExtendedResponse(self);
+    # ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   IntermediateResponse(self);
+    # ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          ModDNRequest(self);
+    # ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: SearchResultReference(self);
+  } &parse-from=self.applicationBytes;
 } &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::Undef));
 
 #-----------------------------------------------------------------------------
