@@ -9,7 +9,7 @@ Currently, the following analyzers are included:
 
 - DHCP <sup>[1]</sup>
 - DNS <sup>[1]</sup>
-- [Facefish Rootkit](https://blog.netlab.360.com/ssh_stealer_facefish_en/)  
+- [Facefish Rootkit](https://blog.netlab.360.com/ssh_stealer_facefish_en/)
 - HTTP <sup>[1]</sup>
 - IPSec
 - LDAP
