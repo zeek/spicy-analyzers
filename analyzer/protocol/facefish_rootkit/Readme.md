@@ -25,7 +25,7 @@ The output is as follows:
 ```
 $ zeek -Cr dump-38fb322cc6d09a6ab85784ede56bc5a7.pcap spicy-analyzers
 
-$ cat conn.log 
+$ cat conn.log
 #separator \x09
 #set_separator	,
 #empty_field	(empty)
