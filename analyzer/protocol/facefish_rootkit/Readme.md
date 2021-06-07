@@ -44,7 +44,7 @@ $ cat conn.log
 1613702587.216303	Clfyzh4ifzsqqUzvqc	192.168.2.20	43450	176.111.174.26	443	tcp	spicy_facefish_rootkit	29.625531	4304	32	S1	-	-	0	ShADTad	19	5348	12	688	-
 #close	2021-06-03-14-53-30
 
-$ cat facefish_rootkit.log 
+$ cat facefish_rootkit.log
 #separator \x09
 #set_separator	,
 #empty_field	(empty)
