@@ -3,6 +3,7 @@
 @load ./file/png
 @load ./protocol/dhcp
 @load ./protocol/dns
+@load ./protocol/facefish_rootkit
 @load ./protocol/http
 @load ./protocol/ipsec
 @load ./protocol/ldap

@@ -1,4 +1,8 @@
 
+0.2.14-6 | 2021-06-08 13:34:24 +0200
+
+  * Added Facefish rootkit analyzer. (Keith Jones, Corelight)
+
 0.2.14 | 2021-05-31 12:53:33 +0200
 
   * Add ZIP analyzer. (Robin Sommer, Corelight)
