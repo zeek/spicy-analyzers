@@ -129,11 +129,10 @@ type ASN1OctetString = unit(len: uint64, constructed: bool) {
 # https://www.obj-sys.com/asn1tutorial/node124.html
 
 type ASN1String = unit(tag: ASN1Tag, len: uint64) {
-  var value: string = "";
+  var encoding: hilti::Charset;
 
-  : ASN1OctetString(len, tag.constructed) {
+  on %init {
     switch ( tag.type_ ) {
-
       # see "Restricted Character String Types" in
       # "Generic String Encoding Rules (GSER) for ASN.1 Types"
       # (https://datatracker.ietf.org/doc/html/rfc3641#section-3.2)
@@ -141,7 +140,7 @@ type ASN1String = unit(tag: ASN1Tag, len: uint64) {
       case ASN1Type::PrintableString,
            ASN1Type::GeneralizedTime,
            ASN1Type::UTCTime: {
-        self.value = $$.value.decode(hilti::Charset::ASCII);
+        self.encoding = hilti::Charset::ASCII;
       }
 
       case ASN1Type::UTF8String,
@@ -157,11 +156,13 @@ type ASN1String = unit(tag: ASN1Tag, len: uint64) {
            # BMPString and UniversalString. This *may* not be correct.
            ASN1Type::BMPString,
            ASN1Type::UniversalString: {
-        self.value = $$.value.decode(hilti::Charset::UTF8);
+        self.encoding = hilti::Charset::UTF8;
       }
     }
   }
-};
+
+  value: ASN1OctetString(len, tag.constructed) &convert=$$.value.decode(self.encoding);
+} &convert=self.value;
 
 #- ASN.1 OID ------------------------------------------------------------------
 # https://www.obj-sys.com/asn1tutorial/node124.html
@@ -240,8 +241,7 @@ public type ASN1Body = unit(head: ASN1Header, recursive: bool) {
     ASN1Type::UTF8String,
     ASN1Type::VideotextString,
     ASN1Type::VisibleString,
-    ASN1Type::UniversalString -> str_value: ASN1String(head.tag, head.len.len)
-                                            &convert=$$.value;
+    ASN1Type::UniversalString -> str_value: ASN1String(head.tag, head.len.len);
 
     ASN1Type::Sequence, ASN1Type::Set -> seq: ASN1SubMessages(head.len.len) if (recursive);
 

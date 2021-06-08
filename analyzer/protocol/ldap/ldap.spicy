@@ -31,8 +31,6 @@ public type ProtocolOpcode = enum {
   EXTENDED_REQUEST        = 23,
   EXTENDED_RESPONSE       = 24,
   INTERMEDIATE_RESPONSE   = 25,
-  # TODO: remove once zeek/spicy-plugin#35 is fixed
-  NOT_SET                 = 255
 };
 
 #- Result code ---------------------------------------------------------------
@@ -112,14 +110,12 @@ public type ResultCode = enum {
   CANNOT_CANCEL                   = 121,
   ASSERTION_FAILED                = 122,
   AUTHORIZATION_DENIED            = 123,
-  # TODO: remove once zeek/spicy-plugin#35 is fixed
-  NOT_SET                         = 255
 };
 
 #-----------------------------------------------------------------------------
 public type Result = unit {
   code: ASN1::ASN1Message(True) &convert=cast<ResultCode>(cast<uint8>($$.body.num_value))
-                                &default=ResultCode::NOT_SET;
+                                &default=ResultCode::Undef;
   matchedDN: ASN1::ASN1Message(True) &convert=$$.body.str_value
                                      &default="";
   diagnosticMessage: ASN1::ASN1Message(True) &convert=$$.body.str_value
@@ -136,7 +132,7 @@ public type Messages = unit {
 
 public type Message = unit {
   var messageID: int64;
-  var opcode: ProtocolOpcode = ProtocolOpcode::NOT_SET;
+  var opcode: ProtocolOpcode = ProtocolOpcode::Undef;
   var applicationBytes: bytes;
   var unsetResultDefault: Result;
   var result: Result& = self.unsetResultDefault;
@@ -158,33 +154,31 @@ public type Message = unit {
   }
 
   switch ( self.opcode ) {
-    ProtocolOpcode::BIND_REQUEST            -> BIND_REQUEST:            BindRequest(self)           &parse-from=self.applicationBytes;
-    ProtocolOpcode::BIND_RESPONSE           -> BIND_RESPONSE:           BindResponse(self)          &parse-from=self.applicationBytes;
-    ProtocolOpcode::UNBIND_REQUEST          -> UNBIND_REQUEST:          UnbindRequest(self)         &parse-from=self.applicationBytes;
-    ProtocolOpcode::SEARCH_REQUEST          -> SEARCH_REQUEST:          SearchRequest(self)         &parse-from=self.applicationBytes;
-    ProtocolOpcode::SEARCH_RESULT_ENTRY     -> SEARCH_RESULT_ENTRY:     SearchResultEntry(self)     &parse-from=self.applicationBytes;
-    ProtocolOpcode::SEARCH_RESULT_DONE      -> SEARCH_RESULT_DONE:      SearchResultDone(self)      &parse-from=self.applicationBytes;
-    ProtocolOpcode::MODIFY_REQUEST          -> MODIFY_REQUEST:          ModifyRequest(self)         &parse-from=self.applicationBytes;
-    ProtocolOpcode::MODIFY_RESPONSE         -> MODIFY_RESPONSE:         ModifyResponse(self)        &parse-from=self.applicationBytes;
-    ProtocolOpcode::ADD_RESPONSE            -> ADD_RESPONSE:            AddResponse(self)           &parse-from=self.applicationBytes;
-    ProtocolOpcode::DEL_REQUEST             -> DEL_REQUEST:             DelRequest(self)            &parse-from=self.applicationBytes;
-    ProtocolOpcode::DEL_RESPONSE            -> DEL_RESPONSE:            DelResponse(self)           &parse-from=self.applicationBytes;
-    ProtocolOpcode::MOD_DN_RESPONSE         -> MOD_DN_RESPONSE:         ModDNResponse(self)         &parse-from=self.applicationBytes;
-    ProtocolOpcode::COMPARE_RESPONSE        -> COMPARE_RESPONSE:        CompareResponse(self)       &parse-from=self.applicationBytes;
-    ProtocolOpcode::ABANDON_REQUEST         -> ABANDON_REQUEST:         AbandonRequest(self)        &parse-from=self.applicationBytes;
+    ProtocolOpcode::BIND_REQUEST            -> BIND_REQUEST:            BindRequest(self);
+    ProtocolOpcode::BIND_RESPONSE           -> BIND_RESPONSE:           BindResponse(self);
+    ProtocolOpcode::UNBIND_REQUEST          -> UNBIND_REQUEST:          UnbindRequest(self);
+    ProtocolOpcode::SEARCH_REQUEST          -> SEARCH_REQUEST:          SearchRequest(self);
+    ProtocolOpcode::SEARCH_RESULT_ENTRY     -> SEARCH_RESULT_ENTRY:     SearchResultEntry(self);
+    ProtocolOpcode::SEARCH_RESULT_DONE      -> SEARCH_RESULT_DONE:      SearchResultDone(self);
+    ProtocolOpcode::MODIFY_REQUEST          -> MODIFY_REQUEST:          ModifyRequest(self);
+    ProtocolOpcode::MODIFY_RESPONSE         -> MODIFY_RESPONSE:         ModifyResponse(self);
+    ProtocolOpcode::ADD_RESPONSE            -> ADD_RESPONSE:            AddResponse(self);
+    ProtocolOpcode::DEL_REQUEST             -> DEL_REQUEST:             DelRequest(self);
+    ProtocolOpcode::DEL_RESPONSE            -> DEL_RESPONSE:            DelResponse(self);
+    ProtocolOpcode::MOD_DN_RESPONSE         -> MOD_DN_RESPONSE:         ModDNResponse(self);
+    ProtocolOpcode::COMPARE_RESPONSE        -> COMPARE_RESPONSE:        CompareResponse(self);
+    ProtocolOpcode::ABANDON_REQUEST         -> ABANDON_REQUEST:         AbandonRequest(self);
 
     # TODO: not yet implemented
-    # ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             AddRequest(self)            &parse-from=self.applicationBytes;
-    # ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         CompareRequest(self)        &parse-from=self.applicationBytes;
-    # ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        ExtendedRequest(self)       &parse-from=self.applicationBytes;
-    # ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       ExtendedResponse(self)      &parse-from=self.applicationBytes;
-    # ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   IntermediateResponse(self)  &parse-from=self.applicationBytes;
-    # ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          ModDNRequest(self)          &parse-from=self.applicationBytes;
-    # ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: SearchResultReference(self) &parse-from=self.applicationBytes;
-  };
-  # TODO: add support for switch-level &parse-from/&parse-at
-  # https://github.com/zeek/spicy/issues/913
-} &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::NOT_SET));
+    # ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             AddRequest(self);
+    # ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         CompareRequest(self);
+    # ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        ExtendedRequest(self);
+    # ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       ExtendedResponse(self);
+    # ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   IntermediateResponse(self);
+    # ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          ModDNRequest(self);
+    # ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: SearchResultReference(self);
+  } &parse-from=self.applicationBytes;
+} &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::Undef));
 
 #-----------------------------------------------------------------------------
 # Bind Operation
@@ -193,8 +187,6 @@ public type Message = unit {
 public type BindAuthType = enum {
   BIND_AUTH_SIMPLE = 0,
   BIND_AUTH_SASL = 3,
-  # TODO: remove once zeek/spicy-plugin#35 is fixed
-  NOT_SET = 127
 };
 
 type SaslCredentials = unit() {
@@ -207,7 +199,7 @@ type BindRequest = unit(inout message: Message) {
   name: ASN1::ASN1Message(True) &convert=$$.body.str_value {
     message.obj = self.name;
   }
-  var authType: BindAuthType = BindAuthType::NOT_SET;
+  var authType: BindAuthType = BindAuthType::Undef;
   var authData: bytes = b"";
   var simpleCreds: string = "";
 
@@ -227,7 +219,7 @@ type BindRequest = unit(inout message: Message) {
                                                              (|self.authData| > 0)) {
     message.arg = self.saslCreds.mechanism;
   }
-} &requires=((self?.authType) && (self.authType != BindAuthType::NOT_SET));
+} &requires=((self?.authType) && (self.authType != BindAuthType::Undef));
 
 type BindResponse = unit(inout message: Message) {
   : Result {
@@ -253,8 +245,6 @@ public type SearchScope = enum {
   SEARCH_BASE    = 0,
   SEARCH_SINGLE  = 1,
   SEARCH_TREE    = 2,
-  # TODO: remove once zeek/spicy-plugin#35 is fixed
-  NOT_SET        = 255
 };
 
 public type SearchDerefAlias = enum {
@@ -262,8 +252,6 @@ public type SearchDerefAlias = enum {
   DEREF_IN_SEARCHING = 1,
   DEREF_FINDING_BASE = 2,
   DEREF_ALWAYS       = 3,
-  # TODO: remove once zeek/spicy-plugin#35 is fixed
-  NOT_SET            = 255
 };
 
 type FilterType = enum {
@@ -278,8 +266,6 @@ type FilterType = enum {
   FILTER_APPROX  = 8,
   FILTER_EXT     = 9,
   FILTER_INVALID = 254,
-  # TODO: remove once zeek/spicy-plugin#35 is fixed
-  NOT_SET        = 255
 };
 
 type AttributeSelection = unit {
@@ -341,7 +327,7 @@ type SubstringFilter = unit {
 };
 
 type SearchFilter = unit {
-  var filterType: FilterType = FilterType::NOT_SET;
+  var filterType: FilterType = FilterType::Undef;
   var filterBytes: bytes = b"";
   var filterLen: uint64 = 0;
 
@@ -391,11 +377,11 @@ type SearchRequest = unit(inout message: Message) {
     message.obj = self.baseObject;
   }
   scope: ASN1::ASN1Message(True) &convert=cast<SearchScope>(cast<uint8>($$.body.num_value))
-                                 &default=SearchScope::NOT_SET {
+                                 &default=SearchScope::Undef {
     message.arg = "%s" % self.scope;
   }
   deref: ASN1::ASN1Message(True) &convert=cast<SearchDerefAlias>(cast<uint8>($$.body.num_value))
-                                 &default=SearchDerefAlias::NOT_SET;
+                                 &default=SearchDerefAlias::Undef;
   sizeLimit: ASN1::ASN1Message(True) &convert=$$.body.num_value &default=0;
   timeLimit: ASN1::ASN1Message(True) &convert=$$.body.num_value &default=0;
   typesOnly: ASN1::ASN1Message(True) &convert=$$.body.bool_value &default=False;

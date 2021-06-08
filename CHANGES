@@ -1,4 +1,12 @@
 
+0.2.14-10 | 2021-06-08 13:35:56 +0200
+
+  * GH-35: Implement LDAP analyzer enhancements after upstream change.
+
+    - Expose ASN1String as a Spicy string.
+    - Use unit switch &parse-from construct.
+    - Remove workaround for zeek/spicy-plugin#35. (Benjamin Bannier, Corelight)
+
 0.2.14-6 | 2021-06-08 13:34:24 +0200
 
   * Added Facefish rootkit analyzer. (Keith Jones, Corelight)
