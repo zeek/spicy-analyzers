@@ -9,5 +9,6 @@
 @load ./protocol/ldap
 @load ./protocol/openvpn
 @load ./protocol/stun
+@load ./protocol/tailscale
 @load ./protocol/tftp
 @load ./protocol/wireguard
