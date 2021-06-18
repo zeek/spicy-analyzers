@@ -7,7 +7,7 @@ This Spicy analyzer will detect the Facefish Linux rootkit C2 as described in:
 - https://thehackernews.com/2021/05/researchers-warn-of-facefish-backdoor.html
 - https://securityaffairs.co/wordpress/118388/malware/facefish-backdoor.html
 
-Any detections will be found in "facefish_rootkit.log" while a "Facefish_Rootkit::FACEFISH_ROOTKIT_C2" notice 
+Any detections will be found in "facefish_rootkit.log" while a "Facefish_Rootkit::FACEFISH_ROOTKIT_C2" notice
 is also raised.
 
 The testing pcap was made with the following command:
@@ -59,7 +59,7 @@ $ cat facefish_rootkit.log
 1613702616.746288	Clfyzh4ifzsqqUzvqc	192.168.2.20	43450	176.111.174.26	443	T	4272	Registration	2325026424
 #close	2021-06-03-14-53-30
 
-$ cat notice.log 
+$ cat notice.log
 #separator \x09
 #set_separator	,
 #empty_field	(empty)
