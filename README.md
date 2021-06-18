@@ -111,10 +111,10 @@ For example, to disable the HTTP analyzer, add this to your
 `site.zeek`:
 
 ```.zeek
-    event zeek_init()
-        {
-        Spicy::disable_protocol_analyzer(Analyzer::ANALYZER_SPICY_HTTP);
-        }
+event zeek_init()
+    {
+    Spicy::disable_protocol_analyzer(Analyzer::ANALYZER_SPICY_HTTP);
+    }
 ```
 
 You can find the `ANALYZER_*` value to use for an analyzer in the
