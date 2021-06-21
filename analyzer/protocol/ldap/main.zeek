@@ -464,4 +464,3 @@ event connection_state_remove(c: connection) {
   }
 
 }
-

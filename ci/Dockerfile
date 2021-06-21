@@ -33,14 +33,14 @@ RUN apt-get update \
  && [[ ${ZEEK_VERSION} = 4.* ]] && curl -L --remote-name-all \
     https://download.zeek.org/binary-packages/xUbuntu_20.04/amd64/zeek${ZEEK_LTS}-btest_${ZEEK_VERSION}_amd64.deb \
     https://download.zeek.org/binary-packages/xUbuntu_20.04/amd64/zeek${ZEEK_LTS}-zkg_${ZEEK_VERSION}_amd64.deb \
- ||  pip3 install --no-cache-dir "btest>=0.66" zkg \
+ ||  pip3 install --no-cache-dir "btest>=0.66" zkg pre-commit \
  && dpkg -i ./*.deb \
  && cd - \
  && rm -rf /tmp/zeek-packages \
  # Spicy build and test dependencies.
- && apt-get install -y --no-install-recommends git cmake ninja-build ccache bison flex g++ libfl-dev zlib1g-dev jq locales-all make \
+ && apt-get install -y --no-install-recommends git cmake ninja-build ccache bison flex g++ libfl-dev zlib1g-dev jq locales-all make ruby \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
- # Configure zkg \
+ # Configure zkg.
  && zkg autoconfig \
  && echo "@load packages" >>"$(zeek-config --site_dir)"/local.zeek

@@ -112,3 +112,9 @@ standalone_ci_task:
     - zeek -NN _Zeek::Spicy | grep Analyzer
     - PATH=/opt/spicy-plugin/bin:$PATH make -C tests test-install
     - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap spicy-analyzers && test -e tftp.log && grep rfc1350.txt tftp.log)
+
+pre_commit_task:
+  container:
+    dockerfile: ci/Dockerfile
+
+  pre_commit_script: pre-commit run -a

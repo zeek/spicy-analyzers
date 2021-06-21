@@ -2,12 +2,12 @@
 
 This Spicy analyzer will detect the Facefish Linux rootkit C2 as described in:
 
-- https://blog.netlab.360.com/ssh_stealer_facefish_en/
-- https://blogs.juniper.net/en-us/threat-research/linux-servers-hijacked-to-implant-ssh-backdoor
-- https://thehackernews.com/2021/05/researchers-warn-of-facefish-backdoor.html
-- https://securityaffairs.co/wordpress/118388/malware/facefish-backdoor.html
+- <https://blog.netlab.360.com/ssh_stealer_facefish_en/>
+- <https://blogs.juniper.net/en-us/threat-research/linux-servers-hijacked-to-implant-ssh-backdoor>
+- <https://thehackernews.com/2021/05/researchers-warn-of-facefish-backdoor.html>
+- <https://securityaffairs.co/wordpress/118388/malware/facefish-backdoor.html>
 
-Any detections will be found in "facefish_rootkit.log" while a "Facefish_Rootkit::FACEFISH_ROOTKIT_C2" notice 
+Any detections will be found in "facefish_rootkit.log" while a "Facefish_Rootkit::FACEFISH_ROOTKIT_C2" notice
 is also raised.
 
 The testing pcap was made with the following command:
@@ -18,7 +18,7 @@ echo -n -e \\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x00 | nc 127.0.0.1 9999
 
 There is a PCAP of the C2 traffic available here:
 
-https://www.joesandbox.com/analysis/355141/0/html#network
+<https://www.joesandbox.com/analysis/355141/0/html#network>
 
 The output is as follows:
 
@@ -59,7 +59,7 @@ $ cat facefish_rootkit.log
 1613702616.746288	Clfyzh4ifzsqqUzvqc	192.168.2.20	43450	176.111.174.26	443	T	4272	Registration	2325026424
 #close	2021-06-03-14-53-30
 
-$ cat notice.log 
+$ cat notice.log
 #separator \x09
 #set_separator	,
 #empty_field	(empty)
