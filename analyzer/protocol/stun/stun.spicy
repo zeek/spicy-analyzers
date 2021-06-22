@@ -119,6 +119,10 @@ type AttrType = enum {
 
 const MAGIC_COOKIE = /\x21\x12\xA4\x42/;
 
+public type STUNPackets = unit {
+    records: STUNPacket()[];
+};
+
 public type STUNPacket = unit {
 	var M: uint16;
 	var C: uint16;

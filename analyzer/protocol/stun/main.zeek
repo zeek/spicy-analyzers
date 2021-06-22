@@ -14,9 +14,11 @@ export {
 		uid:            string          &log;
 		## The connection's 4-tuple of endpoint addresses/ports
 		id:             conn_id         &log;
+		## The protocol
+		proto:			transport_proto	&log;
 		# Is orig
 		is_orig: 		bool 			&log;
-		## The transation ID
+		## The transaction ID
 		trans_id:		string			&log;
 		## The STUN method
 		method:			string			&log;
@@ -37,6 +39,8 @@ export {
 		uid:            string          &log;
 		## The connection's 4-tuple of endpoint addresses/ports
 		id:             conn_id         &log;
+		## The protocol
+		proto:			transport_proto	&log;
 		# Is orig
 		is_orig: 		bool 			&log;
 		## The WAN address as reported by STUN
@@ -113,8 +117,8 @@ event STUN::string_attribute(c: connection, is_orig: bool, method: count, class:
 		{
 		attr_val = cat(bytestring_to_count(attr_val));
 		}
-	local i = Info($uid=c$uid, $id=c$id, $is_orig=is_orig, $trans_id=trans_id, $method=methodtype[method],
-				   $class=classtype[class], $attr_type=attrtype[attr_type], $attr_val=attr_val);
+	local i = Info($uid=c$uid, $id=c$id, $proto=get_conn_transport_proto(c$id), $is_orig=is_orig, $trans_id=trans_id,
+				   $method=methodtype[method], $class=classtype[class], $attr_type=attrtype[attr_type], $attr_val=attr_val);
 	c$stuns += i;
 	}
 
@@ -151,11 +155,11 @@ event STUN::mapped_address_attribute(c: connection, is_orig: bool, method: count
 		wan_port = x_port;
 		}
 	attr_val = cat(wan_addr, ":", wan_port);
-	c$stuns += Info($uid=c$uid, $id=c$id, $is_orig=is_orig, $trans_id=trans_id, $method=methodtype[method],
-					$class=classtype[class], $attr_type=attrtype[attr_type], $attr_val=attr_val);
+	c$stuns += Info($uid=c$uid, $id=c$id, $proto=get_conn_transport_proto(c$id), $is_orig=is_orig, $trans_id=trans_id,
+					$method=methodtype[method], $class=classtype[class], $attr_type=attrtype[attr_type], $attr_val=attr_val);
 	# MAPPED_ADDRESS || XOR_MAPPED_ADDRESS for BINDING and RESPONSE_SUCCESS
 	if ((attr_type == 0x01 || attr_type == 0x020) && wan_addr != lan_addr && method == 0x01 && class == 0x02)
-		c$stun_nat += NATInfo($uid=c$uid, $id=c$id, $is_orig=is_orig, $wan_addr=wan_addr,
+		c$stun_nat += NATInfo($uid=c$uid, $id=c$id, $proto=get_conn_transport_proto(c$id), $is_orig=is_orig, $wan_addr=wan_addr,
 					$wan_port=wan_port, $lan_addr=lan_addr);
 	}
 
@@ -164,8 +168,8 @@ event STUN::error_code_attribute(c: connection, is_orig: bool, method: count, cl
 	{
 	set_session(c);
 	local attr_val = cat(err_class, "-", number, "-", reason);
-	local i = Info($uid=c$uid, $id=c$id, $is_orig=is_orig, $trans_id=trans_id, $method=methodtype[method],
-				   $class=classtype[class], $attr_type=attrtype[attr_type], $attr_val=attr_val);
+	local i = Info($uid=c$uid, $id=c$id, $proto=get_conn_transport_proto(c$id), $is_orig=is_orig, $trans_id=trans_id,
+				   $method=methodtype[method], $class=classtype[class], $attr_type=attrtype[attr_type], $attr_val=attr_val);
 	c$stuns += i;
 	}
 

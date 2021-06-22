@@ -3,6 +3,9 @@
 protocol analyzer spicy::STUN over UDP:
 	parse with STUN::STUNPacket;
 
+protocol analyzer spicy::STUN_TCP over TCP:
+	parse with STUN::STUNPackets;
+
 import STUN;
 
 on STUN::STUNPacket -> event STUN::STUNPacket($conn, $is_orig, self.M, self.C, self.trans_id);
