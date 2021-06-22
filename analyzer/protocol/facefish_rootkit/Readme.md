@@ -1,5 +1,10 @@
 # Facefish_Rootkit
 
+An in depth blog and webinar slides on the development of this analyzer:
+
+- <https://zeek.org/2021/06/10/detecting-the-facefish-linux-rootkit-with-zeek/>
+- <https://docs.google.com/presentation/d/1RRej4BeOF0hTpLVxc0Drg-W5PtI-js1TLcMNC3cTNj0/edit#slide=id.gdfd7e8c66a_0_45>
+
 This Spicy analyzer will detect the Facefish Linux rootkit C2 as described in:
 
 - <https://blog.netlab.360.com/ssh_stealer_facefish_en/>

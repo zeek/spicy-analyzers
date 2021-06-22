@@ -9,11 +9,11 @@ Currently, the following analyzers are included:
 
 - DHCP <sup>[1]</sup>
 - DNS <sup>[1]</sup>
-- [Facefish Rootkit](https://blog.netlab.360.com/ssh_stealer_facefish_en/)
+- [Facefish Rootkit](analyzer/protocol/facefish_rootkit/)
 - HTTP <sup>[1]</sup>
-- IPSec
+- [IPSec](analyzer/protocol/ipsec/)
 - LDAP
-- OpenVPN
+- [OpenVPN](analyzer/protocol/openvpn/)
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
 - TFTP
