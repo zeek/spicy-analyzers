@@ -1,0 +1,112 @@
+# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
+
+protocol analyzer spicy::STUN over UDP:
+	parse with STUN::STUNPacket;
+
+protocol analyzer spicy::STUN_TCP over TCP:
+	parse with STUN::STUNPackets;
+
+import STUN;
+
+on STUN::STUNPacket -> event STUN::STUNPacket($conn, $is_orig, self.M, self.C, self.trans_id);
+
+# SOFTWARE
+on STUN::Attribute::DESCRIPTION -> event STUN::string_attribute($conn, $is_orig, self.method,
+								self.class, self.trans_id, cast<uint16>(self.attr_type), self.DESCRIPTION);
+
+# XOR_MAPPED_ADDRESS
+on STUN::Attribute::XOR_MAPPED_ADDRESS if(self.XOR_MAPPED_ADDRESS.family == STUN::AddrFamily(0x01)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.XOR_MAPPED_ADDRESS.x_port, self.XOR_MAPPED_ADDRESS.ipv4);
+on STUN::Attribute::XOR_MAPPED_ADDRESS if(self.XOR_MAPPED_ADDRESS.family == STUN::AddrFamily(0x02)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.XOR_MAPPED_ADDRESS.x_port, self.XOR_MAPPED_ADDRESS.ipv6);
+
+# XOR_PEER_ADDRESS
+on STUN::Attribute::XOR_PEER_ADDRESS if(self.XOR_PEER_ADDRESS.family == STUN::AddrFamily(0x01)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.XOR_PEER_ADDRESS.x_port, self.XOR_PEER_ADDRESS.ipv4);
+on STUN::Attribute::XOR_PEER_ADDRESS if(self.XOR_PEER_ADDRESS.family == STUN::AddrFamily(0x02)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.XOR_PEER_ADDRESS.x_port, self.XOR_PEER_ADDRESS.ipv6);
+
+# XOR_RELAYED_ADDRESS
+on STUN::Attribute::XOR_RELAYED_ADDRESS if(self.XOR_RELAYED_ADDRESS.family == STUN::AddrFamily(0x01)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.XOR_RELAYED_ADDRESS.x_port, self.XOR_RELAYED_ADDRESS.ipv4);
+on STUN::Attribute::XOR_RELAYED_ADDRESS if(self.XOR_RELAYED_ADDRESS.family == STUN::AddrFamily(0x02)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.XOR_RELAYED_ADDRESS.x_port, self.XOR_RELAYED_ADDRESS.ipv6);
+
+# MAPPED_ADDRESS
+on STUN::Attribute::MAPPED_ADDRESS if(self.MAPPED_ADDRESS.family == STUN::AddrFamily(0x01)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.MAPPED_ADDRESS.x_port, self.MAPPED_ADDRESS.ipv4);
+on STUN::Attribute::MAPPED_ADDRESS if(self.MAPPED_ADDRESS.family == STUN::AddrFamily(0x02)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.MAPPED_ADDRESS.x_port, self.MAPPED_ADDRESS.ipv6);
+
+# OTHER_ADDRESS
+on STUN::Attribute::OTHER_ADDRESS if(self.OTHER_ADDRESS.family == STUN::AddrFamily(0x01)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.OTHER_ADDRESS.x_port, self.OTHER_ADDRESS.ipv4);
+on STUN::Attribute::OTHER_ADDRESS if(self.OTHER_ADDRESS.family == STUN::AddrFamily(0x02)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.OTHER_ADDRESS.x_port, self.OTHER_ADDRESS.ipv6);
+
+# USERNAME
+on STUN::Attribute::USERNAME -> event STUN::string_attribute($conn, $is_orig, self.method, self.class,
+								self.trans_id, cast<uint16>(self.attr_type), self.USERNAME);
+
+# MESSAGE_INTEGRITY
+on STUN::Attribute::HMAC_SHA1 -> event STUN::string_attribute($conn, $is_orig, self.method,
+								self.class, self.trans_id, cast<uint16>(self.attr_type), self.HMAC_SHA1);
+
+# ERROR_CODE
+on STUN::Attribute::ERROR_CODE -> event STUN::error_code_attribute($conn, $is_orig,
+					self.method, self.class, self.trans_id, cast<uint16>(self.attr_type), self.ERROR_CODE.class,
+					self.ERROR_CODE.number, self.ERROR_CODE.reason);
+
+# UNKNOWN_ATTRIBUTES
+on STUN::Attribute::UNKNOWN_ATTRIBUTES -> event STUN::string_attribute($conn, $is_orig,
+					self.method, self.class, self.trans_id, cast<uint16>(self.attr_type), "");
+
+# REALM
+on STUN::Attribute::REALM -> event STUN::string_attribute($conn, $is_orig, self.method, self.class,
+							self.trans_id, cast<uint16>(self.attr_type), self.REALM);
+
+# NONCE
+on STUN::Attribute::NONCE -> event STUN::string_attribute($conn, $is_orig, self.method,
+							self.class, self.trans_id, cast<uint16>(self.attr_type), self.NONCE);
+
+# PRIORITY
+on STUN::Attribute::PRIORITY -> event STUN::string_attribute($conn, $is_orig, self.method,
+							self.class, self.trans_id, cast<uint16>(self.attr_type), self.PRIORITY);
+
+# USE_CANDIDATE
+on STUN::Attribute::USE_CANDIDATE -> event STUN::string_attribute($conn, $is_orig, self.method,
+							self.class, self.trans_id, cast<uint16>(self.attr_type), "");
+
+# ALTERNATE_SERVER
+on STUN::Attribute::ALTERNATE_SERVER if(self.MAPPED_ADDRESS.family == STUN::AddrFamily(0x01)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.ALTERNATE_SERVER.x_port, self.ALTERNATE_SERVER.ipv4);
+on STUN::Attribute::ALTERNATE_SERVER if(self.MAPPED_ADDRESS.family == STUN::AddrFamily(0x02)) ->
+					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
+					cast<uint16>(self.attr_type), self.ALTERNATE_SERVER.x_port, self.ALTERNATE_SERVER.ipv6);
+
+# FINGERPRINT
+on STUN::Attribute::CRC_32 -> event STUN::string_attribute($conn, $is_orig, self.method,
+							self.class, self.trans_id, cast<uint16>(self.attr_type), self.CRC_32);
+
+# ICE_CONTROLLED
+on STUN::Attribute::ICE_CONTROLLED -> event STUN::string_attribute($conn, $is_orig, self.method,
+							self.class, self.trans_id, cast<uint16>(self.attr_type), self.ICE_CONTROLLED);
+
+# ICE_CONTROLLING
+on STUN::Attribute::ICE_CONTROLLING -> event STUN::string_attribute($conn, $is_orig, self.method,
+							self.class, self.trans_id, cast<uint16>(self.attr_type), self.ICE_CONTROLLING);
+
+# Fallthrough
+on STUN::Attribute::attr_value -> event STUN::string_attribute($conn, $is_orig, self.method, self.class,
+							self.trans_id, cast<uint16>(self.attr_type), self.attr_value);

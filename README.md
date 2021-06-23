@@ -16,6 +16,7 @@ Currently, the following analyzers are included:
 - OpenVPN
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
+- [STUN](analyzer/protocol/stun/)
 - TFTP
 - Wireguard
 - ZIP archives

@@ -8,5 +8,6 @@
 @load ./protocol/ipsec
 @load ./protocol/ldap
 @load ./protocol/openvpn
+@load ./protocol/stun
 @load ./protocol/tftp
 @load ./protocol/wireguard

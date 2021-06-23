@@ -34,6 +34,9 @@ PE
 PNG
 - [png.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/http/pipelined-requests.trace)
 
+STUN
+- [stun-ice-testcall.pcap](https://github.com/r-franke/spicy_stun/blob/master/test_data/stun-ice-testcall.pcap)
+
 TFTP
 - [tftp_rrq.pcap](https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/SampleCaptures/tftp_rrq.pcap)
 - [tftp_wrq.pcap](https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/SampleCaptures/tftp_wrq.pcap)
