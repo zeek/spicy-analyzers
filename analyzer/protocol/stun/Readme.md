@@ -23,7 +23,7 @@ More info about STUN:
 ```
 $ zeek -Cr stun-ice-testcall.pcap spicy-analyzers
 
-$ head -n 20 stun.log 
+$ head -n 20 stun.log
 #separator \x09
 #set_separator	,
 #empty_field	(empty)
@@ -45,7 +45,7 @@ $ head -n 20 stun.log
 1377211128.184433	Cu0vxM1pLxfdOI3afe	192.168.43.155	59977	155.212.214.188	23131	T	mPEXdyYbuuQm	BINDING	REQUEST	ICE_CONTROLLING	\x18\x8b\x10Li{\xf6[
 1377211128.184433	Cu0vxM1pLxfdOI3afe	192.168.43.155	59977	155.212.214.188	23131	T	mPEXdyYbuuQm	BINDING	REQUEST	USE_CANDIDATE	(empty)
 
-$ head -n 20 stun_nat.log 
+$ head -n 20 stun_nat.log
 #separator \x09
 #set_separator	,
 #empty_field	(empty)
@@ -67,7 +67,7 @@ $ head -n 20 stun_nat.log
 1377211128.459477	C2xdynwRvQNCBFxsf	192.168.43.155	59977	155.212.214.188	23130	F	70.199.128.46	4587	192.168.43.155
 1377211128.940537	C2xdynwRvQNCBFxsf	192.168.43.155	59977	155.212.214.188	23130	F	70.199.128.46	4587	192.168.43.155
 
-$ cat conn.log 
+$ cat conn.log
 #separator \x09
 #set_separator	,
 #empty_field	(empty)
