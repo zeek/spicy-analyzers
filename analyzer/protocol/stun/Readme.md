@@ -4,19 +4,19 @@ Session Traversal Utilities for NAT (STUN)
 
 This will detect STUN and create two logs:
 
- - stun.log - This log has every STUN message.
- - stun_nat.log - This log has NAT detections from mapped addresses.
+- stun.log - This log has every STUN message.
+- stun_nat.log - This log has NAT detections from mapped addresses.
 
 Additional logic has been added to the original logic found here:
 
-- https://github.com/r-franke/spicy_stun (BSD License for original code and PCAP here.)
-- https://github.com/r-franke/spicy_stun/issues/1 (Permission to move this work over to spicy-analyzers here.)
+- <https://github.com/r-franke/spicy_stun> (BSD License for original code and PCAP here.)
+- <https://github.com/r-franke/spicy_stun/issues/1> (Permission to move this work over to spicy-analyzers here.)
 
 More info about STUN:
 
-- https://datatracker.ietf.org/doc/html/rfc5389
-- https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml
-- https://datatracker.ietf.org/doc/html/rfc8489
+- <https://datatracker.ietf.org/doc/html/rfc5389>
+- <https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml>
+- <https://datatracker.ietf.org/doc/html/rfc8489>
 
 ## Example
 
