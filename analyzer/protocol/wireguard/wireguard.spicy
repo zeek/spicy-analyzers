@@ -30,7 +30,7 @@ public type WireGuardPacket = unit {
 	};
 };
 
-public type HandshakeInitiation = unit {
+type HandshakeInitiation = unit {
 	sender_index: uint32;
 	unencrypted_ephemeral: bytes &size=32;
 	encrypted_static: bytes &size=AEAD_LEN(32);
@@ -40,7 +40,7 @@ public type HandshakeInitiation = unit {
 	nothing: bytes &eod &requires=(|$$| == 0);
 };
 
-public type HandshakeResponse = unit {
+type HandshakeResponse = unit {
 	sender_index: uint32;
 	receiver_index: uint32;
 	unencrypted_ephemeral: bytes &size=32;
@@ -57,7 +57,7 @@ type PacketCookieReply = unit {
 	nothing: bytes &eod &requires=(|$$| == 0);
 };
 
-public type PacketData = unit {
+type PacketData = unit {
 	receiver_index: uint32;
 	counter: uint64;
 	encrypted_encapsulated_packet: bytes &eod;
