@@ -1,3 +1,10 @@
+
+0.2.16-6 | 2021-06-24 19:51:38 +0200
+
+  * Added Tailscale. (Keith Jones, Corelight)
+
+  * Add resources developers might find useful in the future. (Keith Jones, Corelight)
+
 0.2.16 | 2021-06-23 12:29:37 +0200
 
   * Release 0.2.16.

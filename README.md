@@ -17,6 +17,7 @@ Currently, the following analyzers are included:
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
 - [STUN](analyzer/protocol/stun/)
+- [Tailscale VPN](analyzer/protocol/tailscale/)
 - TFTP
 - Wireguard
 - ZIP archives
