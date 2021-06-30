@@ -13,5 +13,6 @@ fi
 
 ${sed} 's/^ *#(open|close).(19|20)..-..-..-..-..-..$/#\1 XXXX-XX-XX-XX-XX-XX/g' | \
     ${sed} 's/F[A-Za-z0-9]{15,17}/XXXXXXXXXXXXXXXXX/g' | \
+    `dirname $0`/diff-sort | \
     `dirname $0`/diff-remove-timestamps |
     `dirname $0`/diff-remove-abspath

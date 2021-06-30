@@ -25,6 +25,20 @@
 ### Functions
 
 macro(configure)
+    if ( ZEEK_PLUGIN_INTERNAL_BUILD )
+        configure_static_build_inside_zeek()
+    else ()
+        configure_standard_build()
+    endif ()
+
+    if ( "${ZEEK_BUILD_TYPE}" STREQUAL "debug" )
+        set(ZEEK_DEBUG_BUILD yes)
+    else ()
+        set(ZEEK_DEBUG_BUILD no)
+    endif ()
+endmacro ()
+
+macro(configure_standard_build)
     ### Find zeek-config
     if ( NOT ZEEK_CONFIG )
         set(ZEEK_CONFIG "$ENV{ZEEK_CONFIG}")
@@ -64,15 +78,7 @@ macro(configure)
         run_zeek_config(ZEEK_VERSION "--version")
         run_zeek_config(ZEEK_BUILD_TYPE "--build_type")
 
-        if ( "${ZEEK_BUILD_TYPE}" STREQUAL "debug" )
-            set(ZEEK_DEBUG_BUILD yes)
-        else ()
-            set(ZEEK_DEBUG_BUILD no)
-        endif ()
-
         string(REPLACE " " ";" ZEEK_INCLUDE_DIRS "${ZEEK_INCLUDE_DIRS}")
-        #list(TRANSFORM ZEEK_CXX_FLAGS PREPEND "-I")
-        #string(REPLACE ";" " " ZEEK_CXX_FLAGS "${ZEEK_CXX_FLAGS}")
 
         # Copied from Zeek to generate numeric version number.
         string(REGEX REPLACE "[.-]" " " version_numbers "${ZEEK_VERSION}")
@@ -88,6 +94,20 @@ macro(configure)
         find_program(ZEEK_EXE zeek HINTS ${ZEEK_PREFIX}/bin NO_DEFAULT_PATH)
     endif ()
 endmacro ()
+
+macro(configure_static_build_inside_zeek)
+    set(HAVE_ZEEK yes)
+    set(ZEEK_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
+    set(ZEEK_CMAKE_DIR "")
+    set(ZEEK_PREFIX "${CMAKE_INSTALL_PREFIX}")
+    set(ZEEK_PLUGIN_DIR "${BRO_PLUGIN_INSTALL_PATH}")
+    set(ZEEK_VERSION "${VERSION}")
+    # set(ZEEK_VERSION_NUMBER ...) # inherit from Zeek
+    set(ZEEK_CONFIG "${CMAKE_INSTALL_PREFIX}/bin/zeek-config")
+    set(ZEEK_BUILD_TYPE "${CMAKE_BUILD_TYPE_LOWER}")
+    set(ZEEK_EXE "n/a") # don't have/need
+    set(BifCl_EXE "n/a") # don't have/need
+endmacro()
 
 function(zeek_require_version version version_number)
     if ( "${ZEEK_VERSION_NUMBER}" LESS "${version_number}" )
@@ -105,16 +125,16 @@ endfunction ()
 
 function(zeek_print_summary)
     message(
-        "\n====================|  Zeek Installation Summary  |===================="
+        "\n====================|  Spicy-side Zeek Installation Summary  |===================="
         "\n"
         "\nFound Zeek:            ${HAVE_ZEEK}"
         )
 
     if ( HAVE_ZEEK )
         message(
-                "\nVersion:          ${ZEEK_VERSION} (${ZEEK_VERSION_NUMBER})"
-                "\nPrefix:           ${ZEEK_PREFIX}"
-                "\nBuild type:       ${ZEEK_BUILD_TYPE}"
+                "\nVersion:               ${ZEEK_VERSION} (${ZEEK_VERSION_NUMBER})"
+                "\nPrefix:                ${ZEEK_PREFIX}"
+                "\nBuild type:            ${ZEEK_BUILD_TYPE}"
                 )
     else ()
         message("\n    Make sure zeek-config is in your PATH, or set ZEEK_CONFIG to its location.")
@@ -128,5 +148,5 @@ endfunction ()
 configure ()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Zeek DEFAULT_MSG HAVE_ZEEK ZEEK_CONFIG)
+find_package_handle_standard_args(Zeek DEFAULT_MSG HAVE_ZEEK)
 set(ZEEK_FOUND "${ZEEK_FOUND}" CACHE BOOL "")

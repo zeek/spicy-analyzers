@@ -1,6 +1,7 @@
 environment:
     # Enforce sequential JIT'ing of files for controlled memory usage.
     HILTI_JIT_SEQUENTIAL: 1
+    SPICY_PLUGIN_BRANCH: topic/robin/plugin-reorg
 
 package_ci_task:
   timeout_in: 120m
@@ -22,7 +23,7 @@ package_ci_task:
     - rm spicy-dev.deb
 
   prepare_script:
-    - git clone --branch=main --recurse-submodules https://github.com/zeek/spicy-plugin
+    - git clone --branch=${SPICY_PLUGIN_BRANCH} --recurse-submodules https://github.com/zeek/spicy-plugin
     - zkg install --skiptests --force spicy-plugin
     - rm -rf spicy-plugin
     - zeek -N _Zeek::Spicy
@@ -62,7 +63,7 @@ macos_ci_task:
   prepare_script:
     - pip3 install zkg btest
     - zkg autoconfig && echo "@load packages" >>"$(zeek-config --site_dir)"/local.zeek
-    - git clone --branch=main --recurse-submodules https://github.com/zeek/spicy-plugin
+    - git clone --branch=${SPICY_PLUGIN_BRANCH} --recurse-submodules https://github.com/zeek/spicy-plugin
     - zkg install --skiptests --force spicy-plugin
     - rm -rf spicy-plugin
     - zeek -N _Zeek::Spicy
@@ -99,7 +100,7 @@ standalone_ci_task:
     - rm spicy-dev.deb
 
   prepare_script:
-    - git clone --branch=main --recurse-submodules https://github.com/zeek/spicy-plugin
+    - git clone --branch=${SPICY_PLUGIN_BRANCH} --recurse-submodules https://github.com/zeek/spicy-plugin
     - (cd spicy-plugin && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-plugin -G Ninja .. && ninja install)
     - rm -rf spicy-plugin
     - zeek -N _Zeek::Spicy

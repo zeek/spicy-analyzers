@@ -7,7 +7,7 @@ test -n "${ZEEK_CONFIG}" && exe="${ZEEK_CONFIG}"
 
 # 2. If we're running from the installation, ask spicyz.
 if [ -z "${exe}" -a -n "${SPICY_INSTALLATION_DIRECTORY}" ]; then
-    plugin_bin="$(${base}/Scripts/get-path --plugin-path-for-installation)/bin"
+    plugin_bin="$(${base}/Scripts/get-path --plugin-path-for-installation)/../../bin"
     exe="$(${plugin_bin}/spicyz --print-zeek-config)"
 fi
 

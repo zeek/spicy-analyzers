@@ -23,7 +23,7 @@ function(spicy_add_analyzer name)
         DEPENDS ${sources} ${deps}
         COMMENT "Compiling ${name} analyzer"
         COMMAND mkdir -p ${SPICY_MODULE_OUTPUT_DIR}
-        COMMAND spicyz -o ${output} ${SPICYZ_FLAGS} ${sources}
+        COMMAND ${SPICYZ} -o ${output} ${SPICYZ_FLAGS} ${sources}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
@@ -56,34 +56,24 @@ function(spicy_skip_analyzer name reason)
 endfunction()
 
 function(print_analyzers include_list)
-    if ( SPICYZ )
-        set(spicyz_ ${SPICYZ})
-    else ()
-        if ( SPICY_IN_TREE_BUILD )
-            set(SPICYZ "<in tree>")
-            set(spicyz_ "<in tree>")
-        else ()
-            set(spicyz_ "NOT FOUND")
-        endif ()
-    endif ()
-
     message("\n======================|  Spicy Analyzer Summary  |======================")
 
     message(
         "\nspicy-config:          ${SPICY_CONFIG}"
-        "\nzeek-config:           ${ZEEK_CONFIG}")
+        "\nzeek-config:           ${ZEEK_CONFIG}"
+        "\nSpicy compiler:        ${SPICYZ}"
+        "\nModule directory:      ${SPICY_MODULE_OUTPUT_DIR_INSTALL}"
+        "\nScripts directory:     ${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}"
+        )
 
     if ( NOT "${SPICY_IN_TREE_BUILD}" )
         message(
             "\nPlugin version:        ${SPICY_ZEEK_PLUGIN_VERSION} (${SPICY_ZEEK_PLUGIN_VERSION_NUMBER})"
-            "\nSpicy compiler:        ${spicyz_}"
-            "\nModule directory:      ${SPICY_MODULE_OUTPUT_DIR_INSTALL}"
-            "\nScripts directory:     ${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}"
             )
+    endif ()
 
-        if ( NOT SPICYZ )
-            message("\n    Make sure spicyz is in your PATH, or set SPICYZ to its location.")
-        endif ()
+    if ( NOT SPICYZ )
+        message("\n    Make sure spicyz is in your PATH, or set SPICYZ to its location.")
     endif ()
 
     if ( include_list )
@@ -110,7 +100,9 @@ endfunction()
 set_property(GLOBAL PROPERTY __spicy_included_analyzers)
 set_property(GLOBAL PROPERTY __spicy_skipped_analyzers)
 
-if ( NOT "${SPICY_IN_TREE_BUILD}" )
+if ( "${SPICY_IN_TREE_BUILD}" )
+    set(SPICYZ "${CMAKE_BINARY_DIR}/bin/spicyz")
+else ()
     if ( NOT SPICYZ )
         set(SPICYZ "$ENV{SPICYZ}")
     endif ()
@@ -139,6 +131,8 @@ if ( NOT "${SPICY_IN_TREE_BUILD}" )
     endif ()
 endif ()
 
+set(SPICYZ "${SPICYZ}" CACHE FILEPATH "") # make it globally available
+
 if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
     set(SPICYZ_FLAGS "-d")
 else ()
@@ -147,7 +141,10 @@ endif ()
 
 set(SPICY_MODULE_OUTPUT_DIR "${PROJECT_BINARY_DIR}/spicy-modules")
 
-if ( SPICYZ )
+if ( SPICY_IN_TREE_BUILD )
+    set(SPICY_MODULE_OUTPUT_DIR_INSTALL "${SPICY_ZEEK_MODULE_DIR}" CACHE STRING "")
+    set(SPICY_SCRIPTS_OUTPUT_DIR_INSTALL "${SPICY_ZEEK_SCRIPTS_DIR}" CACHE STRING "")
+elseif ( SPICYZ )
     execute_process(COMMAND "${SPICYZ}" "--print-module-path"
         OUTPUT_VARIABLE output
         OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -168,8 +165,8 @@ if ( SPICYZ )
         OUTPUT_STRIP_TRAILING_WHITESPACE)
     set(SPICY_ZEEK_PLUGIN_VERSION_NUMBER "${output}" CACHE STRING "")
 else ()
-    set(SPICY_MODULE_OUTPUT_DIR_INSTALL "${CMAKE_INSTALL_FULL_LIBDIR}/spicy/zeek/modules" CACHE STRING "")
-    set(SPICY_SCRIPTS_OUTPUT_DIR_INSTALL "${CMAKE_INSTALL_FULL_LIBDIR}/spicy/zeek/scripts" CACHE STRING "")
+    set(SPICY_MODULE_OUTPUT_DIR_INSTALL "" CACHE STRING "")
+    set(SPICY_SCRIPTS_OUTPUT_DIR_INSTALL "" CACHE STRING "")
 endif ()
 
 add_custom_target(build-spicy-analyzers)
