@@ -7,11 +7,11 @@ if [ "$1" = "--plugin-path" ]; then
     test -n "${SPICY_ZEEK_PLUGIN_PATH}" && echo "${SPICY_ZEEK_PLUGIN_PATH}" && exit 0
 
     # 2. Check for local build
-    dir=$(${base}/Scripts/build-directory)/plugin
-    test -d ${dir} && echo ${dir} && exit 0
+    dir=$(${base}/Scripts/build-directory)
+    test -d ${dir} && test -f ${dir}/__bro_plugin__ && echo ${dir} && exit 0
 
     # 3. Check for in Spicy in-tree build
-    dir=$(${base}/Scripts/build-directory)/zeek/spicy-plugin/plugin
+    dir=$(${base}/Scripts/build-directory)/zeek/spicy-plugin
     test -d ${dir} && echo ${dir} && exit 0
 
     # 4. Use Zeek default
@@ -20,15 +20,14 @@ if [ "$1" = "--plugin-path" ]; then
 
 elif [ "$1" = "--plugin-path-for-installation" ]; then
     # 1. Explicit override
-    test -n "${SPICY_INSTALLATION_DIRECTORY}" && ls -d ${SPICY_INSTALLATION_DIRECTORY}/lib*/spicy/_Zeek_Spicy && exit 0
+    test -n "${SPICY_INSTALLATION_DIRECTORY}" && ls -d ${SPICY_INSTALLATION_DIRECTORY}/lib*/zeek-spicy && exit 0
 
     # 2. Derive from Spicy prefix
-    ls -d $(${base}/Scripts/run-spicy-config --prefix)/lib*/spicy/_Zeek_Spicy 2>/dev/null && exit 0
+    ls -d $(${base}/Scripts/run-spicy-config --prefix)/lib*/zeek-spicy 2>/dev/null && exit 0
 
     # 3. If we have spicyz in path, derive from module path.
-    # TODO: Could add seperate --print-plugin-dir to spicyz.
     spicyz=$(which spicyz 2>/dev/null)
-    test -n "${spicyz}" && (cd "$(${spicyz} --print-module-path)"/../../_Zeek_Spicy && pwd) && exit 0
+    test -n "${spicyz}" && echo $(cd $(${spicyz} --print-plugin-path) && pwd) && exit 0
 
     exit 1
 
@@ -41,17 +40,22 @@ elif [ "$1" = "--zeek-path" ]; then
 
     exit 0
 
+elif [ "$1" = "--zeek-plugin-path" ]; then
+    # Return our plugin path + zkg path + standard Zeek path
+    echo $($0 --plugin-path):$(zkg config plugin_dir):$(${base}/Scripts/run-zeek-config --plugin_dir)
+    exit 0
+
 elif [ "$1" = "--sh-path" ]; then
     # Combine:
     #   1. test scripts
     #   2. Plugin /bin directory
     #   3. Spicy's /bin directory
     #   4. Zeek's /bin directory
-    echo ${base}/Scripts:$($0 --plugin-path)/bin:$(${base}/Scripts/run-spicy-config --bindir):$(${base}/Scripts/run-zeek-config --prefix)/bin
+    echo ${base}/Scripts:$($0 --plugin-path)/../../bin:$(${base}/Scripts/run-spicy-config --bindir):$(${base}/Scripts/run-zeek-config --prefix)/bin
     exit 0
 
 elif [ "$1" = "--sh-path-for-installation" ]; then
-    plugin_bin="$($0 --plugin-path-for-installation)/bin"
+    plugin_bin="$($0 --plugin-path-for-installation)/../../bin"
     zeek_config="$(${plugin_bin}/spicyz --print-zeek-config)"
 
     # 1. Explicit override for prefix
@@ -81,6 +85,6 @@ elif [ "$1" = "--module-path" ]; then
 
     exit 1
 else
-    echo "usage: $(basename $0) --plugin-path{,for-installatio} | --zeek-path | --sh-path{,for-installation} | --module-path"
+    echo "usage: $(basename $0) --plugin-path{,for-installation} | --zeek-{plugin-}path | --sh-path{,for-installation} | --module-path"
     exit 1
 fi

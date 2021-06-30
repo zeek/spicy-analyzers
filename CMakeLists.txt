@@ -13,7 +13,7 @@ set(mininmum_spicy_plugin_version_number 009900)
 set(mininmum_zeek_version         "3.0")
 set(mininmum_zeek_version_number  30000)
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(Zeek)
 find_package(Spicy)
 
@@ -52,12 +52,9 @@ endif ()
 include(AnalyzerUtils)
 add_subdirectory(analyzer)
 
+print_analyzers(true)
 
-if ( SPICY_IN_TREE_BUILD )
-    print_analyzers(false)
-else ()
-    print_analyzers(true)
-
+if ( NOT SPICY_IN_TREE_BUILD )
     if ( NOT SPICYZ )
         message(FATAL_ERROR "spicyz missing")
     endif ()

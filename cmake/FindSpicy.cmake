@@ -79,8 +79,10 @@ macro(configure)
         run_spicy_config(SPICY_LIBRARY_DIRS_TOOLCHAIN --libdirs-cxx-toolchain)
         string(REPLACE " " ";" SPICY_LIBRARY_DIRS_TOOLCHAIN "${SPICY_LIBRARY_DIRS_TOOLCHAIN}")
 
-        #list(TRANSFORM SPICY_INCLUDE_DIRS PREPEND "-I" OUTPUT_VARIABLE SPICY_CXX_FLAGS)
-        #string(REPLACE ";" " " SPICY_CXX_FLAGS "${SPICY_CXX_FLAGS}")
+        # Note: This should probably move over into Spicy proper, and then also
+        # add imported targets for the libraries.
+        find_library(SPICY_LIBRARY NAMES spicy HINTS "${SPICY_LIBRARY_DIRS_TOOLCHAIN}" "${SPICY_LIBRARY_DIRS_RUNTIME}")
+        find_library(HILTI_LIBRARY NAMES hilti HINTS "${SPICY_LIBRARY_DIRS_TOOLCHAIN}" "${SPICY_LIBRARY_DIRS_RUNTIME}")
     endif ()
 endmacro ()
 
@@ -128,6 +130,7 @@ function(run_spicy_config output)
         OUTPUT_VARIABLE output_
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
+    string(STRIP "${output_}" output_)
     set(${output} "${output_}" PARENT_SCOPE)
 endfunction ()
 
@@ -158,6 +161,9 @@ endfunction ()
 option(SPICY_IN_TREE_BUILD "Internal option to flag building from within the Spicy source tree" no)
 
 if ( "${SPICY_IN_TREE_BUILD}" )
+    # We don't have the Spicy version number available easily,
+    # but set a dummy number that's high enough to pass any tests.
+    set(SPICY_VERSION_NUMBER "9999999999")
 else ()
     configure ()
     include(FindPackageHandleStandardArgs)
