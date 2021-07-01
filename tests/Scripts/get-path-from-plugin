@@ -1,0 +1,45 @@
+#! /bin/sh
+#
+# This is wrapper around the plugin-side "get-path" script that provides
+# the locations of various pieces we use for testing.
+
+base=$(cd $(dirname $0)/.. && pwd)
+
+if [ -z "${SPICY_INSTALLATION_DIRECTORY}" ]; then
+    export SPICY_INSTALLATION_DIRECTORY=$(spicy-config --prefix 2>/dev/null)
+fi
+
+# Try in-tree Spicy build
+test -z "${SPICYZ}" && test -x ${base}/../../../tests/Scripts/build-directory \
+                    && x=$(${base}/../../../tests/Scripts/build-directory)/bin/spicyz 2>/dev/null \
+                    && test -x ${x} && SPICYZ=${x}
+
+# Try Spicy installation
+test -n "${SPICY_INSTALLATION_DIRECTORY}" \
+                    && x=${SPICY_INSTALLATION_DIRECTORY}/bin/spicyz \
+                    && test -x ${x} && SPICYZ=${x}
+
+# Try finding spicyz in PATH.
+test -z "${SPICYZ}" && SPICYZ=$(command -v spicyz)
+
+if [ -n "${SPICYZ}" ]; then
+    if [ ! -x "${SPICYZ}" ]; then
+        echo "${SPICYZ} does not exist" >&2
+        exit 1
+    fi
+else
+    echo "cannot locate spicyz, set SPICYZ" >&2
+    exit 1
+fi
+
+test_path=$(${SPICYZ} --print-test-path)
+get_path=${test_path}/Scripts/get-path
+
+if [ ! -x "${get_path}" ]; then
+     echo "cannot locate get-path in ${test_path}/Scripts" >&2
+     exit 1
+fi
+
+
+export TEST_BASE=${base}
+${get_path} $@
