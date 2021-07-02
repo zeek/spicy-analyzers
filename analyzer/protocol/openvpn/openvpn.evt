@@ -3,14 +3,32 @@
 protocol analyzer spicy::OpenVPN_UDP over UDP:
 	parse with OpenVPN::OpenVPNRecords;
 
-protocol analyzer spicy::OpenVPN_UDP_HMAC over UDP:
-	parse with OpenVPN::OpenVPNRecordsHMAC;
+protocol analyzer spicy::OpenVPN_UDP_HMAC_MD5 over UDP:
+	parse with OpenVPN::OpenVPNRecordsHMACMD5;
+
+protocol analyzer spicy::OpenVPN_UDP_HMAC_SHA1 over UDP:
+	parse with OpenVPN::OpenVPNRecordsHMACSHA1;
+
+protocol analyzer spicy::OpenVPN_UDP_HMAC_SHA256 over UDP:
+	parse with OpenVPN::OpenVPNRecordsHMACSHA256;
+
+protocol analyzer spicy::OpenVPN_UDP_HMAC_SHA512 over UDP:
+	parse with OpenVPN::OpenVPNRecordsHMACSHA512;
 
 protocol analyzer spicy::OpenVPN_TCP over TCP:
 	parse with OpenVPN::OpenVPNRecordsTCP;
 
-protocol analyzer spicy::OpenVPN_TCP_HMAC over TCP:
-	parse with OpenVPN::OpenVPNRecordsTCPHMAC;
+protocol analyzer spicy::OpenVPN_TCP_HMAC_MD5 over TCP:
+	parse with OpenVPN::OpenVPNRecordsTCPHMACMD5;
+
+protocol analyzer spicy::OpenVPN_TCP_HMAC_SHA1 over TCP:
+	parse with OpenVPN::OpenVPNRecordsTCPHMACSHA1;
+
+protocol analyzer spicy::OpenVPN_TCP_HMAC_SHA256 over TCP:
+	parse with OpenVPN::OpenVPNRecordsTCPHMACSHA256;
+
+protocol analyzer spicy::OpenVPN_TCP_HMAC_SHA512 over TCP:
+	parse with OpenVPN::OpenVPNRecordsTCPHMACSHA512;
 
 import OpenVPN;
 import OpenVPN_Zeek;
