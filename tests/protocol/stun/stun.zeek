@@ -1,7 +1,7 @@
 # Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
 
-# @TEST-EXEC: ${ZEEK} -NN >zeek 2>&1
-# @TEST-EXEC: ${ZEEK} -Cr ${TRACES}/stun-ice-testcall.pcap %INPUT
+# @TEST-EXEC: zeek -NN >zeek 2>&1
+# @TEST-EXEC: zeek -Cr ${TRACES}/stun-ice-testcall.pcap %INPUT
 # @TEST-EXEC: btest-diff conn.log
 # @TEST-EXEC: btest-diff stun.log
 # @TEST-EXEC: btest-diff stun_nat.log

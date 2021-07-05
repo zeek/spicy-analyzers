@@ -1,4 +1,4 @@
-# @TEST-EXEC: ${ZEEK} -C -r ${TRACES}/zip/descriptor.pcap frameworks/files/extract-all-files frameworks/files/hash-all-files %INPUT
+# @TEST-EXEC: zeek -C -r ${TRACES}/zip/descriptor.pcap frameworks/files/extract-all-files frameworks/files/hash-all-files %INPUT
 # @TEST-EXEC: for i in extract_files/*; do (printf "$i "; wc -c "$i" | awk '{print $1}'); done | sort >extracted.log
 # @TEST-EXEC: for i in files.log extracted.log; do cat $i | sed 's#\(extract-[^-]*\)-[^-]*-#\1-xxx-#g' >$i.tmp && mv $i.tmp $i; done
 #     Don't diff files.log for legacy Zeek 3.x as ordering of "analyzers" has changed

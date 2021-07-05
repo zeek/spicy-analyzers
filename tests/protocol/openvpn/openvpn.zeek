@@ -1,7 +1,7 @@
 # Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
 
 # @TEST-EXEC: set >envs
-# @TEST-EXEC: ${ZEEK} -C -r ${TRACES}/openvpn.pcap %INPUT >openvpn.out
+# @TEST-EXEC: zeek -C -r ${TRACES}/openvpn.pcap %INPUT >openvpn.out
 # @TEST-EXEC: btest-diff openvpn.out
 # @TEST-EXEC: btest-diff conn.log
 

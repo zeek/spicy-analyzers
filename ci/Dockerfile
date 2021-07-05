@@ -10,7 +10,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ARG SKIP_BUILD=
 ARG ZEEK_LTS=1
-ARG ZEEK_VERSION=3.0.11-0
+ARG ZEEK_VERSION=4.0.2-0
 
 CMD ["sh"]
 ENV DEBIAN_FRONTEND=noninteractive
@@ -18,6 +18,7 @@ ENV PATH="/opt/spicy/bin:/opt/zeek/bin:${PATH}"
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends curl ca-certificates gnupg2 less sudo \
+ && pip3 install --no-cache-dir pre-commit \
  # Install Zeek.
  && mkdir -p /tmp/zeek-packages \
  && cd /tmp/zeek-packages \
@@ -33,7 +34,7 @@ RUN apt-get update \
  && [[ ${ZEEK_VERSION} = 4.* ]] && curl -L --remote-name-all \
     https://download.zeek.org/binary-packages/xUbuntu_20.04/amd64/zeek${ZEEK_LTS}-btest_${ZEEK_VERSION}_amd64.deb \
     https://download.zeek.org/binary-packages/xUbuntu_20.04/amd64/zeek${ZEEK_LTS}-zkg_${ZEEK_VERSION}_amd64.deb \
- ||  pip3 install --no-cache-dir "btest>=0.66" zkg pre-commit \
+ ||  pip3 install --no-cache-dir "btest>=0.66" zkg \
  && dpkg -i ./*.deb \
  && cd - \
  && rm -rf /tmp/zeek-packages \

@@ -1,4 +1,4 @@
-# @TEST-EXEC: ${ZEEK} -r ${TRACES}/ftp-pe.pcap %INPUT >out
+# @TEST-EXEC: zeek -r ${TRACES}/ftp-pe.pcap %INPUT >out
 # @TEST-EXEC: btest-diff files.log
 # @TEST-EXEC: btest-diff pe.log
 # @TEST-EXEC: btest-diff out

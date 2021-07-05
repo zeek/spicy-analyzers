@@ -1,7 +1,7 @@
 # Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
 
 # @TEST-EXEC: set >envs
-# @TEST-EXEC: ${ZEEK} -C -r ${TRACES}/ikev1-certs.pcap %INPUT
+# @TEST-EXEC: zeek -C -r ${TRACES}/ikev1-certs.pcap %INPUT
 # @TEST-EXEC: btest-diff conn.log
 #     Zeek 3.0 sorts dictionaries differently, leading to a change in vendor ID; not worth worrying about, so we just skip the diff for 3.0.
 # @TEST-EXEC: if zeek-version 40000; then btest-diff ipsec.log; fi

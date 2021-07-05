@@ -3,7 +3,13 @@ environment:
     HILTI_JIT_SEQUENTIAL: 1
     SPICY_PLUGIN_BRANCH: topic/robin/plugin-reorg
 
-package_ci_task:
+pre_commit_task:
+  container:
+    dockerfile: ci/Dockerfile
+
+  pre_commit_script: pre-commit run -a
+
+zkg_ubuntu_task:
   timeout_in: 120m
   container:
     dockerfile: ci/Dockerfile
@@ -13,7 +19,7 @@ package_ci_task:
         - ZEEK_VERSION: 3.0.13-0
       - docker_arguments:
         - ZEEK_LTS: 1
-        - ZEEK_VERSION: 4.0.0-0
+        - ZEEK_VERSION: 4.0.2-0
     cpu: 4
     memory: 12G
 
@@ -43,7 +49,7 @@ package_ci_task:
   always:
       stderr_script: ./ci/show-zkg-stderr
 
-macos_ci_task:
+zkg_macos_task:
   timeout_in: 120m
 
   osx_instance:
@@ -83,14 +89,14 @@ macos_ci_task:
   always:
       stderr_script: ./ci/show-zkg-stderr
 
-standalone_ci_task:
+standalone_ubuntu_task:
   timeout_in: 120m
   container:
     dockerfile: ci/Dockerfile
     matrix:
       - docker_arguments:
         - ZEEK_LTS:
-        - ZEEK_VERSION: 4.0.0-0
+        - ZEEK_VERSION: 4.0.2-0
     cpu: 4
     memory: 12G
 
@@ -109,13 +115,7 @@ standalone_ci_task:
     - (mkdir build && cd build && PATH=/opt/spicy-plugin/bin:$PATH cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-analyzers -G Ninja .. && ninja -j 2 && ninja install)
     - rm -rf build
 
-  check_script:
+  test_install_script:
     - zeek -NN _Zeek::Spicy | grep Analyzer
     - PATH=/opt/spicy-plugin/bin:$PATH make -C tests test-install
     - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap spicy-analyzers && test -e tftp.log && grep rfc1350.txt tftp.log)
-
-pre_commit_task:
-  container:
-    dockerfile: ci/Dockerfile
-
-  pre_commit_script: pre-commit run -a
