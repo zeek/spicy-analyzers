@@ -21,57 +21,81 @@ type Opcode = enum {
 };
 
 public type OpenVPNRecords = unit {
-	records: OpenVPNRecord(False)[];
+	records: OpenVPNRecord(0)[];
 };
 
-public type OpenVPNRecordsHMAC = unit {
-	records: OpenVPNRecord(True)[];
+public type OpenVPNRecordsHMACMD5 = unit {
+	records: OpenVPNRecord(16)[];
 };
 
-public type OpenVPNRecord = unit(has_hmac: bool) {
+public type OpenVPNRecordsHMACSHA1 = unit {
+	records: OpenVPNRecord(20)[]; # 160 bit
+};
+
+public type OpenVPNRecordsHMACSHA256 = unit {
+	records: OpenVPNRecord(32)[];
+};
+
+public type OpenVPNRecordsHMACSHA512 = unit {
+	records: OpenVPNRecord(64)[];
+};
+
+public type OpenVPNRecord = unit(hmac_size: uint32) {
 	message_type: bitfield(8) {
 		opcode: 3..7 &convert=Opcode($$);
 		key_id: 0..2;
 	};
 
 	switch ( self.message_type.opcode ) {
-		Opcode::P_CONTROL_HARD_RESET_CLIENT_V1 -> control_hard_reset_client_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac);
-		Opcode::P_CONTROL_HARD_RESET_SERVER_V1 -> control_hard_reset_server_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac);
-		Opcode::P_CONTROL_SOFT_RESET_V1 -> control_soft_reset_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac);
-		Opcode::P_CONTROL_V1 -> control_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac);
-		Opcode::P_ACK_V1 -> ack_v1: AckMessage(self.message_type.opcode, self.message_type.key_id, has_hmac);
+		Opcode::P_CONTROL_HARD_RESET_CLIENT_V1 -> control_hard_reset_client_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, hmac_size);
+		Opcode::P_CONTROL_HARD_RESET_SERVER_V1 -> control_hard_reset_server_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, hmac_size);
+		Opcode::P_CONTROL_SOFT_RESET_V1 -> control_soft_reset_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, hmac_size);
+		Opcode::P_CONTROL_V1 -> control_v1: ControlMessage(self.message_type.opcode, self.message_type.key_id, hmac_size);
+		Opcode::P_ACK_V1 -> ack_v1: AckMessage(self.message_type.opcode, self.message_type.key_id, hmac_size);
 		Opcode::P_DATA_V1 -> data_v1: DataMessage(self.message_type.opcode, self.message_type.key_id, False);
-		Opcode::P_CONTROL_HARD_RESET_SERVER_V2 -> control_hard_reset_server_v2: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac);
-		Opcode::P_CONTROL_HARD_RESET_CLIENT_V2 -> control_hard_reset_client_v2: ControlMessage(self.message_type.opcode, self.message_type.key_id, has_hmac);
+		Opcode::P_CONTROL_HARD_RESET_SERVER_V2 -> control_hard_reset_server_v2: ControlMessage(self.message_type.opcode, self.message_type.key_id, hmac_size);
+		Opcode::P_CONTROL_HARD_RESET_CLIENT_V2 -> control_hard_reset_client_v2: ControlMessage(self.message_type.opcode, self.message_type.key_id, hmac_size);
 		Opcode::P_DATA_V2 -> data_v2: DataMessage(self.message_type.opcode, self.message_type.key_id, True);
 	};
 };
 
 public type OpenVPNRecordsTCP = unit {
-	records: OpenVPNRecordTCP(False)[];
+	records: OpenVPNRecordTCP(0)[];
 };
 
-public type OpenVPNRecordsTCPHMAC = unit {
-	records: OpenVPNRecordTCP(True)[];
+public type OpenVPNRecordsTCPHMACMD5 = unit {
+	records: OpenVPNRecordTCP(16)[];
 };
 
-public type OpenVPNRecordTCP = unit(has_hmac: bool) {
+public type OpenVPNRecordsTCPHMACSHA1 = unit {
+	records: OpenVPNRecordTCP(20)[];
+};
+
+public type OpenVPNRecordsTCPHMACSHA256 = unit {
+	records: OpenVPNRecordTCP(32)[];
+};
+
+public type OpenVPNRecordsTCPHMACSHA512 = unit {
+	records: OpenVPNRecordTCP(64)[];
+};
+
+public type OpenVPNRecordTCP = unit(hmac_size: uint32) {
 	packet_length: uint16;
 
-	record: OpenVPNRecord(has_hmac) &size=self.packet_length;
+	record: OpenVPNRecord(hmac_size) &size=self.packet_length;
 };
 
-type HMACInfo = unit {
-	hmac : bytes &size=20;
+type HMACInfo = unit(hmac_size: uint32) {
+	hmac : bytes &size=hmac_size;
 	packet_id: uint32;
 	net_time: bytes &size=4;
 };
 
-public type ControlMessage = unit(opcode: Opcode, key_id: uint8, has_hmac: bool) {
+public type ControlMessage = unit(opcode: Opcode, key_id: uint8, hmac_size: uint32) {
 	var opcode: Opcode = opcode;
 	var key_id: uint8 = key_id;
 	session_id: bytes &size=8;
-	hmac: HMACInfo if (has_hmac);
+	hmac: HMACInfo(hmac_size) if (hmac_size > 0);
 	packet_id_array_len: uint8;
 	packet_id_array: uint32[self.packet_id_array_len];
 	remote_session_id: bytes &size=8 if (self.packet_id_array_len > 0);
@@ -79,11 +103,11 @@ public type ControlMessage = unit(opcode: Opcode, key_id: uint8, has_hmac: bool)
 	ssl_data: bytes &eod;
 };
 
-type AckMessage = unit(opcode: Opcode, key_id: uint8, has_hmac: bool) {
+type AckMessage = unit(opcode: Opcode, key_id: uint8, hmac_size: uint32) {
 	var opcode: Opcode = opcode;
 	var key_id: uint8 = key_id;
 	session_id: bytes &size=8;
-	hmac: HMACInfo if (has_hmac);
+	hmac: HMACInfo(hmac_size) if (hmac_size > 0);
 	packet_id_array_len : uint8;
 	packet_id_array: uint32[self.packet_id_array_len];
 	remote_session_id: bytes &size=8;
