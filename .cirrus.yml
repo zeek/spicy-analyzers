@@ -1,9 +1,21 @@
 environment:
     # Enforce sequential JIT'ing of files for controlled memory usage.
     HILTI_JIT_SEQUENTIAL: 1
-    SPICY_PLUGIN_BRANCH: topic/robin/plugin-reorg
 
-package_ci_task:
+    # Images for macOS
+    IMAGE_MACOS_BIG_SUR:  big-sur-base
+    IMAGE_MACOS_CATALINA: catalina-base
+
+    # Branch to use for building the Zeek plugin.
+    ZEEK_SPICY_BRANCH: main
+
+pre_commit_task:
+  container:
+    dockerfile: ci/Dockerfile
+
+  pre_commit_script: pre-commit run -a
+
+zkg_ubuntu_task:
   timeout_in: 120m
   container:
     dockerfile: ci/Dockerfile
@@ -13,7 +25,7 @@ package_ci_task:
         - ZEEK_VERSION: 3.0.13-0
       - docker_arguments:
         - ZEEK_LTS: 1
-        - ZEEK_VERSION: 4.0.0-0
+        - ZEEK_VERSION: 4.0.3-0
     cpu: 4
     memory: 12G
 
@@ -23,7 +35,7 @@ package_ci_task:
     - rm spicy-dev.deb
 
   prepare_script:
-    - git clone --branch=${SPICY_PLUGIN_BRANCH} --recurse-submodules https://github.com/zeek/spicy-plugin
+    - git clone --branch=$ZEEK_SPICY_BRANCH --recurse-submodules https://github.com/zeek/spicy-plugin
     - zkg install --skiptests --force spicy-plugin
     - rm -rf spicy-plugin
     - zeek -N _Zeek::Spicy
@@ -43,14 +55,18 @@ package_ci_task:
   always:
       stderr_script: ./ci/show-zkg-stderr
 
-macos_ci_task:
+zkg_macos_task:
   timeout_in: 120m
 
   osx_instance:
-    image: big-sur-base
+    image: $IMAGE_MACOS_BIG_SUR
 
   env:
     PATH: /opt/spicy/bin:${PATH}
+
+  # TODO(bbannier): This is a temporary workaround for cirruslabs/cirrus-ci-docs#878.
+  update_homebrew_script:
+     - brew update
 
   install_zeek_script:
     - brew install zeek
@@ -63,7 +79,7 @@ macos_ci_task:
   prepare_script:
     - pip3 install zkg btest
     - zkg autoconfig && echo "@load packages" >>"$(zeek-config --site_dir)"/local.zeek
-    - git clone --branch=${SPICY_PLUGIN_BRANCH} --recurse-submodules https://github.com/zeek/spicy-plugin
+    - git clone --branch=$ZEEK_SPICY_BRANCH --recurse-submodules https://github.com/zeek/spicy-plugin
     - zkg install --skiptests --force spicy-plugin
     - rm -rf spicy-plugin
     - zeek -N _Zeek::Spicy
@@ -83,14 +99,14 @@ macos_ci_task:
   always:
       stderr_script: ./ci/show-zkg-stderr
 
-standalone_ci_task:
+standalone_ubuntu_task:
   timeout_in: 120m
   container:
     dockerfile: ci/Dockerfile
     matrix:
       - docker_arguments:
         - ZEEK_LTS:
-        - ZEEK_VERSION: 4.0.0-0
+        - ZEEK_VERSION: 4.0.3-0
     cpu: 4
     memory: 12G
 
@@ -100,7 +116,7 @@ standalone_ci_task:
     - rm spicy-dev.deb
 
   prepare_script:
-    - git clone --branch=${SPICY_PLUGIN_BRANCH} --recurse-submodules https://github.com/zeek/spicy-plugin
+    - git clone --branch=$ZEEK_SPICY_BRANCH --recurse-submodules https://github.com/zeek/spicy-plugin
     - (cd spicy-plugin && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-plugin -G Ninja .. && ninja install)
     - rm -rf spicy-plugin
     - zeek -N _Zeek::Spicy
@@ -109,13 +125,7 @@ standalone_ci_task:
     - (mkdir build && cd build && PATH=/opt/spicy-plugin/bin:$PATH cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-analyzers -G Ninja .. && ninja -j 2 && ninja install)
     - rm -rf build
 
-  check_script:
+  test_install_script:
     - zeek -NN _Zeek::Spicy | grep Analyzer
     - PATH=/opt/spicy-plugin/bin:$PATH make -C tests test-install
     - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap spicy-analyzers && test -e tftp.log && grep rfc1350.txt tftp.log)
-
-pre_commit_task:
-  container:
-    dockerfile: ci/Dockerfile
-
-  pre_commit_script: pre-commit run -a

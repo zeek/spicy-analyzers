@@ -1,7 +1,7 @@
 # Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
 
 # @TEST-EXEC: set >envs
-# @TEST-EXEC: ${ZEEK} -C -r ${TRACES}/ipsec-ikev1-isakmp-main-mode.pcap %INPUT
+# @TEST-EXEC: zeek -C -r ${TRACES}/ipsec-ikev1-isakmp-main-mode.pcap %INPUT
 # @TEST-EXEC: btest-diff conn.log
 # @TEST-EXEC: btest-diff ipsec.log
 # @TEST-EXEC: btest-diff .stdout

@@ -1,6 +1,6 @@
 # Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
 
-# @TEST-EXEC: ${ZEEK} -C -r ${TRACES}/facefish_full.pcap %INPUT
+# @TEST-EXEC: zeek -C -r ${TRACES}/facefish_full.pcap %INPUT
 # @TEST-EXEC: btest-diff facefish_rootkit.log
 # @TEST-EXEC: btest-diff notice.log
 # @TEST-EXEC: btest-diff conn.log
