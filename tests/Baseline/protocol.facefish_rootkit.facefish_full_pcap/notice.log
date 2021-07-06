@@ -9,4 +9,4 @@
 #fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	fuid	file_mime_type	file_desc	proto	note	msg	sub	src	dst	p	n	peer_descr	actions	suppress_for	remote_location.country_code	remote_location.region	remote_location.city	remote_location.latitude	remote_location.longitude
 #types	time	string	addr	port	addr	port	string	string	string	enum	enum	string	string	addr	addr	port	count	string	set[enum]	interval	string	string	string	double	double
 #close XXXX-XX-XX-XX-XX-XX
-XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	127.0.0.1	56740	127.0.0.1	9999	-	-	-	tcp	Facefish_Rootkit::FACEFISH_ROOTKIT_C2	Potential Facefish rootkit C2 detected.	More info: https:<...>/ssh_stealer_facefish_en/	127.0.0.1	127.0.0.1	9999	-	-	Notice::ACTION_LOG	60.000000	-	-	-	-	-
+XXXXXXXXXX.XXXXXX	CmES5u32sYpV7JYN	192.168.2.20	43450	176.111.174.26	443	-	-	-	tcp	Facefish_Rootkit::FACEFISH_ROOTKIT_C2	Potential Facefish rootkit C2 detected.	More info: https:<...>/ssh_stealer_facefish_en/	192.168.2.20	176.111.174.26	443	-	-	Notice::ACTION_LOG	60.000000	-	-	-	-	-
