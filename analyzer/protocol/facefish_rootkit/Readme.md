@@ -15,13 +15,14 @@ An in depth blog and webinar slides on the development of this analyzer can be f
 Any detections will be found in "facefish_rootkit.log" while a "Facefish_Rootkit::FACEFISH_ROOTKIT_C2" notice
 is also raised.
 
-The testing pcap was made with the following command:
+A testing pcap (that should not detect because there is no KeyEx2) was made
+with the following command:
 
 ```
 echo -n -e \\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x00 | nc 127.0.0.1 9999
 ```
 
-There is a PCAP of the C2 traffic available here:
+There is a PCAP of the full C2 traffic available here (the second test used for this protocol):
 
 <https://www.joesandbox.com/analysis/355141/0/html#network>
 

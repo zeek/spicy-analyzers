@@ -1,3 +1,7 @@
+0.2.18 | 2021-07-06 20:34:11 +0200
+
+  * Make Facefish detection more robust by requiring two way communication. (Keith Jones, Corelight)
+
 0.2.17-2 | 2021-07-06 20:31:41 +0200
 
   * GH-46: Fixing false positives discussed in issue #46. (Keith Jones, Corelight)
