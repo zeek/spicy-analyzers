@@ -17,13 +17,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/opt/spicy/bin:/opt/zeek/bin:${PATH}"
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends curl ca-certificates gnupg2 less sudo \
+ && apt-get install -y --no-install-recommends curl ca-certificates gnupg2 less sudo python python3 python3-pip python3-semantic-version python3-git \
  && pip3 install --no-cache-dir pre-commit \
  # Install Zeek.
  && mkdir -p /tmp/zeek-packages \
  && cd /tmp/zeek-packages \
  && if [ -n "${ZEEK_LTS}" ]; then ZEEK_LTS="-lts"; fi && export ZEEK_LTS \
- && apt-get install -y --no-install-recommends libpcap0.8 libpcap-dev libssl-dev zlib1g-dev libmaxminddb0 libmaxminddb-dev python python3 python3-pip python3-semantic-version python3-git \
+ && apt-get install -y --no-install-recommends libpcap0.8 libpcap-dev libssl-dev zlib1g-dev libmaxminddb0 libmaxminddb-dev \
  && curl -L --remote-name-all \
     https://download.zeek.org/binary-packages/xUbuntu_20.04/amd64/zeek${ZEEK_LTS}_${ZEEK_VERSION}_amd64.deb \
     https://download.zeek.org/binary-packages/xUbuntu_20.04/amd64/zeek${ZEEK_LTS}-core_${ZEEK_VERSION}_amd64.deb \
