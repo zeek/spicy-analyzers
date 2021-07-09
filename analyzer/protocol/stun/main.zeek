@@ -143,9 +143,9 @@ event STUN::mapped_address_attribute(c: connection, is_orig: bool, method: count
 			{
 			local cts = addr_to_counts(x_addr);
 			cts[0] = cts[0] ^ 0x2112A442;
-			cts[1] = cts[1] ^ bytestring_to_count(trans_id[0:3]);
-			cts[2] = cts[2] ^ bytestring_to_count(trans_id[4:7]);
-			cts[3] = cts[3] ^ bytestring_to_count(trans_id[8:11]);
+			cts[1] = cts[1] ^ bytestring_to_count(trans_id[0:4]);
+			cts[2] = cts[2] ^ bytestring_to_count(trans_id[4:8]);
+			cts[3] = cts[3] ^ bytestring_to_count(trans_id[8:12]);
 			wan_addr = counts_to_addr(cts);
 			}
 		}
