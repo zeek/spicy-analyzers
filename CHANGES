@@ -1,3 +1,8 @@
+
+0.2.19 | 2021-07-11 08:51:59 +0200
+
+  * [STUN] Fix indexing. (Keith Jones, Corelight)
+
 0.2.18 | 2021-07-06 20:34:11 +0200
 
   * Make Facefish detection more robust by requiring two way communication. (Keith Jones, Corelight)
