@@ -2,6 +2,9 @@ environment:
     # Enforce sequential JIT'ing of files for controlled memory usage.
     HILTI_JIT_SEQUENTIAL: 1
 
+    # Images for macOS
+    IMAGE_MACOS: big-sur-base
+
 package_ci_task:
   timeout_in: 120m
   container:
@@ -46,10 +49,14 @@ macos_ci_task:
   timeout_in: 120m
 
   osx_instance:
-    image: big-sur-base
+    image: $IMAGE_MACOS
 
   env:
     PATH: /opt/spicy/bin:${PATH}
+
+ # TODO(bbannier): This is a temporary workaround for cirruslabs/cirrus-ci-docs#878.
+  update_homebrew_script:
+    - brew update
 
   install_zeek_script:
     - brew install zeek
