@@ -1,4 +1,20 @@
 
+0.2.19-5 | 2021-07-17 10:47:01 +0200
+
+ *  [ZIP] Fix a version a version issue where scripts could end up
+    being loaded even when we didn't compile the analyzer. (Robin
+    Sommer, Corelight)
+
+  * [LDAP] Fix an issue where a switch's `&parse-from` attribute could
+    end up accessing a unit field even when it wasn't set. (Robin
+    Sommer, Corelight)
+
+  * Remove support for Spicy-side in-tree build. (Robin Sommer,
+    Corelight)
+
+  * Pull in new CMake logic and testing scripts from spicy-plugin.
+    (Robin Sommer, Corelight)
+
 0.2.19 | 2021-07-11 08:51:59 +0200
 
   * [STUN] Fix indexing. (Keith Jones, Corelight)

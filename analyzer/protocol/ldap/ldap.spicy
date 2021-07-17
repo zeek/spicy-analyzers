@@ -177,7 +177,8 @@ public type Message = unit {
     # ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   IntermediateResponse(self);
     # ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          ModDNRequest(self);
     # ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: SearchResultReference(self);
-  } &parse-from=self.applicationBytes;
+  } &parse-from=self.applicationBytes if ( self.opcode );
+
 } &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::Undef));
 
 #-----------------------------------------------------------------------------

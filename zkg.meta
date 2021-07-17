@@ -1,11 +1,8 @@
 [package]
-depends = zeek/spicy-plugin *
 script_dir = analyzer
 plugin_dir = build/spicy-modules
 
-build_command = mkdir -p build && cd build && SPICYZ=%(package_base)s/spicy-plugin/build/plugin/bin/spicyz cmake .. && make -j "${SPICY_ZKG_PROCESSES:-2}"
+build_command = mkdir -p build && cd build && SPICYZ=%(package_base)s/spicy-plugin/build/bin/spicyz cmake .. && make -j "${SPICY_ZKG_PROCESSES:-2}"
 
-# If the package is already installed, the Spicy plugin would pull in both
-# old and new *.hlto during testing. Hence we need to override the search path
-# to point to only the new location.
-test_command = cd tests && SPICY_MODULE_PATH=$(pwd)/../build/spicy-modules btest -d -j "${SPICY_ZKG_PROCESSES:-2}" -a zkg
+# Note that zkg doesn't expand variables in the test command.
+test_command  = cd tests && PATH=$(zkg config plugin_dir)/packages/spicy-plugin/bin:$PATH btest -d -j "${SPICY_ZKG_PROCESSES:-2}"
