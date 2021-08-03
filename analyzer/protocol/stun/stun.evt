@@ -88,10 +88,10 @@ on STUN::Attribute::USE_CANDIDATE -> event STUN::string_attribute($conn, $is_ori
 							self.class, self.trans_id, cast<uint16>(self.attr_type), "");
 
 # ALTERNATE_SERVER
-on STUN::Attribute::ALTERNATE_SERVER if(self.MAPPED_ADDRESS.family == STUN::AddrFamily(0x01)) ->
+on STUN::Attribute::ALTERNATE_SERVER if(self.ALTERNATE_SERVER.family == STUN::AddrFamily(0x01)) ->
 					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
 					cast<uint16>(self.attr_type), self.ALTERNATE_SERVER.x_port, self.ALTERNATE_SERVER.ipv4);
-on STUN::Attribute::ALTERNATE_SERVER if(self.MAPPED_ADDRESS.family == STUN::AddrFamily(0x02)) ->
+on STUN::Attribute::ALTERNATE_SERVER if(self.ALTERNATE_SERVER.family == STUN::AddrFamily(0x02)) ->
 					event STUN::mapped_address_attribute($conn, $is_orig, self.method, self.class, self.trans_id,
 					cast<uint16>(self.attr_type), self.ALTERNATE_SERVER.x_port, self.ALTERNATE_SERVER.ipv6);
 

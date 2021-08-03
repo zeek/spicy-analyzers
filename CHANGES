@@ -1,3 +1,7 @@
+0.2.21 | 2021-08-03 12:03:34 +0200
+
+  * Fix a typo in STUN analyzer. (Keith Jones)
+
 0.2.20 | 2021-07-30 16:07:50 +0200
 
   * Bump minimum Spicy version to 1.2.0. (Benjamin Bannier, Corelight)
