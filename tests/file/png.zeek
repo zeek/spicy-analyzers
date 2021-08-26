@@ -1,4 +1,4 @@
-# @TEST-EXEC: zeek -B file_analysis -r ${TRACES}/png.pcap %INPUT
+# @TEST-EXEC: zeek -r ${TRACES}/png.pcap %INPUT
 # @TEST-EXEC: zeek -NN > zeek
 # @TEST-EXEC: btest-diff files.log
 # @TEST-EXEC: btest-diff png.log
