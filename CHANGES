@@ -1,3 +1,11 @@
+0.2.22 | 2021-08-27 09:19:09 +0200
+
+  * GH-81: Fix test `protocol.facefish_rootkit.facefish_full_pcap` for zeek-4.1.0. (Benjamin Bannier, Corelight)
+
+  * Remove use of Zeek's `-B` flag in tests. (Benjamin Bannier, Corelight)
+
+  * Add zeek-4.1.0 to the CI. (Benjamin Bannier, Corelight)
+
 0.2.21 | 2021-08-03 12:03:34 +0200
 
   * Fix a typo in STUN analyzer. (Keith Jones)
