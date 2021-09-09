@@ -1,3 +1,7 @@
 # Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
 
-spicy_add_analyzer(Wireguard wireguard.spicy wireguard_zeek.spicy wireguard.evt)
+spicy_add_analyzer(
+    NAME Wireguard
+    PACKAGE_NAME ${PACKAGE_NAME}
+    SOURCES wireguard.spicy wireguard_zeek.spicy wireguard.evt
+    SCRIPTS dpd.sig main.zeek __load__.zeek)

@@ -1,5 +1,7 @@
 # Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
 
+set(PACKAGE_NAME "spicy-analyzers")
+
 add_subdirectory(dhcp)
 add_subdirectory(dns)
 add_subdirectory(facefish_rootkit)
@@ -15,8 +17,6 @@ add_subdirectory(tftp)
 add_subdirectory(wireguard)
 add_subdirectory(zip)
 
-# TODO: Should probably switch to listing the scripts to be installed.
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-            DESTINATION "${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}/spicy-analyzers"
-            FILES_MATCHING PATTERN "*.zeek" PATTERN "*.sig"
-        )
+install(
+    FILES __load__.zeek
+    DESTINATION "${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}/${PACKAGE_NAME}/")
