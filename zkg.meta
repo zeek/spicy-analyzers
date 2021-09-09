@@ -6,3 +6,7 @@ build_command = mkdir -p build && cd build && SPICYZ=%(package_base)s/spicy-plug
 
 # Note that zkg doesn't expand variables in the test command.
 test_command  = cd tests && PATH=$(zkg config plugin_dir)/packages/spicy-plugin/bin:$PATH btest -d -j "${SPICY_ZKG_PROCESSES:-2}"
+
+# We depend on spicy-plugin>=1.2.2, but currently cannot
+# express that dependency due to zeek/package-manager#106
+# depends = spicy-plugin >=1.2.2
