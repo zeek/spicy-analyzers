@@ -7,7 +7,7 @@
 # @TEST-EXEC: btest-diff wireguard.log
 # @TEST-EXEC: btest-diff .stdout
 
-@load spicy-analyzers/protocol/wireguard
+@load spicy-analyzers/wireguard
 
 event wireguard::handshake_initiation(c: connection, is_orig: bool, sender_index: count, unencrypted_ephemeral: string, encrypted_static: string, encrypted_timestamp: string, mac1: string, mac2: string)
 	{

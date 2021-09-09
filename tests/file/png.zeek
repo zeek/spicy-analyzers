@@ -8,4 +8,4 @@
 #
 # @TEST-DOC: Test PNG analyzer with an image inside a small trace.
 
-@load spicy-analyzers/file/png
+@load spicy-analyzers/png

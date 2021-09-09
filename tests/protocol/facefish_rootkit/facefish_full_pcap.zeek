@@ -8,6 +8,6 @@
 # @TEST-EXEC: cat notice.log | zeek-cut -n email_dest > notice2.log
 # @TEST-EXEC: btest-diff notice2.log
 
-@load spicy-analyzers/protocol/facefish_rootkit
+@load spicy-analyzers/facefish_rootkit
 
 event Facefish_Rootkit::facefish_rootkit_message(c: connection, is_orig: bool, msg: Facefish_Rootkit::FacefishMsg) { print cat("facefish_rootkit_message ", is_orig, c$id, msg); }

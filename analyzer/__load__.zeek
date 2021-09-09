@@ -1,14 +1,14 @@
 # Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
 
-@load ./file/png
-@load ./protocol/dhcp
-@load ./protocol/dns
-@load ./protocol/facefish_rootkit
-@load ./protocol/http
-@load ./protocol/ipsec
-@load ./protocol/ldap
-@load ./protocol/openvpn
-@load ./protocol/stun
-@load ./protocol/tailscale
-@load ./protocol/tftp
-@load ./protocol/wireguard
+@load ./dhcp
+@load ./dns
+@load ./facefish_rootkit
+@load ./http
+@load ./ipsec
+@load ./ldap
+@load ./openvpn
+@load ./png
+@load ./stun
+@load ./tailscale
+@load ./tftp
+@load ./wireguard

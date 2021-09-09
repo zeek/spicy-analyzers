@@ -13,7 +13,7 @@
 # containing a file that includes the terminator magic string inside its plain-text
 # content.
 
-@load spicy-analyzers/file/zip
+@load spicy-analyzers/zip
 
 event ZIP::file(f: fa_file, meta: ZIP::File) {
 	print meta;

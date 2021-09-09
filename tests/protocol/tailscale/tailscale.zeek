@@ -6,7 +6,7 @@
 #
 # @TEST-DOC: Test Tailscale analyzer with sample trace.
 
-@load spicy-analyzers/protocol/tailscale
+@load spicy-analyzers/tailscale
 
 event tailscale::packet_data(c: connection, is_orig: bool, receiver_index: count, key_counter: count, encapsulated_packet_length: count)
 	{

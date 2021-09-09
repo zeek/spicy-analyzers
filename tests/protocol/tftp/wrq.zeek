@@ -6,4 +6,4 @@
 #
 # @TEST-DOC: Test TFTP analyzer with write request trace.
 
-@load spicy-analyzers/protocol/tftp
+@load spicy-analyzers/tftp

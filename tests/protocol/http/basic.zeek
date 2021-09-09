@@ -8,4 +8,4 @@
 #
 # @TEST-DOC: Test HTTP analyzer with small trace.
 
-@load spicy-analyzers/protocol/http
+@load spicy-analyzers/http

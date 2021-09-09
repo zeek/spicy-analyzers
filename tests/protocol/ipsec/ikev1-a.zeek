@@ -7,7 +7,7 @@
 # @TEST-EXEC: if zeek-version 40000; then btest-diff ipsec.log; fi
 # @TEST-EXEC: btest-diff .stdout
 
-@load spicy-analyzers/protocol/ipsec
+@load spicy-analyzers/ipsec
 
 event ipsec::ike_message(c: connection, is_orig: bool, msg: ipsec::IKEMsg) { print cat("ike_message ", is_orig, c$id, msg); }
 event ipsec::esp_message(c: connection, is_orig: bool, msg: ipsec::ESPMsg) { print cat("esp_message ", is_orig, c$id, msg); }

@@ -5,7 +5,7 @@
 #
 # @TEST-DOC: Test PE analyzer with an executable transferred over FTP.
 
-@load spicy-analyzers/file/pe
+@load spicy-analyzers/pe
 
 event pe_dos_header(f: fa_file, h: PE::DOSHeader)
 	{
