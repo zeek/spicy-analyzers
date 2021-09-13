@@ -1,4 +1,5 @@
 [package]
+depends = spicy-plugin >=1.2.2
 script_dir = analyzer
 plugin_dir = build/spicy-modules
 
