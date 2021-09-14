@@ -5,7 +5,7 @@
 # @TEST-EXEC: btest-diff openvpn.out
 # @TEST-EXEC: btest-diff conn.log
 
-@load spicy-analyzers/protocol/openvpn
+@load spicy-analyzers/openvpn
 
 redef OpenVPN::disable_analyzer_after_detection = F;
 

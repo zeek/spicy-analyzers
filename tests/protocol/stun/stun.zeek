@@ -7,7 +7,7 @@
 # @TEST-EXEC: btest-diff stun_nat.log
 # @TEST-EXEC: btest-diff .stdout
 
-@load spicy-analyzers/protocol/stun
+@load spicy-analyzers/stun
 
 event STUN::STUNPacket(c: connection, is_orig: bool, method: count, class: count, trans_id: string)
 	{

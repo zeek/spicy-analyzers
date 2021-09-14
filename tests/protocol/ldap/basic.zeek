@@ -7,4 +7,4 @@
 #
 # @TEST-DOC: Test LDAP analyzer with small trace.
 
-@load spicy-analyzers/protocol/ldap
+@load spicy-analyzers/ldap

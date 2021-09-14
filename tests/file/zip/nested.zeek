@@ -8,7 +8,7 @@
 #
 # @TEST-DOC: Test ZIP analyzer with a download of a ZIP containing the standard virus checker test file inside another ZIP file.
 
-@load spicy-analyzers/file/zip
+@load spicy-analyzers/zip
 
 event ZIP::file(f: fa_file, meta: ZIP::File) {
 	print meta;

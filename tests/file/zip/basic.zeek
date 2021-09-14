@@ -8,7 +8,7 @@
 #
 # @TEST-DOC: Test ZIP analyzer with a download of a simple ZIP file that contains an entry with data descriptor (i.e., its compressed size is not known in advance).
 
-@load spicy-analyzers/file/zip
+@load spicy-analyzers/zip
 
 event ZIP::file(f: fa_file, meta: ZIP::File) {
 	print meta;

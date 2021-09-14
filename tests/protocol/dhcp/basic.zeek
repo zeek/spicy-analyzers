@@ -6,4 +6,4 @@
 #
 # @TEST-DOC: Test DHCP analyzer with small trace.
 
-@load spicy-analyzers/protocol/dhcp
+@load spicy-analyzers/dhcp

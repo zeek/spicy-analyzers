@@ -4,7 +4,7 @@
 #
 # @TEST-DOC: Feed a ZIP64 archive into the ZIP, which is currently not supported but will reported
 
-@load spicy-analyzers/file/zip
+@load spicy-analyzers/zip
 
 event ZIP::file(f: fa_file, meta: ZIP::File) {
 	print meta;
