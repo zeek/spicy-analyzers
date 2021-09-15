@@ -67,17 +67,12 @@ zkg_macos_task:
   env:
     PATH: /opt/spicy/bin:${PATH}
 
-  # TODO(bbannier): This is a temporary workaround for cirruslabs/cirrus-ci-docs#878.
-  update_homebrew_script:
-     - brew update
-
   install_zeek_script:
     - brew install zeek
 
   install_spicy_script:
-    - curl -o spicy-dev.tar.gz https://api.cirrus-ci.com/v1/artifact/github/zeek/spicy/macos_big_sur/packages/build/spicy-dev.tar.gz
-    - sudo tar xzmpovf spicy-dev.tar.gz -C / --strip-components 1
-    - rm spicy-dev.tar.gz
+    - brew tap zeek/zeek
+    - brew install spicy --HEAD
 
   prepare_script:
     - pip3 install zkg btest

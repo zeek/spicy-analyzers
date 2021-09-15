@@ -1,3 +1,7 @@
+0.2.23-2 | 2021-09-15 10:44:23 +0200
+
+  * Adjust macos job for recent Cirrus CI images changes. (Benjamin Bannier, Corelight)
+
 0.2.23 | 2021-09-14 13:51:02 +0200
 
   * GH-77: Explicitly list scripts to install. (Benjamin Bannier, Corelight)
