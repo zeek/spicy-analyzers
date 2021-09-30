@@ -42,13 +42,14 @@ if ( NOT SPICYZ )
 endif ()
 
 if ( NOT SPICYZ )
+    # Support an in-tree Spicy build.
     find_program(spicyz spicyz
                         HINTS
                             ${ZEEK_SPICY_ROOT}/bin
                             ${ZEEK_SPICY_ROOT}/build/bin
                             $ENV{ZEEK_SPICY_ROOT}/bin
                             $ENV{ZEEK_SPICY_ROOT}/build/bin
-                            ${PROJECT_SOURCE_DIR}/../../build/bin) # support an in-tree Spicy build
+                            ${PROJECT_SOURCE_DIR}/../../build/bin)
     set(SPICYZ "${spicyz}")
 endif ()
 
