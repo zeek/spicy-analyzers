@@ -27,10 +27,8 @@ function (spicy_plugin_require_version version)
     math(EXPR version_number "${CMAKE_MATCH_1} * 10000 + ${CMAKE_MATCH_2} * 100 + ${CMAKE_MATCH_3}")
 
     if ("${SPICY_PLUGIN_VERSION_NUMBER}" LESS "${version_number}")
-        message(
-            FATAL_ERROR
-                "Package requires at least Spicy plugin version ${version}, have ${SPICY_PLUGIN_VERSION}"
-        )
+        message(FATAL_ERROR "Package requires at least Spicy plugin version ${version}, "
+                            "have ${SPICY_PLUGIN_VERSION}")
     endif ()
 endfunction ()
 
