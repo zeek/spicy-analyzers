@@ -1,3 +1,9 @@
+
+0.2.23-5 | 2021-10-02 09:05:42 +0200
+
+  * GH-88: Copy over Zeek DPS signatures for analyzers we replace
+    (HTTP and DHCP). (Benjamin Bannier, Corelight)
+
 0.2.23-2 | 2021-09-15 10:44:23 +0200
 
   * Adjust macos job for recent Cirrus CI images changes. (Benjamin Bannier, Corelight)
