@@ -4,7 +4,9 @@ protocol analyzer spicy::LDAP_TCP over TCP:
     parse with LDAP::Messages,
     ports { 389/tcp, 3268/tcp};
 
-# TODO: LDAP can also use UDP transport
+protocol analyzer spicy::LDAP_UDP over UDP:
+    parse with LDAP::Messages,
+    ports { 389/udp };
 
 import LDAP;
 import LDAP_Zeek;
