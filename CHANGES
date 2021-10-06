@@ -1,4 +1,11 @@
 
+0.2.23-8 | 2021-10-06 17:59:24 +0200
+
+  * [LDAP] Redact clear text passwords by default in LDAP simple
+    binds. (Keith Jones, Corelight)
+
+  * [LDAP] Enable UDP. (Keith Jones, Corelight)
+
 0.2.23-5 | 2021-10-02 09:05:42 +0200
 
   * GH-88: Copy over Zeek DPS signatures for analyzers we replace

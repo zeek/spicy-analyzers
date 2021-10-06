@@ -6,6 +6,9 @@ export {
   redef enum Log::ID += { LDAP_LOG,
                           LDAP_SEARCH_LOG };
 
+	## Whether clear text passwords are captured or not.
+	option default_capture_password = F;
+
   #############################################################################
   # This is the format of ldap.log (ldap operations minus search-related)
   # Each line represents a unique connection+message_id (requests/responses)
@@ -340,7 +343,10 @@ event LDAP::message(c: connection,
     if ( argument != "" ) {
       if ( ! c$ldap_messages[message_id]?$argument )
         c$ldap_messages[message_id]$argument = vector();
-      c$ldap_messages[message_id]$argument += argument;
+      if ("bind simple" in c$ldap_messages[message_id]$opcode && !default_capture_password)
+        c$ldap_messages[message_id]$argument += "REDACTED";
+      else
+        c$ldap_messages[message_id]$argument += argument;
     }
 
     if (opcode in OPCODES_FINISHED) {
