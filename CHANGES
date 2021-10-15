@@ -1,3 +1,16 @@
+0.2.23-15 | 2021-10-15 10:37:49 +0200
+
+  * Add docstrings to CMake functions and macros. (Benjamin Bannier, Corelight)
+
+  * Break overlong strings. (Benjamin Bannier, Corelight)
+
+  * Reformat CMake files with cmake-format. (Benjamin Bannier, Corelight)
+
+  * Place comment before long invocation. (Benjamin Bannier, Corelight)
+
+  * Cache pre-commit artifacts. (Benjamin Bannier, Corelight)
+
+  * Bump pre-commit-hooks. (Benjamin Bannier, Corelight)
 
 0.2.23-8 | 2021-10-06 17:59:24 +0200
 

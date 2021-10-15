@@ -14,50 +14,50 @@
 #     SPICY_PLUGIN_VERSION          Version string of plugin
 #     SPICY_PLUGIN_VERSION_NUMBER   Numerical version number of plugin
 
-function(run_spicycz output)
-     execute_process(COMMAND "${SPICYZ}" ${ARGN}
-        OUTPUT_VARIABLE output_
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
+# Runs `spicyz` with the flags given as second argument and stores the output in the variable named
+# by the first argument.
+function (run_spicycz output)
+    execute_process(COMMAND "${SPICYZ}" ${ARGN} OUTPUT_VARIABLE output_
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     string(STRIP "${output_}" output_)
     set(${output} "${output_}" PARENT_SCOPE)
 endfunction ()
 
-function(spicy_plugin_require_version version)
+# Checks that the Spicy plugin version it at least the given version.
+function (spicy_plugin_require_version version)
     string(REGEX MATCH "([0-9]*)\.([0-9]*)\.([0-9]*).*" _ ${version})
     math(EXPR version_number "${CMAKE_MATCH_1} * 10000 + ${CMAKE_MATCH_2} * 100 + ${CMAKE_MATCH_3}")
 
-    if ( "${SPICY_PLUGIN_VERSION_NUMBER}" LESS "${version_number}" )
-        message(FATAL_ERROR "Package requires at least Spicy plugin version ${version}, have ${SPICY_PLUGIN_VERSION}")
+    if ("${SPICY_PLUGIN_VERSION_NUMBER}" LESS "${version_number}")
+        message(FATAL_ERROR "Package requires at least Spicy plugin version ${version}, "
+                            "have ${SPICY_PLUGIN_VERSION}")
     endif ()
-endfunction()
+endfunction ()
 
 ###
 ### Main
 ###
 
-if ( NOT SPICYZ )
+if (NOT SPICYZ)
     set(SPICYZ "$ENV{SPICYZ}")
 endif ()
 
-if ( NOT SPICYZ )
-    find_program(spicyz spicyz
-                        HINTS
-                            ${ZEEK_SPICY_ROOT}/bin
-                            ${ZEEK_SPICY_ROOT}/build/bin
-                            $ENV{ZEEK_SPICY_ROOT}/bin
-                            $ENV{ZEEK_SPICY_ROOT}/build/bin
-                            ${PROJECT_SOURCE_DIR}/../../build/bin) # support an in-tree Spicy build
+if (NOT SPICYZ)
+    # Support an in-tree Spicy build.
+    find_program(
+        spicyz spicyz
+        HINTS ${ZEEK_SPICY_ROOT}/bin ${ZEEK_SPICY_ROOT}/build/bin $ENV{ZEEK_SPICY_ROOT}/bin
+              $ENV{ZEEK_SPICY_ROOT}/build/bin ${PROJECT_SOURCE_DIR}/../../build/bin)
     set(SPICYZ "${spicyz}")
 endif ()
 
 message(STATUS "spicyz: ${SPICYZ}")
 
-if ( SPICYZ )
+if (SPICYZ)
     set(SPICYZ "${SPICYZ}" CACHE PATH "" FORCE) # make sure it's in the cache
 
-    run_spicycz(SPICY_PLUGIN_VERSION        "--version")
+    run_spicycz(SPICY_PLUGIN_VERSION "--version")
     run_spicycz(SPICY_PLUGIN_VERSION_NUMBER "--version-number")
     message(STATUS "Zeek plugin version: ${SPICY_PLUGIN_VERSION}")
 
@@ -72,7 +72,7 @@ if ( SPICYZ )
     spicy_print_summary()
 
     include(ZeekSpicyAnalyzerSupport)
-endif()
+endif ()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SpicyPlugin DEFAULT_MSG SPICYZ ZEEK_FOUND)

@@ -13,7 +13,11 @@ pre_commit_task:
   container:
     dockerfile: ci/Dockerfile
 
-  pre_commit_script: pre-commit run -a
+  check_script:
+    - pre-commit run -a
+
+  pre_commit_cache:
+    folder: /root/.cache/pre-commit
 
 zkg_ubuntu_task:
   timeout_in: 120m

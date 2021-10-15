@@ -17,6 +17,4 @@ add_subdirectory(tftp)
 add_subdirectory(wireguard)
 add_subdirectory(zip)
 
-install(
-    FILES __load__.zeek
-    DESTINATION "${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}/${PACKAGE_NAME}/")
+install(FILES __load__.zeek DESTINATION "${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}/${PACKAGE_NAME}/")
