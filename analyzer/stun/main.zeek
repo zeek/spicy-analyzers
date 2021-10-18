@@ -72,7 +72,7 @@ export {
 
 	## Event raised for the STUN error code attribute.
 	global STUN::error_code_attribute: event(c: connection, is_orig: bool, method: count, class: count, trans_id: string,
-											 attr_type: count, err_class: string, number: count, reason: string);
+											 attr_type: count, err_class: count, number: count, reason: string);
 
 }
 
@@ -164,10 +164,17 @@ event STUN::mapped_address_attribute(c: connection, is_orig: bool, method: count
 	}
 
 event STUN::error_code_attribute(c: connection, is_orig: bool, method: count, class: count, trans_id: string,
-								 attr_type: count, err_class: string, number: count, reason: string)
+								 attr_type: count, err_class: count, number: count, reason: string)
 	{
 	set_session(c);
-	local attr_val = cat(err_class, "-", number, "-", reason);
+
+	# https://datatracker.ietf.org/doc/html/rfc8489#section-14.8
+	# "The Class represents the hundreds digit of the error code. [...]
+	#  The Number represents the binary encoding of the error code module 100"
+	local err_code: count;
+	err_code = (err_class * 100) + number;
+
+	local attr_val = cat(err_code, " ", reason);
 	local i = Info($uid=c$uid, $id=c$id, $proto=get_conn_transport_proto(c$id), $is_orig=is_orig, $trans_id=trans_id,
 				   $method=methodtype[method], $class=classtype[class], $attr_type=attrtype[attr_type], $attr_val=attr_val);
 	c$stuns += i;

@@ -201,7 +201,8 @@ type MappedAddress = unit(length: uint16) {
 
 # https://tools.ietf.org/html/rfc5389#section-15.6
 type ErrorCode = unit(length: uint16) {
-	class: bytes &size=3;
+	: bytes &size=2;
+	class: uint8;
 	number: uint8;
 	reason: bytes &size=(length - 4);
 };

@@ -27,7 +27,7 @@ event STUN::mapped_address_attribute(c: connection, is_orig: bool, method: count
 	}
 
 event STUN::error_code_attribute(c: connection, is_orig: bool, method: count, class: count, trans_id: string,
-								 attr_type: count, err_class: string, number: count, reason: string)
+								 attr_type: count, err_class: count, number: count, reason: string)
 	{
 	print "Error Code Attr", c$id, is_orig, method, class, trans_id, attr_type, err_class, number, reason;
 	}
