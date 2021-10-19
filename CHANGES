@@ -1,3 +1,7 @@
+0.2.24 | 2021-10-15 10:38:05 +0200
+
+  * Release 0.2.24.
+
 0.2.23-15 | 2021-10-15 10:37:49 +0200
 
   * Add docstrings to CMake functions and macros. (Benjamin Bannier, Corelight)
