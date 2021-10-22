@@ -171,6 +171,12 @@ event STUN::error_code_attribute(c: connection, is_orig: bool, method: count, cl
 	# https://datatracker.ietf.org/doc/html/rfc8489#section-14.8
 	# "The Class represents the hundreds digit of the error code. [...]
 	#  The Number represents the binary encoding of the error code module 100"
+	if (err_class < 3 || err_class > 6)
+		Reporter::conn_weird("stun_invalid_err_class", c, cat("Error class ", err_class, " outside of required range [3, 6]"));
+
+	if (number > 99)
+		Reporter::conn_weird("stun_invalid_err_number", c, cat("Error number ", number, " outside of required range [0, 99]"));
+
 	local err_code: count;
 	err_code = (err_class * 100) + number;
 
