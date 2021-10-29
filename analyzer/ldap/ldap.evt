@@ -34,7 +34,9 @@ on LDAP::SearchRequest -> event LDAP::searchreq($conn,
                                                 self.deref,
                                                 self.sizeLimit,
                                                 self.timeLimit,
-                                                self.typesOnly);
+                                                self.typesOnly,
+                                                self.filter,
+                                                self.attributes);
 
 on LDAP::SearchResultEntry -> event LDAP::searchres($conn,
                                                     message.messageID,

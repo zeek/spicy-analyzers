@@ -84,6 +84,11 @@ export {
     # result diagnostic message(s)
     diagnostic_message: vector of string &log &optional;
 
+    # for now - a string representation of the 'filter' blob in the search request
+    filter: string &log &optional;
+
+    # the attributes requested in the search
+    attributes: vector of string &log &optional;
   };
 
   # Event that can be handled to access the ldap record as it is sent on
@@ -375,7 +380,9 @@ event LDAP::searchreq(c: connection,
                       deref: LDAP::SearchDerefAlias,
                       size_limit: int,
                       time_limit: int,
-                      types_only: bool) {
+                      types_only: bool,
+                      filter: string,
+                      attributes: vector of string) {
 
   set_session(c, message_id, LDAP::ProtocolOpcode_SEARCH_REQUEST);
 
@@ -396,7 +403,8 @@ event LDAP::searchreq(c: connection,
       c$ldap_searches[message_id]$base_object = vector();
     c$ldap_searches[message_id]$base_object += base_object;
   }
-
+  c$ldap_searches[message_id]$filter = filter;
+  c$ldap_searches[message_id]$attributes = attributes;
 }
 
 #############################################################################

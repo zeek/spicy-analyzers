@@ -169,14 +169,15 @@ public type Message = unit {
     ProtocolOpcode::COMPARE_RESPONSE        -> COMPARE_RESPONSE:        CompareResponse(self);
     ProtocolOpcode::ABANDON_REQUEST         -> ABANDON_REQUEST:         AbandonRequest(self);
 
-    # TODO: not yet implemented
-    # ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             AddRequest(self);
-    # ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         CompareRequest(self);
-    # ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        ExtendedRequest(self);
-    # ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       ExtendedResponse(self);
-    # ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   IntermediateResponse(self);
-    # ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          ModDNRequest(self);
-    # ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: SearchResultReference(self);
+    # TODO: not yet implemented, redirect to NotImplemented because when we're
+    # just commenting this out, it will stop processing LDAP Messages in this connection
+    ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             NotImplemented(self);
+    ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         NotImplemented(self);
+    ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        NotImplemented(self);
+    ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       NotImplemented(self);
+    ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   NotImplemented(self);
+    ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          NotImplemented(self);
+    ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: NotImplemented(self);
   } &parse-from=self.applicationBytes if ( self.opcode );
 
 } &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::Undef));
@@ -193,6 +194,10 @@ public type BindAuthType = enum {
 type SaslCredentials = unit() {
   mechanism: ASN1::ASN1Message(True) &convert=$$.body.str_value;
   # TODO: if we want to parse the (optional) credentials string
+};
+
+type NotImplemented = unit(inout message: Message) {
+  # Do nothing
 };
 
 type BindRequest = unit(inout message: Message) {
@@ -269,7 +274,7 @@ type FilterType = enum {
   FILTER_INVALID = 254,
 };
 
-type AttributeSelection = unit {
+public type AttributeSelection = unit {
   var attributes: vector<string>;
 
   # TODO: parse AttributeSelection as per
@@ -305,34 +310,59 @@ type AttributeValueAssertion = unit {
   }
 };
 
-type SubstringFilter = unit {
-  var ftype: string = "";
-  var substrings: ASN1::ASN1Message;
+type AttributeValueAssertionAndOr = unit {
+    first: SearchFilter;
+    second: SearchFilter;
+};
 
-  : ASN1::ASN1Message(True) {
-    if (($$.head.tag.type_ == ASN1::ASN1Type::Sequence) &&
-        ($$.body?.seq) &&
-        (|$$.body.seq.submessages| >= 2)) {
-      if ($$.body.seq.submessages[0].body?.str_value) {
-        self.ftype = $$.body.seq.submessages[0].body.str_value;
-      }
-      if ($$.body.seq.submessages[1].head.tag.type_ == ASN1::ASN1Type::Sequence) {
-        self.substrings = $$.body.seq.submessages[1];
-      }
-    }
-    # TODO: if we want to descend deeper into the substrings filter
-    # if (self?.substrings) {
-    #
-    #}
-  }
+type AttributeValueAssertionExt = unit {
+    matchingRule_id: uint8;
+    matchingRule_len: uint8;
+    matchingRule: bytes &size=self.matchingRule_len;
+
+    type_id: uint8;
+    type_len: uint8;
+    type_: bytes &size=self.type_len;
+
+    matchValue_id: uint8;
+    matchValue_len: uint8;
+    matchValue: bytes &size=self.matchValue_len;
+};
+
+type AttributeValueAssertionEq = unit {
+    attributeDesc_id: uint8;
+    attributeDesc_len: uint8;
+    attributeDesc: bytes &size=self.attributeDesc_len;
+
+    assertionValue_id: uint8;
+    assertionValue_len: uint8;
+    assertionValue: bytes &size=self.assertionValue_len;
+};
+
+type AttributeValueAssertionSubstrings = unit {
+    type_id: uint8;
+    type_len: uint8;
+    type_: bytes &size=self.type_len;
+
+    # TODO verify that this will pass in all cases,
+    # for now it's just a quick workaround to pass in the
+    # most common cases
+    : uint8;
+    : uint8;
+
+    any_id: uint8;
+    any_len: uint8;
+    any_: bytes &size=self.any_len;
 };
 
 type SearchFilter = unit {
   var filterType: FilterType = FilterType::Undef;
   var filterBytes: bytes = b"";
   var filterLen: uint64 = 0;
+  var pretty: string = "";
 
   : ASN1::ASN1Message(True) {
+
     if ($$?.application_id) {
       self.filterType = cast<FilterType>(cast<uint8>($$.application_id));
       self.filterBytes = $$.application_data;
@@ -349,31 +379,85 @@ type SearchFilter = unit {
   # I've just left some of them as ASN1::ASN1Message for now.
 
   switch ( self.filterType ) {
-    FilterType::FILTER_AND     -> FILTER_AND:     ASN1::ASN1Message(True)
+    FilterType::FILTER_AND     -> FILTER_AND:     AttributeValueAssertionAndOr()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_OR      -> FILTER_OR:      ASN1::ASN1Message(True)
+    FilterType::FILTER_OR      -> FILTER_OR:      AttributeValueAssertionAndOr()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_NOT     -> FILTER_NOT:     SearchFilter()
+    FilterType::FILTER_NOT     -> FILTER_NOT:     AttributeValueAssertionEq()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_EQ      -> FILTER_EQ:      AttributeValueAssertion()
+    FilterType::FILTER_EQ      -> FILTER_EQ:      AttributeValueAssertionEq()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_SUBSTR  -> FILTER_SUBSTR:  SubstringFilter()
+    FilterType::FILTER_SUBSTR  -> FILTER_SUBSTR:  AttributeValueAssertionSubstrings()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_GE      -> FILTER_GE:      AttributeValueAssertion()
+    FilterType::FILTER_GE      -> FILTER_GE:      AttributeValueAssertionEq()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_LE      -> FILTER_LE:      AttributeValueAssertion()
+    FilterType::FILTER_LE      -> FILTER_LE:      AttributeValueAssertionEq()
                                                   &parse-from=self.filterBytes;
     FilterType::FILTER_PRESENT -> FILTER_PRESENT: ASN1::ASN1OctetString(self.filterLen, False)
                                                   &convert=$$.value.decode(hilti::Charset::ASCII)
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_APPROX  -> FILTER_APPROX:  AttributeValueAssertion()
+    FilterType::FILTER_APPROX  -> FILTER_APPROX:  AttributeValueAssertionEq()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_EXT     -> FILTER_EXT:     ASN1::ASN1Message(True)
+    FilterType::FILTER_EXT     -> FILTER_EXT:     AttributeValueAssertionExt()
                                                   &parse-from=self.filterBytes;
   };
+
+  on %done {
+    if ( self.filterType == FilterType::FILTER_EXT ) {
+      self.pretty = "(%s:%s:=%s)" % (self.FILTER_EXT.type_.decode(),
+                                     self.FILTER_EXT.matchingRule.decode(),
+                                     self.FILTER_EXT.matchValue.decode());
+    }
+
+    if ( self.filterType == FilterType::FILTER_APPROX ) {
+      self.pretty = "(%s~=%s)" % (self.FILTER_APPROX.attributeDesc.decode(),
+                                 self.FILTER_APPROX.assertionValue.decode());
+    }
+
+    if ( self.filterType == FilterType::FILTER_EQ ) {
+      self.pretty = "(%s=%s)" % (self.FILTER_EQ.attributeDesc.decode(),
+                                 self.FILTER_EQ.assertionValue.decode());
+    }
+
+    if ( self.filterType == FilterType::FILTER_NOT ) {
+      self.pretty = "(!%s=%s)" % (self.FILTER_NOT.attributeDesc.decode(),
+                                 self.FILTER_NOT.assertionValue.decode());
+    }
+
+    if ( self.filterType == FilterType::FILTER_GE ) {
+      self.pretty = "(%s>=%s)" % (self.FILTER_GE.attributeDesc.decode(),
+                                 self.FILTER_GE.assertionValue.decode());
+    }
+
+    if ( self.filterType == FilterType::FILTER_LE ) {
+      self.pretty = "(%s<=%s)" % (self.FILTER_LE.attributeDesc.decode(),
+                                 self.FILTER_LE.assertionValue.decode());
+    }
+
+    if ( self.filterType == FilterType::FILTER_PRESENT ) {
+      self.pretty = "(%s=*)" % self.FILTER_PRESENT;
+    }
+
+    if ( self.filterType == FilterType::FILTER_SUBSTR ) {
+      self.pretty = "(%s=*%s*)" % (self.FILTER_SUBSTR.type_.decode(),
+                                 self.FILTER_SUBSTR.any_.decode());
+    }
+
+    if ( self.filterType == FilterType::FILTER_AND ) {
+      self.pretty = "(&%s%s)" % (self.FILTER_AND.first.pretty,
+                                 self.FILTER_AND.second.pretty);
+    }
+    if ( self.filterType == FilterType::FILTER_OR ) {
+      self.pretty = "(|%s%s)" % (self.FILTER_OR.first.pretty,
+                                 self.FILTER_OR.second.pretty);
+    }
+  }
+    on %error {
+      self.pretty = "UNKNOWN_FILTER_ERROR";
+    }
 };
 
-type SearchRequest = unit(inout message: Message) {
+public type SearchRequest = unit(inout message: Message)  {
   baseObject: ASN1::ASN1Message(True) &convert=$$.body.str_value {
     message.obj = self.baseObject;
   }
@@ -386,8 +470,8 @@ type SearchRequest = unit(inout message: Message) {
   sizeLimit: ASN1::ASN1Message(True) &convert=$$.body.num_value &default=0;
   timeLimit: ASN1::ASN1Message(True) &convert=$$.body.num_value &default=0;
   typesOnly: ASN1::ASN1Message(True) &convert=$$.body.bool_value &default=False;
-  filter: SearchFilter;
-  attributes: AttributeSelection;
+  filter: SearchFilter &convert=$$.pretty;
+  attributes: AttributeSelection &convert=$$.attributes;
 };
 
 type SearchResultEntry = unit(inout message: Message) {
