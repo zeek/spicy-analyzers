@@ -353,8 +353,7 @@ type AttributeValueAssertion = unit {
 };
 
 type AttributeValueAssertionAndOr = unit {
-    first: SearchFilter;
-    second: SearchFilter;
+    searchfilters: SearchFilter[] &eod;
 };
 
 type AttributeValueAssertionExt = unit {
@@ -402,6 +401,7 @@ type SearchFilter = unit {
   var filterBytes: bytes = b"";
   var filterLen: uint64 = 0;
   var pretty: string = "";
+  var print_cnt: uint8 = 0;
 
   : ASN1::ASN1Message(True) {
 
@@ -445,6 +445,15 @@ type SearchFilter = unit {
   };
 
   on %done {
+
+    # Try to pretty-print the filters recursively. The FILTER_OR and FILTER_AND may consist of a nested entry,
+    # but the other ones are 'final'. So prepare strings for all of these 'final' filters, and when we encounter
+    # a AND or OR, we recursively add the correct 'final' strings to the upper string.
+
+    # TODO: Some fields are not specified in ASCII/UTF-8 printable characters. For example, the `DomainGuid`
+    # is a UTF16-LE encoded string, which we will now just parse with the default UTF-8 encoding. Some attributes
+    # may even have more complex fields (e.g. `NtVer`, which is a bitfield).
+
     if ( self.filterType == FilterType::FILTER_EXT ) {
       self.pretty = "(%s:%s:=%s)" % (self.FILTER_EXT.type_.decode(),
                                      self.FILTER_EXT.matchingRule.decode(),
@@ -485,13 +494,44 @@ type SearchFilter = unit {
                                  self.FILTER_SUBSTR.any_.decode());
     }
 
-    if ( self.filterType == FilterType::FILTER_AND ) {
-      self.pretty = "(&%s%s)" % (self.FILTER_AND.first.pretty,
-                                 self.FILTER_AND.second.pretty);
+    # TODO: Refactor these functions as they probably can be written much more efficient and with
+    # less duplicate code.
+    if ( self.filterType == FilterType::FILTER_AND ) {      
+      self.print_cnt = 0;
+
+      for ( SF in self.FILTER_AND.searchfilters ) {
+        switch ( self.print_cnt ) {
+          case 0: {
+            self.pretty = "(&%s" % SF.pretty;
+          }
+          case 1: {
+            self.pretty = self.pretty + SF.pretty + ")";
+          }
+          default: {
+            self.pretty = "(&" + self.pretty + SF.pretty + ")";
+          }
+        }
+        self.print_cnt += 1;
+      }
     }
-    if ( self.filterType == FilterType::FILTER_OR ) {
-      self.pretty = "(|%s%s)" % (self.FILTER_OR.first.pretty,
-                                 self.FILTER_OR.second.pretty);
+
+    if ( self.filterType == FilterType::FILTER_OR ) {      
+      self.print_cnt = 0;
+
+      for ( SF in self.FILTER_OR.searchfilters ) {
+        switch ( self.print_cnt ) {
+          case 0: {
+            self.pretty = "(|%s" % SF.pretty;
+          }
+          case 1: {
+            self.pretty = self.pretty + SF.pretty + ")";
+          }
+          default: {
+            self.pretty = "(|" + self.pretty + SF.pretty + ")";
+          }
+        }
+        self.print_cnt += 1;
+      }
     }
   }
     on %error {
