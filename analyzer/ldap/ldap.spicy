@@ -127,7 +127,45 @@ public type Result = unit {
 
 #-----------------------------------------------------------------------------
 public type Messages = unit {
-  : Message[];
+  : MessageWrapper[];
+};
+
+public type MessageWrapper = unit {
+  # A wrapper around 'Message'. First, we try to parse a Message unit.
+  # There are two possible outcomes:
+  #   (1) Success -> We consumed all bytes and successfully parsed a Message unit
+  #   (2) No success -> self.backtrack() is called in the Message unit,
+  #                     so effectively we didn't consume any bytes yet.
+
+  : Message &try;
+
+  # This means that if we were successful (1) this will raise an error because
+  # there are no bytes left. Which is no problem, because we already parsed the Message
+  # successfully.
+  # However, if we failed (2) then we're going to scan the remaining bytes for the '\x30'
+  # start byte and try to parse a Message starting from that byte. This effectively
+  # strips the SASL layer if SASL Signing was enabled. Until now, I haven't found A
+  # better way to scan / determine the exact SASL header length, so stick with this
+  # for the time being. If the entire LDAP packet was encrypted with SASL, then this will still fail and raise
+  # an error, which is expected (cause we can't decrypt encrypted SASL).
+
+  : bytes &until=b"\x30";
+  var remainder: bytes;
+
+  # For some reason, the &until already consumes the '\x30', while it shouldn't do that.
+  # I think that's a bug in Spicy. For now, re-add it to the remainder.
+
+  : bytes &eod {
+    self.remainder = b"\x30" + $$;
+  }
+
+  # Again, try to parse a message.
+  # In theory (and probably in practice) this will fail if the '\x30' byte is also present in
+  # the SASL header, in which case the parsing will simply fail.
+  # We could try to do this recursively or try a few iterations, but for now I would suggest
+  # to try this once to get the best cost/benefit tradeoff.
+  : Message &parse-from=self.remainder if (|self.remainder| > 1);
+
 };
 
 public type Message = unit {
@@ -179,6 +217,10 @@ public type Message = unit {
     ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          NotImplemented(self);
     ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: NotImplemented(self);
   } &parse-from=self.applicationBytes if ( self.opcode );
+
+  on %error {
+    self.backtrack();
+  }
 
 } &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::Undef));
 
