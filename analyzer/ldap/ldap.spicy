@@ -394,6 +394,11 @@ type AttributeValueAssertionEq = unit {
     assertionValue: bytes &size=self.assertionValue_len;
 };
 
+
+type AttributeValueAssertionNot = unit {
+    sf: SearchFilter;
+};
+
 type AttributeValueAssertionSubstrings = unit {
     type_id: uint8;
     type_len: uint8;
@@ -439,7 +444,7 @@ type SearchFilter = unit {
                                                   &parse-from=self.filterBytes;
     FilterType::FILTER_OR      -> FILTER_OR:      AttributeValueAssertionAndOr()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_NOT     -> FILTER_NOT:     AttributeValueAssertionEq()
+    FilterType::FILTER_NOT     -> FILTER_NOT:     AttributeValueAssertionNot()
                                                   &parse-from=self.filterBytes;
     FilterType::FILTER_EQ      -> FILTER_EQ:      AttributeValueAssertionEq()
                                                   &parse-from=self.filterBytes;
@@ -485,8 +490,7 @@ type SearchFilter = unit {
     }
 
     if ( self.filterType == FilterType::FILTER_NOT ) {
-      self.pretty = "(!%s=%s)" % (self.FILTER_NOT.attributeDesc.decode(),
-                                 self.FILTER_NOT.assertionValue.decode());
+      self.pretty = "(!%s)" % self.FILTER_NOT.sf.pretty;
     }
 
     if ( self.filterType == FilterType::FILTER_GE ) {
