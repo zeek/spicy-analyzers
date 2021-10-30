@@ -5,10 +5,10 @@ module LDAP_Zeek;
 import zeek;
 import LDAP;
 
-on LDAP::Message::%done {
+on LDAP::MessageWrapper::%done {
   zeek::confirm_protocol();
 }
 
-on LDAP::Message::%error {
+on LDAP::MessageWrapper::%error {
   zeek::reject_protocol("error while parsing LDAP message");
 }
