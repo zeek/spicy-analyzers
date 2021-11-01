@@ -473,7 +473,6 @@ type SearchFilter = unit {
   var filterBytes: bytes = b"";
   var filterLen: uint64 = 0;
   var stringRepresentation: string = "";
-  var print_cnt: uint8 = 0;
 
   : ASN1::ASN1Message(True) {
 
