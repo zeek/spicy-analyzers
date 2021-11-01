@@ -9,6 +9,9 @@ export {
 	## Whether clear text passwords are captured or not.
 	option default_capture_password = F;
 
+  ## Whether to log LDAP search attributes or not.
+  option default_log_search_attributes = F;
+
   #############################################################################
   # This is the format of ldap.log (ldap operations minus search-related)
   # Each line represents a unique connection+message_id (requests/responses)
@@ -404,7 +407,10 @@ event LDAP::searchreq(c: connection,
     c$ldap_searches[message_id]$base_object += base_object;
   }
   c$ldap_searches[message_id]$filter = filter;
-  c$ldap_searches[message_id]$attributes = attributes;
+
+  if ( default_log_search_attributes ) {
+    c$ldap_searches[message_id]$attributes = attributes;
+  }
 }
 
 #############################################################################
