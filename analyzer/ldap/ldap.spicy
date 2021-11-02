@@ -175,12 +175,15 @@ public type MessageWrapper = unit {
 
   # Also, we could try to do this recursively or try a few iterations, but for now I would suggest
   # to try this extra parsing once to get the best cost/benefit tradeoff.
-  : Message &parse-from=self.remainder if ( self.success == False ) {
+  : Message &try &parse-from=self.remainder if ( self.success == False ) {
       if ( $$.success == True ) {
         self.success = True;
         self.message = $$;
       }
   }
+
+  # If we still didn't manage to parse a message (so the &try resulted in another backtrack()) then
+  # this is probably an encrypted LDAP message, so skip it
 
 } &convert=self.message;
 
