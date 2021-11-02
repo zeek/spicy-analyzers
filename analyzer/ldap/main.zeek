@@ -87,10 +87,10 @@ export {
     # result diagnostic message(s)
     diagnostic_message: vector of string &log &optional;
 
-    # for now - a string representation of the 'filter' blob in the search request
+    #  a string representation of the search filter used in the query
     filter: string &log &optional;
 
-    # the attributes requested in the search
+    # a list of attributes that were returned in the search
     attributes: vector of string &log &optional;
   };
 

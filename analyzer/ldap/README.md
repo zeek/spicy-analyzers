@@ -42,6 +42,8 @@ Here's what it has:
       - `base_object` (vector of 0..n search base objects specified)
       - `result_count` (number of result entries returned)
       - `result` (set of 1..n results from this uid+message_id)
+      - `filter` (search filter string)
+      - `attributes` (vector of 0..n "attributes", the attributes that were returned)
       - `diagnostic_message` (vector of 0..n diagnostic message strings)
   - test
     - basic tests for detecting plugin presence and simple bind and search result/requests
@@ -52,7 +54,8 @@ Here's what it doesn't have, which could be added by future parties interested i
 - LDAP [referrals](https://tools.ietf.org/html/rfc4511#section-4.1.10) are not parsed out of the results
 - [SASL credentials](https://datatracker.ietf.org/doc/html/rfc4511#section-4.2) in bind requests are not being parsed beyond the mechanism string
 - SASL information in bind responses are not being parsed; for that matter, SASL-based LDAP stuff hasn't been tested much and may have issues
-- Search filters and attributes: while basic parsing is done in the `AttributeSelection`, `AttributeValueAssertion`, `SubstringFilter` and `SearchFilter` units, I'm not really pulling stuff out from the search filter tree (as the protocols allows arbitrarily complex combinations of AND, OR, substring, etc. that I don't think would be easily representable in a log file)
+- Search filters and attributes: the search filters, reconstructed from the query tree, is represented in string format. The AND and OR filters have a tree structure and are parsed with the `ParseNestedAndOr` unit, whereas the NOT filter consist of one single nested SearchFilter and is parsed with a `ParseNestedNot` unit. The remaining filter types can all be decoded to a string using the `DecodedAttributeValue` unit, which takes the `FilterType` as a parameter. The `FILTER_PRESENT` consists of a single octet string and can be parsed directly. By recursively constructing leafs and nodes in the tree, the final search filter can be represented, e.g. `(&(objectclass=*)(sAMAccountName=xxxxxxxx))`.
+The returned attributes are represented in a list and returned to the `ldap_search.log` if `option default_log_search_attributes = T;` is set (the default is False).
 - the details of `SearchResultReference` are not being parsed
 - the only detail of `ModifyRequest` being parsed is the object name
 - the details of `AddRequest` are not being parsed

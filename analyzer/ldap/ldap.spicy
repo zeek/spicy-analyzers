@@ -141,6 +141,7 @@ public type MessageWrapper = unit {
 
   # This success variable is different, because this keeps track of the status for the MessageWrapper object
   var success: bool = False;
+  var message: Message;
 
   # Here, we try to parse the message...
   : Message &try {
@@ -149,6 +150,7 @@ public type MessageWrapper = unit {
       # the status of this MessageWrapper's success to 'True'
       if ( $$.success == True ) {
         self.success = True;
+        self.message = $$;
       }
   }
 
@@ -162,9 +164,8 @@ public type MessageWrapper = unit {
   : bytes &until=b"\x30" if ( self.success == False);
   var remainder: bytes;
 
-  # For some reason, the &until already consumes the '\x30', while it shouldn't do that.
-  # I think that's a bug in Spicy. For now, re-add it to the remainder.
-
+  # The &until consumes the delimiter ('\x30'), and because this is the first byte of a valid LDAP message
+  # we should re-add it to the remainder.
   : bytes &eod if ( self.success == False )  {
     self.remainder = b"\x30" + $$;
   }
@@ -174,9 +175,14 @@ public type MessageWrapper = unit {
 
   # Also, we could try to do this recursively or try a few iterations, but for now I would suggest
   # to try this extra parsing once to get the best cost/benefit tradeoff.
-  : Message &parse-from=self.remainder if ( self.success == False );
+  : Message &parse-from=self.remainder if ( self.success == False ) {
+      if ( $$.success == True ) {
+        self.success = True;
+        self.message = $$;
+      }
+  }
 
-};
+} &convert=self.message;
 
 #-----------------------------------------------------------------------------
 public type Message = unit {
@@ -254,6 +260,8 @@ type SaslCredentials = unit() {
   # TODO: if we want to parse the (optional) credentials string
 };
 
+# TODO(fox-ds): A helper unit for requests for which no handling has been implemented.
+# Eventually all uses of this unit should be replaced with actual parsers so this unit can be removed.
 type NotImplemented = unit(inout message: Message) {
   # Do nothing
 };
@@ -382,6 +390,14 @@ type ParseNestedNot = unit {
 function utf16_guid_to_hex_repr(bts: bytes) : string {
   # Rather ugly workaround to pretty-print the CLDAP DomainGuid UTF16-LE encoded string
   # in the same format as Wireshark (aabbccdd-eeff-gghh-iijj-kkllmmnnoopp)
+
+  # We need to have exactly 16 bytes...
+  if ( |bts| != 16 ) {
+
+    # ... and otherwise just return an error code
+    return "GUID_FORMAT_FAILED";
+  }
+
   local ret = "";
   for ( i in [[3, 2, 1, 0], [5, 4], [7, 6], [8, 9],  [10, 11, 12, 13, 14, 15]] ) {
     for ( j in i ) {
