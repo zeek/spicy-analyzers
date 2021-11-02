@@ -145,7 +145,7 @@ public type MessageWrapper = unit {
   # Here, we try to parse the message...
   : Message &try {
 
-      # ... and only if the Message unit successfully parsed, we can set 
+      # ... and only if the Message unit successfully parsed, we can set
       # the status of this MessageWrapper's success to 'True'
       if ( $$.success == True ) {
         self.success = True;
@@ -169,9 +169,9 @@ public type MessageWrapper = unit {
     self.remainder = b"\x30" + $$;
   }
 
-  # Again, try to parse a Message unit. Be aware that in theory (and probably in practice) this will 
-  # sometimes fail if the '\x30' byte is also present in the SASL header. 
-  
+  # Again, try to parse a Message unit. Be aware that in theory (and probably in practice) this will
+  # sometimes fail if the '\x30' byte is also present in the SASL header.
+
   # Also, we could try to do this recursively or try a few iterations, but for now I would suggest
   # to try this extra parsing once to get the best cost/benefit tradeoff.
   : Message &parse-from=self.remainder if ( self.success == False );
@@ -401,7 +401,7 @@ function bytes_sid_to_hex_repr(bts: bytes) : string {
 
   while ( cnt < |bts| ) {
     local bt: uint8 = *bts.at(cnt);
-    ret = ret + "%02x" % bt;  
+    ret = ret + "%02x" % bt;
 
     if ( cnt < |bts|-1 ) {
       ret = ret + ":";
@@ -416,7 +416,7 @@ function uint32_to_hex_repr(bts: bytes) : string {
   local ret = "0x";
   for ( i in [3, 2, 1, 0] ) {
     local bt: uint8 = *bts.at(i);
-    ret = ret + "%02x" % bt;  
+    ret = ret + "%02x" % bt;
   }
   return ret;
 }
@@ -497,7 +497,7 @@ type SearchFilter = unit {
                                                   &parse-from=self.filterBytes;
 
     # FilterTypes that we can actually convert to a string
-                                                  
+
     FilterType::FILTER_EQ      -> FILTER_EQ:      DecodedAttributeValue(FilterType::FILTER_EQ)
                                                   &parse-from=self.filterBytes;
     FilterType::FILTER_SUBSTR  -> FILTER_SUBSTR:  DecodedAttributeValue(FilterType::FILTER_SUBSTR)
@@ -542,11 +542,11 @@ type SearchFilter = unit {
           nestedObj = self.FILTER_OR;
         }
 
-        # Build the nested AND/OR statement in this loop. When we encounter the first element, 
+        # Build the nested AND/OR statement in this loop. When we encounter the first element,
         # we open the statement. At the second element, we close our first complete statement. For every
         # following statement, we extend the AND/OR statement by wrapping it around the already completed
         # statement. Although it is also valid to not do this wrapping, which is logically equivalent, e.g:
-        #   
+        #
         #           (1)                         (2)
         #   (?(a=b)(c=d)(e=f))    vs   (?(?(a=b)(c=d))(e=f))
         #
@@ -561,7 +561,7 @@ type SearchFilter = unit {
         # # Close it with brackets and put the correct printChar for AND/OR in the statement
         # self.stringRepresentation =  "(%s" % printChar + self.stringRepresentation + ")";
         #
-        
+
         for ( searchFilter in nestedObj.searchfilters ) {
           switch ( printCount ) {
             case 0: {
