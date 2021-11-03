@@ -42,9 +42,9 @@ Here's what it has:
       - `base_object` (vector of 0..n search base objects specified)
       - `result_count` (number of result entries returned)
       - `result` (set of 1..n results from this uid+message_id)
+      - `diagnostic_message` (vector of 0..n diagnostic message strings)
       - `filter` (search filter string)
       - `attributes` (vector of 0..n "attributes", the attributes that were returned)
-      - `diagnostic_message` (vector of 0..n diagnostic message strings)
   - test
     - basic tests for detecting plugin presence and simple bind and search result/requests
 

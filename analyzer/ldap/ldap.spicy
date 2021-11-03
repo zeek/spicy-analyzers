@@ -391,13 +391,12 @@ type ParseNestedNot = unit {
 
 # Helper functions to properly format some custom data structures
 
-function utf16_guid_to_hex_repr(bts: bytes) : string {
+public function utf16_guid_to_hex_repr(bts: bytes) : string {
   # Rather ugly workaround to pretty-print the CLDAP DomainGuid UTF16-LE encoded string
   # in the same format as Wireshark (aabbccdd-eeff-gghh-iijj-kkllmmnnoopp)
 
   # We need to have exactly 16 bytes...
   if ( |bts| != 16 ) {
-
     # ... and otherwise just return an error code
     return "GUID_FORMAT_FAILED";
   }
@@ -415,7 +414,7 @@ function utf16_guid_to_hex_repr(bts: bytes) : string {
   return ret;
 }
 
-function bytes_sid_to_hex_repr(bts: bytes) : string {
+public function bytes_sid_to_hex_repr(bts: bytes) : string {
   local ret = "";
   local cnt = 0;
 
@@ -431,7 +430,7 @@ function bytes_sid_to_hex_repr(bts: bytes) : string {
   return ret;
 }
 
-function bytes_sid_to_SID_repr(bts: bytes) : string {
+public function bytes_sid_to_SID_repr(bts: bytes) : string {
   # Example: SID -> S-1-5-21-1153942841-488947194-1912431946
 
   # Needs to be exactly 24 bytes
@@ -451,10 +450,10 @@ function bytes_sid_to_SID_repr(bts: bytes) : string {
       local bt: uint8 = *bts.at(j);
       dec_val_rep += bt;
       cnt += 1;
-      }
+    }
 
     # ... so we can represent this integer value in big endian
-    ret = ret + "%u" % dec_val_rep.to_int(spicy::ByteOrder::Big);
+    ret = ret + "%u" % dec_val_rep.to_uint(spicy::ByteOrder::Big);
 
     # Only print the dash when we're not at the end
     if ( cnt < 23 ) {
@@ -465,7 +464,13 @@ function bytes_sid_to_SID_repr(bts: bytes) : string {
 }
 
 
-function uint32_to_hex_repr(bts: bytes) : string {
+public function uint32_to_hex_repr(bts: bytes) : string {
+  # Needs to be exactly 4 bytes
+  if ( |bts| != 4 ) {
+    # ... and otherwise just return an error code
+    return "HEX_FORMAT_FAILED";
+  }
+
   # Workaround to print the hex value of an uint32, prepended with '0x'
   local ret = "0x";
   for ( i in [3, 2, 1, 0] ) {
@@ -498,7 +503,6 @@ type DecodedAttributeValue = unit(fType: FilterType) {
 
   on %done {
     switch ( self.attributeDesc ) {
-
       # Special parsing required for some CLDAP attributes,
       # see https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/895a7744-aff3-4f64-bcfa-f8c05915d2e9
 
@@ -506,7 +510,7 @@ type DecodedAttributeValue = unit(fType: FilterType) {
         self.assertionValueDecoded = utf16_guid_to_hex_repr(self.assertionValue);
       }
 
-      case b"objectSid": {
+      case b"objectSid", b"AAC": {
         self.assertionValueDecoded = bytes_sid_to_hex_repr(self.assertionValue);
       }
 
@@ -514,7 +518,7 @@ type DecodedAttributeValue = unit(fType: FilterType) {
         self.assertionValueDecoded = bytes_sid_to_SID_repr(self.assertionValue);
       }
 
-      case b"NtVer", b"AAC": {
+      case b"NtVer": {
         self.assertionValueDecoded = uint32_to_hex_repr(self.assertionValue);
       }
 
@@ -533,7 +537,6 @@ type SearchFilter = unit {
   var stringRepresentation: string = "";
 
   : ASN1::ASN1Message(True) {
-
     if ($$?.application_id) {
       self.filterType = cast<FilterType>(cast<uint8>($$.application_id));
       self.filterBytes = $$.application_data;
@@ -577,9 +580,7 @@ type SearchFilter = unit {
   # recursively get the stringRepresentations for those leafs, which are SearchFilters
 
   on %done {
-
     switch ( local fType = self.filterType ) {
-
       # The NOT, AND and OR filter types are trees and may hold many leaf nodes. So recursively get
       # the stringPresentations for the leaf nodes and add them all in one final statement.
 
