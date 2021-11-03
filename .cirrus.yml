@@ -9,59 +9,6 @@ environment:
     # Branch to use for building the Zeek plugin.
     ZEEK_SPICY_BRANCH: main
 
-pre_commit_task:
-  container:
-    dockerfile: ci/Dockerfile
-
-  check_script:
-    - pre-commit run -a
-
-  pre_commit_cache:
-    folder: /root/.cache/pre-commit
-
-zkg_ubuntu_task:
-  timeout_in: 120m
-  container:
-    dockerfile: ci/Dockerfile
-    matrix:
-      - docker_arguments:
-        - ZEEK_LTS: 1
-        - ZEEK_VERSION: 3.0.13-0
-      - docker_arguments:
-        - ZEEK_LTS: 1
-        - ZEEK_VERSION: 4.0.3-0
-      - docker_arguments:
-        - ZEEK_LTS:
-        - ZEEK_VERSION: 4.1.0-0
-    cpu: 4
-    memory: 12G
-
-  install_spicy_script:
-    - curl -o spicy-dev.deb https://api.cirrus-ci.com/v1/artifact/github/zeek/spicy/docker_ubuntu20/packages/spicy-dev.deb
-    - dpkg --install spicy-dev.deb
-    - rm spicy-dev.deb
-
-  prepare_script:
-    - git clone --branch=$ZEEK_SPICY_BRANCH --recurse-submodules https://github.com/zeek/spicy-plugin
-    - zkg install --skiptests --force spicy-plugin
-    - rm -rf spicy-plugin
-    - zeek -N _Zeek::Spicy
-
-  test_script:
-    - zkg test .
-
-  install_script:
-    # --force avoids prompts, --skiptests because tests ran already
-    - zkg install --force --skiptests .
-
-  check_script:
-    - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
-    - zeek -NN _Zeek::Spicy | grep Analyzer
-    - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
-
-  always:
-      stderr_script: ./ci/show-zkg-stderr
-
 zkg_macos_task:
   timeout_in: 120m
 
@@ -100,34 +47,3 @@ zkg_macos_task:
 
   always:
       stderr_script: ./ci/show-zkg-stderr
-
-standalone_ubuntu_task:
-  timeout_in: 120m
-  container:
-    dockerfile: ci/Dockerfile
-    matrix:
-      - docker_arguments:
-        - ZEEK_LTS:
-        - ZEEK_VERSION: 4.0.3-0
-    cpu: 4
-    memory: 12G
-
-  install_spicy_script:
-    - curl -o spicy-dev.deb https://api.cirrus-ci.com/v1/artifact/github/zeek/spicy/docker_ubuntu20/packages/spicy-dev.deb
-    - dpkg --install spicy-dev.deb
-    - rm spicy-dev.deb
-
-  prepare_script:
-    - git clone --branch=$ZEEK_SPICY_BRANCH --recurse-submodules https://github.com/zeek/spicy-plugin
-    - (cd spicy-plugin && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-plugin -G Ninja .. && ninja install)
-    - rm -rf spicy-plugin
-    - zeek -N _Zeek::Spicy
-
-  install_script:
-    - (mkdir build && cd build && PATH=/opt/spicy-plugin/bin:$PATH cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy-analyzers -G Ninja .. && ninja -j 2 && ninja install)
-    - rm -rf build
-
-  test_install_script:
-    - zeek -NN _Zeek::Spicy | grep Analyzer
-    - PATH=/opt/spicy-plugin/bin:$PATH make -C tests test-install
-    - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap spicy-analyzers && test -e tftp.log && grep rfc1350.txt tftp.log)
