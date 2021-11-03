@@ -3,6 +3,7 @@
 module LDAP;
 
 import ASN1;
+import spicy;
 
 # https://tools.ietf.org/html/rfc4511#
 # https://ldap.com/ldapv3-wire-protocol-reference-asn1-ber/
@@ -127,9 +128,67 @@ public type Result = unit {
 
 #-----------------------------------------------------------------------------
 public type Messages = unit {
-  : Message[];
+  : MessageWrapper[];
 };
 
+#-----------------------------------------------------------------------------
+public type MessageWrapper = unit {
+  # A wrapper around 'Message'. First, we try to parse a Message unit.
+  # There are two possible outcomes:
+  #   (1) Success -> We consumed all bytes and successfully parsed a Message unit
+  #   (2) No success -> self.backtrack() is called in the Message unit,
+  #                     so effectively we didn't consume any bytes yet.
+  # The outcome can be determined by checking the `success` variable of the Message unit
+
+  # This success variable is different, because this keeps track of the status for the MessageWrapper object
+  var success: bool = False;
+  var message: Message;
+
+  # Here, we try to parse the message...
+  : Message &try {
+
+      # ... and only if the Message unit successfully parsed, we can set
+      # the status of this MessageWrapper's success to 'True'
+      if ( $$.success == True ) {
+        self.success = True;
+        self.message = $$;
+      }
+  }
+
+  # If we failed to parse the message, then we're going to scan the remaining bytes for the '\x30'
+  # start byte and try to parse a Message starting from that byte. This effectively
+  # strips the SASL layer if SASL Signing was enabled. Until now, I haven't found A
+  # better way to scan / determine the exact SASL header length yet, so we'll stick with this
+  # for the time being. If the entire LDAP packet was encrypted with SASL, then this will still fail and raise
+  # an error, which is expected (cause we can't decrypt encrypted SASL).
+
+  : bytes &until=b"\x30" if ( self.success == False);
+  var remainder: bytes;
+
+  # The &until consumes the delimiter ('\x30'), and because this is the first byte of a valid LDAP message
+  # we should re-add it to the remainder.
+  : bytes &eod if ( self.success == False )  {
+    self.remainder = b"\x30" + $$;
+  }
+
+  # Again, try to parse a Message unit. Be aware that in theory (and probably in practice) this will
+  # sometimes fail if the '\x30' byte is also present in the SASL header.
+
+  # Also, we could try to do this recursively or try a few iterations, but for now I would suggest
+  # to try this extra parsing once to get the best cost/benefit tradeoff.
+  : Message &try &parse-from=self.remainder if ( self.success == False ) {
+      if ( $$.success == True ) {
+        self.success = True;
+        self.message = $$;
+      }
+  }
+
+  # If we still didn't manage to parse a message (so the &try resulted in another backtrack()) then
+  # this is probably an encrypted LDAP message, so skip it
+
+} &convert=self.message;
+
+#-----------------------------------------------------------------------------
 public type Message = unit {
   var messageID: int64;
   var opcode: ProtocolOpcode = ProtocolOpcode::Undef;
@@ -138,6 +197,7 @@ public type Message = unit {
   var result: Result& = self.unsetResultDefault;
   var obj: string = "";
   var arg: string = "";
+  var success: bool = False;
 
   : ASN1::ASN1Message(True) {
     if (($$.head.tag.type_ == ASN1::ASN1Type::Sequence) &&
@@ -169,15 +229,24 @@ public type Message = unit {
     ProtocolOpcode::COMPARE_RESPONSE        -> COMPARE_RESPONSE:        CompareResponse(self);
     ProtocolOpcode::ABANDON_REQUEST         -> ABANDON_REQUEST:         AbandonRequest(self);
 
-    # TODO: not yet implemented
-    # ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             AddRequest(self);
-    # ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         CompareRequest(self);
-    # ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        ExtendedRequest(self);
-    # ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       ExtendedResponse(self);
-    # ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   IntermediateResponse(self);
-    # ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          ModDNRequest(self);
-    # ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: SearchResultReference(self);
+    # TODO: not yet implemented, redirect to NotImplemented because when we're
+    # just commenting this out, it will stop processing LDAP Messages in this connection
+    ProtocolOpcode::ADD_REQUEST             -> ADD_REQUEST:             NotImplemented(self);
+    ProtocolOpcode::COMPARE_REQUEST         -> COMPARE_REQUEST:         NotImplemented(self);
+    ProtocolOpcode::EXTENDED_REQUEST        -> EXTENDED_REQUEST:        NotImplemented(self);
+    ProtocolOpcode::EXTENDED_RESPONSE       -> EXTENDED_RESPONSE:       NotImplemented(self);
+    ProtocolOpcode::INTERMEDIATE_RESPONSE   -> INTERMEDIATE_RESPONSE:   NotImplemented(self);
+    ProtocolOpcode::MOD_DN_REQUEST          -> MOD_DN_REQUEST:          NotImplemented(self);
+    ProtocolOpcode::SEARCH_RESULT_REFERENCE -> SEARCH_RESULT_REFERENCE: NotImplemented(self);
   } &parse-from=self.applicationBytes if ( self.opcode );
+
+  on %error {
+    self.backtrack();
+  }
+
+  on %done {
+    self.success = True;
+  }
 
 } &requires=((self?.messageID) && (self?.opcode) && (self.opcode != ProtocolOpcode::Undef));
 
@@ -193,6 +262,12 @@ public type BindAuthType = enum {
 type SaslCredentials = unit() {
   mechanism: ASN1::ASN1Message(True) &convert=$$.body.str_value;
   # TODO: if we want to parse the (optional) credentials string
+};
+
+# TODO(fox-ds): A helper unit for requests for which no handling has been implemented.
+# Eventually all uses of this unit should be replaced with actual parsers so this unit can be removed.
+type NotImplemented = unit(inout message: Message) {
+  # Do nothing
 };
 
 type BindRequest = unit(inout message: Message) {
@@ -269,7 +344,7 @@ type FilterType = enum {
   FILTER_INVALID = 254,
 };
 
-type AttributeSelection = unit {
+public type AttributeSelection = unit {
   var attributes: vector<string>;
 
   # TODO: parse AttributeSelection as per
@@ -305,25 +380,153 @@ type AttributeValueAssertion = unit {
   }
 };
 
-type SubstringFilter = unit {
-  var ftype: string = "";
-  var substrings: ASN1::ASN1Message;
+# An AND or OR search filter can consist of many sub-searchfilters, so we try to parse these
+type ParseNestedAndOr = unit {
+    searchfilters: SearchFilter[] &eod;
+};
 
-  : ASN1::ASN1Message(True) {
-    if (($$.head.tag.type_ == ASN1::ASN1Type::Sequence) &&
-        ($$.body?.seq) &&
-        (|$$.body.seq.submessages| >= 2)) {
-      if ($$.body.seq.submessages[0].body?.str_value) {
-        self.ftype = $$.body.seq.submessages[0].body.str_value;
-      }
-      if ($$.body.seq.submessages[1].head.tag.type_ == ASN1::ASN1Type::Sequence) {
-        self.substrings = $$.body.seq.submessages[1];
+type ParseNestedNot = unit {
+    searchfilter: SearchFilter;
+};
+
+# Helper functions to properly format some custom data structures
+
+public function utf16_guid_to_hex_repr(bts: bytes) : string {
+  # Rather ugly workaround to pretty-print the CLDAP DomainGuid UTF16-LE encoded string
+  # in the same format as Wireshark (aabbccdd-eeff-gghh-iijj-kkllmmnnoopp)
+
+  # We need to have exactly 16 bytes...
+  if ( |bts| != 16 ) {
+    # ... and otherwise just return an error code
+    return "GUID_FORMAT_FAILED";
+  }
+
+  local ret = "";
+  for ( i in [[3, 2, 1, 0], [5, 4], [7, 6], [8, 9],  [10, 11, 12, 13, 14, 15]] ) {
+    for ( j in i ) {
+      local bt: uint8 = *bts.at(j);
+      ret = ret + "%02x" % bt;
+      if ( j in [0, 4, 6, 9] ) {
+        ret = ret + "-";
       }
     }
-    # TODO: if we want to descend deeper into the substrings filter
-    # if (self?.substrings) {
-    #
-    #}
+  }
+  return ret;
+}
+
+public function bytes_sid_to_hex_repr(bts: bytes) : string {
+  local ret = "";
+  local cnt = 0;
+
+  while ( cnt < |bts| ) {
+    local bt: uint8 = *bts.at(cnt);
+    ret = ret + "%02x" % bt;
+
+    if ( cnt < |bts|-1 ) {
+      ret = ret + ":";
+    }
+    cnt += 1;
+  }
+  return ret;
+}
+
+public function bytes_sid_to_SID_repr(bts: bytes) : string {
+  # Example: SID -> S-1-5-21-1153942841-488947194-1912431946
+
+  # Needs to be exactly 24 bytes
+  if ( |bts| != 24 ) {
+    # ... and otherwise just return an error code
+    return "SID_FORMAT_FAILED";
+  }
+
+  local ret = "S-";
+  local cnt = 0;
+
+  # Mixed little and big endian, so turn everything to big endian first...
+  # Byte 1 seems to be skipped when parsing the SID
+  for ( i in [[0], [2, 3, 4, 5, 6, 7], [11, 10, 9, 8], [15, 14, 13, 12], [19, 18, 17, 16], [23, 22, 21, 20]] ) {
+    local dec_val_rep: bytes = b"";
+    for ( j in i ) {
+      local bt: uint8 = *bts.at(j);
+      dec_val_rep += bt;
+      cnt += 1;
+    }
+
+    # ... so we can represent this integer value in big endian
+    ret = ret + "%u" % dec_val_rep.to_uint(spicy::ByteOrder::Big);
+
+    # Only print the dash when we're not at the end
+    if ( cnt < 23 ) {
+      ret = ret + "-";
+    }
+  }
+  return ret;
+}
+
+
+public function uint32_to_hex_repr(bts: bytes) : string {
+  # Needs to be exactly 4 bytes
+  if ( |bts| != 4 ) {
+    # ... and otherwise just return an error code
+    return "HEX_FORMAT_FAILED";
+  }
+
+  # Workaround to print the hex value of an uint32, prepended with '0x'
+  local ret = "0x";
+  for ( i in [3, 2, 1, 0] ) {
+    local bt: uint8 = *bts.at(i);
+    ret = ret + "%02x" % bt;
+  }
+  return ret;
+}
+
+# Represents an (extended) key-value pair present in SearchFilters
+type DecodedAttributeValue = unit(fType: FilterType) {
+  var assertionValueDecoded: string = "";
+
+  : uint8;
+  attributeDesc_len: uint8;
+  attributeDesc: bytes &size=self.attributeDesc_len;
+
+  # For some reason, two intermediate uint8 values are present in the FILTER_SUBSTR type.
+  : uint8 if ( fType == FilterType::FILTER_SUBSTR );
+  : uint8 if ( fType == FilterType::FILTER_SUBSTR );
+
+  : uint8;
+  assertionValue_len: uint8;
+  assertionValue: bytes &size=self.assertionValue_len;
+
+  # Only for the FILTER_EXT type, parse extra fields
+  : uint8 if ( fType == FilterType::FILTER_EXT );
+  matchValue_len: uint8 if( fType == FilterType::FILTER_EXT );
+  matchValue: bytes &size=self.matchValue_len if ( fType == FilterType::FILTER_EXT );
+
+  on %done {
+    switch ( self.attributeDesc ) {
+      # Special parsing required for some CLDAP attributes,
+      # see https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/895a7744-aff3-4f64-bcfa-f8c05915d2e9
+
+      case b"DomainGuid": {
+        self.assertionValueDecoded = utf16_guid_to_hex_repr(self.assertionValue);
+      }
+
+      case b"objectSid", b"AAC": {
+        self.assertionValueDecoded = bytes_sid_to_hex_repr(self.assertionValue);
+      }
+
+      case b"DomainSid": {
+        self.assertionValueDecoded = bytes_sid_to_SID_repr(self.assertionValue);
+      }
+
+      case b"NtVer": {
+        self.assertionValueDecoded = uint32_to_hex_repr(self.assertionValue);
+      }
+
+      # By default, decode with UTF-8
+      default: {
+        self.assertionValueDecoded = self.assertionValue.decode();
+      }
+    }
   }
 };
 
@@ -331,6 +534,7 @@ type SearchFilter = unit {
   var filterType: FilterType = FilterType::Undef;
   var filterBytes: bytes = b"";
   var filterLen: uint64 = 0;
+  var stringRepresentation: string = "";
 
   : ASN1::ASN1Message(True) {
     if ($$?.application_id) {
@@ -342,38 +546,137 @@ type SearchFilter = unit {
     }
   }
 
-  # TODO: parse search request filter as per
-  #    https://tools.ietf.org/html/rfc4511#section-4.5.1.7
-  # This descent gets pretty involved... I wonder what is
-  # the best way to represent this as a string in a log.
-  # I've just left some of them as ASN1::ASN1Message for now.
-
   switch ( self.filterType ) {
-    FilterType::FILTER_AND     -> FILTER_AND:     ASN1::ASN1Message(True)
+
+    # FilterTypes that hold one or more SearchFilters inside them
+
+    FilterType::FILTER_AND     -> FILTER_AND:     ParseNestedAndOr()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_OR      -> FILTER_OR:      ASN1::ASN1Message(True)
+    FilterType::FILTER_OR      -> FILTER_OR:      ParseNestedAndOr()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_NOT     -> FILTER_NOT:     SearchFilter()
+    FilterType::FILTER_NOT     -> FILTER_NOT:     ParseNestedNot()
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_EQ      -> FILTER_EQ:      AttributeValueAssertion()
+
+    # FilterTypes that we can actually convert to a string
+
+    FilterType::FILTER_EQ      -> FILTER_EQ:      DecodedAttributeValue(FilterType::FILTER_EQ)
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_SUBSTR  -> FILTER_SUBSTR:  SubstringFilter()
+    FilterType::FILTER_SUBSTR  -> FILTER_SUBSTR:  DecodedAttributeValue(FilterType::FILTER_SUBSTR)
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_GE      -> FILTER_GE:      AttributeValueAssertion()
+    FilterType::FILTER_GE      -> FILTER_GE:      DecodedAttributeValue(FilterType::FILTER_GE)
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_LE      -> FILTER_LE:      AttributeValueAssertion()
+    FilterType::FILTER_LE      -> FILTER_LE:      DecodedAttributeValue(FilterType::FILTER_LE)
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_APPROX  -> FILTER_APPROX:  DecodedAttributeValue(FilterType::FILTER_APPROX)
+                                                  &parse-from=self.filterBytes;
+    FilterType::FILTER_EXT     -> FILTER_EXT:     DecodedAttributeValue(FilterType::FILTER_EXT)
                                                   &parse-from=self.filterBytes;
     FilterType::FILTER_PRESENT -> FILTER_PRESENT: ASN1::ASN1OctetString(self.filterLen, False)
                                                   &convert=$$.value.decode(hilti::Charset::ASCII)
                                                   &parse-from=self.filterBytes;
-    FilterType::FILTER_APPROX  -> FILTER_APPROX:  AttributeValueAssertion()
-                                                  &parse-from=self.filterBytes;
-    FilterType::FILTER_EXT     -> FILTER_EXT:     ASN1::ASN1Message(True)
-                                                  &parse-from=self.filterBytes;
   };
+
+  # So when you're done with recursively parsing the filters, we can now leverage the tree structure to
+  # recursively get the stringRepresentations for those leafs, which are SearchFilters
+
+  on %done {
+    switch ( local fType = self.filterType ) {
+      # The NOT, AND and OR filter types are trees and may hold many leaf nodes. So recursively get
+      # the stringPresentations for the leaf nodes and add them all in one final statement.
+
+      case FilterType::FILTER_NOT: {
+        self.stringRepresentation = "(!%s)" % self.FILTER_NOT.searchfilter.stringRepresentation;
+      }
+
+      case FilterType::FILTER_AND, FilterType::FILTER_OR: {
+        local nestedObj: ParseNestedAndOr;
+        local printChar = "";
+        local printCount = 0;
+
+        if ( fType == FilterType::FILTER_AND ) {
+          printChar = "&";
+          nestedObj = self.FILTER_AND;
+        } else {
+          printChar = "|";
+          nestedObj = self.FILTER_OR;
+        }
+
+        # Build the nested AND/OR statement in this loop. When we encounter the first element,
+        # we open the statement. At the second element, we close our first complete statement. For every
+        # following statement, we extend the AND/OR statement by wrapping it around the already completed
+        # statement. Although it is also valid to not do this wrapping, which is logically equivalent, e.g:
+        #
+        #           (1)                         (2)
+        #   (?(a=b)(c=d)(e=f))    vs   (?(?(a=b)(c=d))(e=f))
+        #
+        # the latter version is also shown by Wireshark. So although the parsed structure actually represents
+        # version (1) of the query, we now choose to print version (2). If this is not desirable, swap the code
+        # for the following:
+        #
+        # # Construct the nested structure, like (1)
+        # for ( SF in nestedObj.searchfilters ) {
+        #    self.stringRepresentation = self.stringRepresentation + SF.stringRepresentation
+        # }
+        # # Close it with brackets and put the correct printChar for AND/OR in the statement
+        # self.stringRepresentation =  "(%s" % printChar + self.stringRepresentation + ")";
+        #
+
+        for ( searchFilter in nestedObj.searchfilters ) {
+          switch ( printCount ) {
+            case 0: {
+              self.stringRepresentation = "(%s%s" % (printChar, searchFilter.stringRepresentation);
+            }
+            case 1: {
+              self.stringRepresentation = self.stringRepresentation + searchFilter.stringRepresentation + ")";
+            }
+            default: {
+              self.stringRepresentation = "(%s" % printChar + self.stringRepresentation + searchFilter.stringRepresentation + ")";
+            }
+          }
+          printCount += 1;
+        }
+      }
+
+    # The following FilterTypes are leaf nodes and can thus be represented in a statement
+
+      case FilterType::FILTER_EXT: {
+        self.stringRepresentation = "(%s:%s:=%s)" % (self.FILTER_EXT.attributeDesc.decode(),
+                                                     self.FILTER_EXT.assertionValueDecoded,
+                                                     self.FILTER_EXT.matchValue.decode());
+      }
+      case FilterType::FILTER_APPROX: {
+        self.stringRepresentation = "(%s~=%s)" % (self.FILTER_APPROX.attributeDesc.decode(),
+                                                  self.FILTER_APPROX.assertionValueDecoded);
+      }
+      case FilterType::FILTER_EQ: {
+        self.stringRepresentation = "(%s=%s)" % (self.FILTER_EQ.attributeDesc.decode(),
+                                                self.FILTER_EQ.assertionValueDecoded);
+      }
+      case FilterType::FILTER_GE: {
+        self.stringRepresentation = "(%s>=%s)" % (self.FILTER_GE.attributeDesc.decode(),
+                                                  self.FILTER_GE.assertionValueDecoded);
+      }
+      case FilterType::FILTER_LE: {
+        self.stringRepresentation = "(%s<=%s)" % (self.FILTER_LE.attributeDesc.decode(),
+                                                  self.FILTER_LE.assertionValueDecoded);
+      }
+      case FilterType::FILTER_SUBSTR: {
+        self.stringRepresentation = "(%s=*%s*)" % (self.FILTER_SUBSTR.attributeDesc.decode(),
+                                                  self.FILTER_SUBSTR.assertionValueDecoded);
+      }
+      case FilterType::FILTER_PRESENT: {
+        self.stringRepresentation = "(%s=*)" % self.FILTER_PRESENT;
+      }
+    }
+  }
+
+  on %error {
+    self.stringRepresentation = "FILTER_PARSING_ERROR";
+  }
+
 };
 
-type SearchRequest = unit(inout message: Message) {
+public type SearchRequest = unit(inout message: Message)  {
   baseObject: ASN1::ASN1Message(True) &convert=$$.body.str_value {
     message.obj = self.baseObject;
   }
@@ -386,8 +689,8 @@ type SearchRequest = unit(inout message: Message) {
   sizeLimit: ASN1::ASN1Message(True) &convert=$$.body.num_value &default=0;
   timeLimit: ASN1::ASN1Message(True) &convert=$$.body.num_value &default=0;
   typesOnly: ASN1::ASN1Message(True) &convert=$$.body.bool_value &default=False;
-  filter: SearchFilter;
-  attributes: AttributeSelection;
+  filter: SearchFilter &convert=$$.stringRepresentation;
+  attributes: AttributeSelection &convert=$$.attributes;
 };
 
 type SearchResultEntry = unit(inout message: Message) {

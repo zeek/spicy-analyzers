@@ -9,6 +9,9 @@ export {
 	## Whether clear text passwords are captured or not.
 	option default_capture_password = F;
 
+  ## Whether to log LDAP search attributes or not.
+  option default_log_search_attributes = F;
+
   #############################################################################
   # This is the format of ldap.log (ldap operations minus search-related)
   # Each line represents a unique connection+message_id (requests/responses)
@@ -84,6 +87,11 @@ export {
     # result diagnostic message(s)
     diagnostic_message: vector of string &log &optional;
 
+    #  a string representation of the search filter used in the query
+    filter: string &log &optional;
+
+    # a list of attributes that were returned in the search
+    attributes: vector of string &log &optional;
   };
 
   # Event that can be handled to access the ldap record as it is sent on
@@ -375,7 +383,9 @@ event LDAP::searchreq(c: connection,
                       deref: LDAP::SearchDerefAlias,
                       size_limit: int,
                       time_limit: int,
-                      types_only: bool) {
+                      types_only: bool,
+                      filter: string,
+                      attributes: vector of string) {
 
   set_session(c, message_id, LDAP::ProtocolOpcode_SEARCH_REQUEST);
 
@@ -396,7 +406,11 @@ event LDAP::searchreq(c: connection,
       c$ldap_searches[message_id]$base_object = vector();
     c$ldap_searches[message_id]$base_object += base_object;
   }
+  c$ldap_searches[message_id]$filter = filter;
 
+  if ( default_log_search_attributes ) {
+    c$ldap_searches[message_id]$attributes = attributes;
+  }
 }
 
 #############################################################################

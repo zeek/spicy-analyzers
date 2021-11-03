@@ -1,10 +1,14 @@
+0.2.25 | 2021-11-03 16:33:43 +0100
+
+  * Improvements in LDAP logging (fox-ds)
+
 0.2.24-5 | 2021-11-02 11:54:12 +0100
 
   * Show diff if pre-commit fails. (Benjamin Bannier, Corelight)
 
   * Check for invalid STUN error classes and numbers. (Benjamin Bannier, Corelight)
 
-  * Prettier representation of STUN error code attribute values. (SG)
+  * Prettier representation of STUN error code attribute values. (Seth Grover)
 
 0.2.24 | 2021-10-15 10:38:05 +0200
 
