@@ -9,15 +9,15 @@ Currently, the following analyzers are included:
 
 - DHCP <sup>[1]</sup>
 - DNS <sup>[1]</sup>
-- [Facefish Rootkit](analyzer/protocol/facefish_rootkit/)
+- [Facefish Rootkit](analyzer/facefish_rootkit/)
 - HTTP <sup>[1]</sup>
-- [IPSec](analyzer/protocol/ipsec/)
+- [IPSec](analyzer/ipsec/)
 - LDAP
-- [OpenVPN](analyzer/protocol/openvpn/)
+- [OpenVPN](analyzer/openvpn/)
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
-- [STUN](analyzer/protocol/stun/)
-- [Tailscale VPN](analyzer/protocol/tailscale/)
+- [STUN](analyzer/stun/)
+- [Tailscale VPN](analyzer/tailscale/)
 - TFTP
 - Wireguard
 - ZIP archives
