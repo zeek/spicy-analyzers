@@ -1,3 +1,7 @@
+0.2.26 | 2021-11-05 12:05:45 +0100
+
+  * Use absolute links in top-level README. (Benjamin Bannier, Corelight)
+
 0.2.25 | 2021-11-03 16:33:43 +0100
 
   * Improvements in LDAP logging (fox-ds)
