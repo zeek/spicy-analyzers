@@ -6,16 +6,6 @@ environment:
     IMAGE_MACOS_BIG_SUR:  big-sur-base
     IMAGE_MACOS_CATALINA: catalina-base
 
-pre_commit_task:
-  container:
-    dockerfile: ci/Dockerfile
-
-  check_script:
-    - pre-commit run -a --show-diff-on-failure
-
-  pre_commit_cache:
-    folder: /root/.cache/pre-commit
-
 zkg_ubuntu_task:
   timeout_in: 120m
   container:
