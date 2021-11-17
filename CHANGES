@@ -1,3 +1,9 @@
+0.2.28 | 2021-11-17 16:00:17 +0100
+
+  * stun: Fix integer overflow/underflow issues (Arne Welzel, Corelight)
+
+  * ipsec: Fix integer overflow/underflow issues (Arne Welzel, Corelight)
+
 0.2.27 | 2021-11-09 10:55:22 +0100
 
   * Reset environment variables which might affect CMake builds for zkg. (Benjamin Bannier, Corelight)
