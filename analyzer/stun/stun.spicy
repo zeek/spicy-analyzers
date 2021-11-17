@@ -159,11 +159,11 @@ type Attribute = unit(method: uint16, class: uint16, trans_id: bytes) {
 	var method: uint16 = method;
 	var class: uint16 = class;
 	var value_padding: uint16;
-	var total_size: uint16;
+	var total_size: uint32;
 	attr_type: uint16 &convert=AttrType($$);
 	attr_length: uint16 {
 		self.value_padding = padding($$);
-		self.total_size = $$ + self.value_padding;
+		self.total_size = cast<uint32>($$) + self.value_padding; # Store total size as `uint32` so this operation cannot overflow.
 	}
 	switch (self.attr_type) {
 		AttrType::MAPPED_ADDRESS -> MAPPED_ADDRESS: MappedAddress(self.attr_length);
@@ -201,7 +201,7 @@ type MappedAddress = unit(length: uint16) {
 
 # https://tools.ietf.org/html/rfc5389#section-15.6
 type ErrorCode = unit(length: uint16) {
-	: bytes &size=2;
+	: bytes &size=2 &requires=(length >= 4);  # Pre-condition for the whole ErrorCode
 	class: uint8;
 	number: uint8;
 	reason: bytes &size=(length - 4);
