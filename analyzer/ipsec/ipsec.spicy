@@ -274,7 +274,7 @@ public type IPSecIKE = unit {
 		X2: 6..7;
 	};
 	message_id: uint32;
-	length: uint32;
+	length: uint32 &requires=($$ >= 28);
 	payloads_v1: IPSecIKEv1_Payload(self.shared_info, self.message_id)[] &size=self.length-28 if (self.version.maj == 1 && !self.flags.E);
 	payloads_v2: IPSecIKEv2_Payload(self.shared_info, self.message_id)[] &size=self.length-28 if (self.version.maj == 2);
 } &requires=( (self.version.maj == 1 || self.version.maj == 2) && self.version.min == 0 );
@@ -285,6 +285,10 @@ type IPSecIKEv2_Payload = unit(inout shared_info: SharedInfo, message_id: uint32
 	var this_payload: PayloadType = shared_info.next_payload;
 
 	header: IPSecIKE_Payload_Header { shared_info.next_payload = $$.next_payload; }
+
+	# Require a minimum payload_length of 4 to prevent triggering
+	# integer overflow errors in the switch statement below.
+	: bytes &size=0 &requires=(self.header.payload_length >= 4) if ( self.this_payload != PayloadType::NO_NEXT_PAYLOAD );
 
 	switch ( self.this_payload ) {
 		PayloadType::SA -> payload_sa: IPSecIKEv2_SA_Payload(message_id) &size=self.header.payload_length-4;
@@ -506,6 +510,10 @@ type IPSecIKEv1_Payload = unit(inout shared_info: SharedInfo, message_id: uint32
 
 	header: IPSecIKE_Payload_Header { shared_info.next_payload = $$.next_payload; }
 
+	# Require a minimum payload_length of 4 to prevent triggering
+	# integer overflow errors in the switch statement below.
+	: bytes &size=0 &requires=(self.header.payload_length >= 4);
+
 	switch ( self.this_payload ) {
 		PayloadType::SA_v1 -> payload_sa: IPSecIKEv1_SA_Payload(message_id, self.header) &size=self.header.payload_length-4;
 		PayloadType::P_v1 -> payload_p: IPSecIKEv1_P_Payload(message_id, self.header) &size=self.header.payload_length-4;
@@ -574,12 +582,14 @@ type IPSecIKEv1_ID_Payload = unit(message_id: uint32, header: IPSecIKE_Payload_H
 
 type IPSecIKEv1_CERT_Payload = unit(message_id: uint32, header: IPSecIKE_Payload_Header) {
 	var message_id: uint32 = message_id;
+	: bytes &size=0 &requires=(header.payload_length >= 5);
 	cert_encoding: uint8 &convert=CertEncoding($$);
 	cert_data: bytes &size=header.payload_length-5;
 };
 
 type IPSecIKEv1_CR_Payload = unit(message_id: uint32, header: IPSecIKE_Payload_Header) {
 	var message_id: uint32 = message_id;
+	: bytes &size=0 &requires=(header.payload_length >= 5);
 	cert_encoding: uint8 &convert=CertEncoding($$);
 	cert_authority: bytes &size=header.payload_length-5;
 };
