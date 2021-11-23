@@ -16,7 +16,7 @@ Currently, the following analyzers are included:
 - [OpenVPN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/openvpn)
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
-- [STUN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/stun)
+- STUN deprecated by <https://github.com/corelight/zeek-spicy-stun>
 - [Tailscale VPN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/tailscale)
 - TFTP
 - Wireguard
