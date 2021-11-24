@@ -4,7 +4,6 @@ set(PACKAGE_NAME "spicy-analyzers")
 
 add_subdirectory(dhcp)
 add_subdirectory(dns)
-add_subdirectory(facefish_rootkit)
 add_subdirectory(http)
 add_subdirectory(ipsec)
 add_subdirectory(ldap)

@@ -10,10 +10,6 @@ DNS
 - [dns53.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/dns53.pcap)
 - dns-svr.pcap (self-made)
 
-Facefish Rootkit
-- facefish_rootkit_generated.pcap (self-made)
-- [facefish_full.pcap](https://www.joesandbox.com/analysis/355141/0/html#network)
-
 HTTP
 - [http-post.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/http/post.trace)
 

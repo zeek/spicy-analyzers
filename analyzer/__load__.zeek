@@ -2,7 +2,6 @@
 
 @load ./dhcp
 @load ./dns
-@load ./facefish_rootkit
 @load ./http
 @load ./ipsec
 @load ./ldap
