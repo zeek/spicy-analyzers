@@ -6,7 +6,6 @@
 @load ./http
 @load ./ipsec
 @load ./ldap
-@load ./openvpn
 @load ./png
 @load ./stun
 @load ./tailscale

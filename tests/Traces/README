@@ -28,13 +28,6 @@ IPSec
 LDAP
 - [ldap-simpleauth.pcap](https://github.com/arkime/arkime/blob/main/tests/pcap/ldap-simpleauth.pcap)
 
-OpenVPN
-- [openvpn-tcp-tls-auth.pcap](https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=get&target=OpenVPN_TCP_tls-auth.pcapng)
-- openvpn.pcap (self-made)
-- openvpn_udp_hmac_256.pcap (self-made)
-- [openvpn_tcp_nontlsauth.pcap](https://bugs.wireshark.org/bugzilla/attachment.cgi?id=9840)
-- [openvpn_udp_tls-auth.pcap](https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=get&target=OpenVPN_UDP_tls-auth.pcapng)
-
 PE
 - [ftp-pe.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/pe/pe.trace) (pruned to a single file transfer)
 
