@@ -9,6 +9,4 @@
 @load ./openvpn
 @load ./png
 @load ./stun
-@load ./tailscale
 @load ./tftp
-@load ./wireguard
