@@ -18,11 +18,11 @@ zkg_ubuntu_task:
     - zkg install --force --skiptests spicy-plugin
 
   test_script:
-    - zkg test .
+    - zkg -vvvvv test .
 
   install_script:
     # --force avoids prompts, --skiptests because tests ran already
-    - zkg install --force --skiptests .
+    - zkg -vvvvv install --force --skiptests .
 
   check_script:
     - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
@@ -39,14 +39,14 @@ zkg_macos_task:
     image: $IMAGE_MACOS_BIG_SUR
 
   env:
-    PATH: /opt/spicy/bin:${PATH}
+    PATH: ${HOME}/.zkg/bin:/opt/spicy/bin:${PATH}
 
   install_zeek_script:
     - brew install zeek
 
   install_spicy_script:
     - brew tap zeek/zeek
-    - brew install spicy --HEAD
+    - brew install spicy
 
   prepare_script:
     - pip3 install zkg btest
@@ -56,11 +56,11 @@ zkg_macos_task:
     - zkg install --force --skiptests spicy-plugin
 
   test_script:
-    - zkg test .
+    - zkg -vvvvv test .
 
   install_script:
     # --force avoids prompts, --skiptests because tests ran already
-    - zkg install --force --skiptests .
+    - zkg -vvvvv install --force --skiptests .
 
   check_script:
     - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
