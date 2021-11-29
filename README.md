@@ -13,7 +13,7 @@ Currently, the following analyzers are included:
 - HTTP <sup>[1]</sup>
 - [IPSec](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/ipsec)
 - LDAP
-- OpenVPN deprecated by <https://github.com/corelight/zeek-spicy-openvpn>
+- OpenVPN from <https://github.com/corelight/zeek-spicy-openvpn>
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
 - [STUN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/stun)
