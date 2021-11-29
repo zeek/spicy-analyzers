@@ -46,7 +46,7 @@ zkg_macos_task:
 
   install_spicy_script:
     - brew tap zeek/zeek
-    - brew install spicy --HEAD
+    - brew install spicy
 
   prepare_script:
     - pip3 install zkg btest
