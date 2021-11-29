@@ -50,6 +50,7 @@ zkg_macos_task:
 
   prepare_script:
     - pip3 install zkg btest
+    - zkg refresh
     - zkg autoconfig && echo "@load packages" >>"$(zeek-config --site_dir)"/local.zeek
     # --force avoids prompts
     - zkg install --force --skiptests spicy-plugin

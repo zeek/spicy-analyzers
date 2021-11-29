@@ -1,9 +1,0 @@
-# Copyright (c) 2021 by the Zeek Project. See LICENSE for details.
-
-protocol analyzer spicy::Facefish_Rootkit over TCP:
-	parse with Facefish_Rootkit::FacefishRecords;
-
-import Facefish_Rootkit;
-import Facefish_Rootkit_Zeek;
-
-on Facefish_Rootkit::FacefishRecord -> event Facefish_Rootkit::facefish_rootkit_message($conn, $is_orig, Facefish_Rootkit_Zeek::create_facefishmsg(self));

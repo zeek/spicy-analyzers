@@ -2,12 +2,6 @@
 
 @load ./dhcp
 @load ./dns
-@load ./facefish_rootkit
 @load ./http
-@load ./ipsec
-@load ./openvpn
 @load ./png
-@load ./stun
-@load ./tailscale
 @load ./tftp
-@load ./wireguard
