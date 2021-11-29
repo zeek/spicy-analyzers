@@ -11,7 +11,7 @@ Currently, the following analyzers are included:
 - DNS <sup>[1]</sup>
 - [Facefish Rootkit](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/facefish_rootkit)
 - HTTP <sup>[1]</sup>
-- IPSec deprecated by [zeek-spicy-ipsec](https://github.com/corelight/zeek-spicy-ipsec)
+- IPSec from [zeek-spicy-ipsec](https://github.com/corelight/zeek-spicy-ipsec)
 - LDAP
 - [OpenVPN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/openvpn)
 - PNG
