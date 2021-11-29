@@ -6,7 +6,11 @@ add_subdirectory(dhcp)
 add_subdirectory(dns)
 add_subdirectory(facefish_rootkit)
 add_subdirectory(http)
+<<<<<<< HEAD
 add_subdirectory(ldap)
+=======
+add_subdirectory(ipsec)
+>>>>>>> main
 add_subdirectory(openvpn)
 add_subdirectory(pe)
 add_subdirectory(png)
