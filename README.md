@@ -17,9 +17,8 @@ Currently, the following analyzers are included:
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
 - [STUN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/stun)
-- Tailscale deprecated by <https://github.com/corelight/zeek-spicy-wireguard>
 - TFTP
-- Wireguard deprecated by <https://github.com/corelight/zeek-spicy-wireguard>
+- Wireguard (and Tailscale) from <https://github.com/corelight/zeek-spicy-wireguard>
 - ZIP archives
 
 We are working to expand this set. If you have written a Spicy
