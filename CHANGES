@@ -1,3 +1,15 @@
+0.2.28-5 | 2021-11-26 10:15:19 +0100
+
+  * Move pre-commit CI check to GH action. (Benjamin Bannier, Corelight)
+
+  * Use zeek-dev image in Linux CI. (Benjamin Bannier, Corelight)
+
+  * Remove option to run CI against specific branch of `zeek/spicy-plugin`. (Benjamin Bannier, Corelight)
+
+  * Move LDAP analyzer to separate package. (Benjamin Bannier, Corelight)
+
+    This moves the LDAP analyzer into the package zeek/spicy-ldap.
+
 0.2.28 | 2021-11-17 16:00:17 +0100
 
   * stun: Fix integer overflow/underflow issues (Arne Welzel, Corelight)
