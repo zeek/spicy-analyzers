@@ -18,11 +18,11 @@ zkg_ubuntu_task:
     - zkg install --force --skiptests spicy-plugin
 
   test_script:
-    - zkg test .
+    - zkg -vvvvv test .
 
   install_script:
     # --force avoids prompts, --skiptests because tests ran already
-    - zkg install --force --skiptests .
+    - zkg -vvvvv install --force --skiptests .
 
   check_script:
     - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
@@ -55,11 +55,11 @@ zkg_macos_task:
     - zkg install --force --skiptests spicy-plugin
 
   test_script:
-    - zkg test .
+    - zkg -vvvvv test .
 
   install_script:
     # --force avoids prompts, --skiptests because tests ran already
-    - zkg install --force --skiptests .
+    - zkg -vvvvv install --force --skiptests .
 
   check_script:
     - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
