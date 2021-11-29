@@ -10,3 +10,4 @@ test_command  = unset -v CXX CXXFLAGS LD LDFLAGS && cd tests && PATH=$(zkg confi
 # We depend on spicy-plugin>=1.2.2, but currently cannot
 # express that dependency due to zeek/package-manager#106
 # depends = spicy-plugin >=1.2.2
+depends = corelight/zeek-spicy-stun ==0.2.0
