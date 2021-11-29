@@ -9,7 +9,7 @@ Currently, the following analyzers are included:
 
 - DHCP <sup>[1]</sup>
 - DNS <sup>[1]</sup>
-- Facefish Rootkit deprecated by <https://github.com/corelight/zeek-spicy-facefish>
+- Facefish Rootkit from <https://github.com/corelight/zeek-spicy-facefish>
 - HTTP <sup>[1]</sup>
 - [IPSec](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/ipsec)
 - LDAP
