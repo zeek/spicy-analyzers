@@ -1,4 +1,4 @@
-FROM zeekurity/zeek-dev
+FROM zeekurity/zeek
 
 # ADD https://api.cirrus-ci.com/v1/artifact/github/zeek/spicy/docker_debian11/packages/spicy-dev.deb /tmp
 ADD https://github.com/zeek/spicy/releases/download/v1.3.0/spicy_linux_debian11.deb /tmp
