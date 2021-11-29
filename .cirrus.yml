@@ -39,7 +39,7 @@ zkg_macos_task:
     image: $IMAGE_MACOS_BIG_SUR
 
   env:
-    PATH: /opt/spicy/bin:${PATH}
+    PATH: ${HOME}/.zkg/bin:/opt/spicy/bin:${PATH}
 
   install_zeek_script:
     - brew install zeek
