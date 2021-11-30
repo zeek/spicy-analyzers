@@ -11,15 +11,15 @@ Currently, the following analyzers are included:
 - DNS <sup>[1]</sup>
 - [Facefish Rootkit](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/facefish_rootkit)
 - HTTP <sup>[1]</sup>
-- [IPSec](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/ipsec)
+- [IPSec](http://github.com/corelight/zeek-spicy-ipsec)
 - LDAP
-- [OpenVPN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/openvpn)
+- [OpenVPN](http://github.com/corelight/zeek-spicy-openvpn)
 - PNG
 - Portable Executable (PE) <sup>[2]</sup>
-- [STUN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/stun)
-- [Tailscale VPN](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/tailscale)
+- [STUN](http://github.com/corelight/zeek-spicy-stun)
+- [Tailscale VPN](http://github.com/corelight/zeek-spicy-wireguard)
 - TFTP
-- Wireguard
+- [Wireguard](http://github.com/corelight/zeek-spicy-wireguard)
 - ZIP archives
 
 We are working to expand this set. If you have written a Spicy

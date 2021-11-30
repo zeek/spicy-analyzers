@@ -1,3 +1,7 @@
+0.2.28-12 | 2021-11-30 15:02:42 +0100
+
+  * Deprecate analyzers. (Keith Jones, Corelight)
+
 0.2.28-10 | 2021-11-30 12:45:11 +0100
 
   * Run macos CI against latest Spicy release instead of HEAD. (Benjamin Bannier, Corelight)

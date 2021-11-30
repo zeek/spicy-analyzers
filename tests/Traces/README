@@ -10,27 +10,8 @@ DNS
 - [dns53.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/dns53.pcap)
 - dns-svr.pcap (self-made)
 
-Facefish Rootkit
-- facefish_rootkit_generated.pcap (self-made)
-- [facefish_full.pcap](https://www.joesandbox.com/analysis/355141/0/html#network)
-
 HTTP
 - [http-post.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/http/post.trace)
-
-IPSec
-- [ipsec_client.pcap](https://www.cloudshark.org/captures/9e63e31f9f56)
-- [ikev1-certs.pcap](https://github.com/wireshark/wireshark/blob/master/test/captures/ikev1-certs.pcap)
-- [ipsec-ikev1-isakmp-main-mode.pcap](https://www.cloudshark.org/captures/ff740838f1c2)
-- [ipsec-ikev1-isakmp-aggressive-mode.pcap](https://www.cloudshark.org/captures/e51f5c8a6b24)
-- ipsec-ikev1-payload-bad-length.pcap (self-made)
-- ipsec-ikev1-zero-length.pcap (self-made)
-
-OpenVPN
-- [openvpn-tcp-tls-auth.pcap](https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=get&target=OpenVPN_TCP_tls-auth.pcapng)
-- openvpn.pcap (self-made)
-- openvpn_udp_hmac_256.pcap (self-made)
-- [openvpn_tcp_nontlsauth.pcap](https://bugs.wireshark.org/bugzilla/attachment.cgi?id=9840)
-- [openvpn_udp_tls-auth.pcap](https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=get&target=OpenVPN_UDP_tls-auth.pcapng)
 
 PE
 - [ftp-pe.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/pe/pe.trace) (pruned to a single file transfer)
@@ -38,17 +19,9 @@ PE
 PNG
 - [png.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/http/pipelined-requests.trace)
 
-STUN
-- [stun-ice-testcall.pcap](https://github.com/r-franke/spicy_stun/blob/master/test_data/stun-ice-testcall.pcap)
-- stun-attribute-length-ffff.pcap (self-made)
-- stun-malformed-error.pcap (self-made)
-
 TFTP
 - [tftp_rrq.pcap](https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/SampleCaptures/tftp_rrq.pcap)
 - [tftp_wrq.pcap](https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/SampleCaptures/tftp_wrq.pcap)
-
-Wireguard
-- wireguard.pcap (self-made)
 
 ZIP
 - zip/* (self-made)
