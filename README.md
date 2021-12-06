@@ -15,7 +15,7 @@ Currently, the following analyzers are included:
 - LDAP
 - [OpenVPN](http://github.com/corelight/zeek-spicy-openvpn)
 - PNG
-- Portable Executable (PE) <sup>[2]</sup>
+- [Portable Executable (PE)](https://github.com/zeek/spicy-pe) <sup>[2]</sup>
 - [STUN](http://github.com/corelight/zeek-spicy-stun)
 - [Tailscale VPN](http://github.com/corelight/zeek-spicy-wireguard)
 - TFTP

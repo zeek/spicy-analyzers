@@ -13,9 +13,6 @@ DNS
 HTTP
 - [http-post.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/http/post.trace)
 
-PE
-- [ftp-pe.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/pe/pe.trace) (pruned to a single file transfer)
-
 PNG
 - [png.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/http/pipelined-requests.trace)
 
