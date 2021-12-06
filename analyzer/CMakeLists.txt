@@ -7,6 +7,5 @@ add_subdirectory(dns)
 add_subdirectory(http)
 add_subdirectory(png)
 add_subdirectory(tftp)
-add_subdirectory(zip)
 
 install(FILES __load__.zeek DESTINATION "${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}/${PACKAGE_NAME}/")

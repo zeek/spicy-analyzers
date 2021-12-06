@@ -20,7 +20,7 @@ Currently, the following analyzers are included:
 - [Tailscale VPN](http://github.com/corelight/zeek-spicy-wireguard)
 - TFTP
 - [Wireguard](http://github.com/corelight/zeek-spicy-wireguard)
-- ZIP archives
+- [ZIP archives](https://github.com/zeek/spicy-zip)
 
 We are working to expand this set. If you have written a Spicy
 analyzer that you would like to see included here, please file a pull

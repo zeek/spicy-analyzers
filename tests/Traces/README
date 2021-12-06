@@ -19,6 +19,3 @@ PNG
 TFTP
 - [tftp_rrq.pcap](https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/SampleCaptures/tftp_rrq.pcap)
 - [tftp_wrq.pcap](https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/SampleCaptures/tftp_wrq.pcap)
-
-ZIP
-- zip/* (self-made)
