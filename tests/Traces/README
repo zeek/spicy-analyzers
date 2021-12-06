@@ -3,9 +3,6 @@ places that we document below. While these traces are all coming from
 public sources, please note that they may carry their own licenses.
 We collect them here for convenience only.
 
-DHCP
-- [dhcp.pcap](https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/SampleCaptures/dhcp.pcap)
-
 DNS
 - [dns53.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/dns53.pcap)
 - dns-svr.pcap (self-made)
