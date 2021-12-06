@@ -3,5 +3,4 @@
 @load ./dhcp
 @load ./dns
 @load ./http
-@load ./png
 @load ./tftp

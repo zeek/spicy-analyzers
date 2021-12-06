@@ -5,7 +5,6 @@ set(PACKAGE_NAME "spicy-analyzers")
 add_subdirectory(dhcp)
 add_subdirectory(dns)
 add_subdirectory(http)
-add_subdirectory(png)
 add_subdirectory(tftp)
 
 install(FILES __load__.zeek DESTINATION "${SPICY_SCRIPTS_OUTPUT_DIR_INSTALL}/${PACKAGE_NAME}/")
