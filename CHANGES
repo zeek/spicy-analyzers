@@ -1,3 +1,9 @@
+0.2.28-15 | 2021-12-07 12:56:05 +0100
+
+  * Use unpinned dependencies. (Benjamin Bannier, Corelight)
+
+  * Remove unused traces. (Benjamin Bannier, Corelight)
+
 0.2.28-12 | 2021-11-30 15:02:42 +0100
 
   * Deprecate analyzers. (Keith Jones, Corelight)
