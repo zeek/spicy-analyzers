@@ -2,7 +2,6 @@
 
 set(PACKAGE_NAME "spicy-analyzers")
 
-add_subdirectory(dns)
 add_subdirectory(http)
 add_subdirectory(tftp)
 

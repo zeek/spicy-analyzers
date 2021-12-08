@@ -3,10 +3,6 @@ places that we document below. While these traces are all coming from
 public sources, please note that they may carry their own licenses.
 We collect them here for convenience only.
 
-DNS
-- [dns53.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/dns53.pcap)
-- dns-svr.pcap (self-made)
-
 HTTP
 - [http-post.pcap](https://github.com/zeek/zeek/blob/master/testing/btest/Traces/http/post.trace)
 
