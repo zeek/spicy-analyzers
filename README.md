@@ -12,7 +12,7 @@ Currently, the following analyzers are included:
 - [Facefish Rootkit](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/facefish_rootkit)
 - HTTP <sup>[1]</sup>
 - [IPSec](http://github.com/corelight/zeek-spicy-ipsec)
-- LDAP
+- [LDAP](http://github.com/zeek/spicy-ldap)
 - [OpenVPN](http://github.com/corelight/zeek-spicy-openvpn)
 - [PNG](https://github.com/zeek/spicy-png)
 - [Portable Executable (PE)](https://github.com/zeek/spicy-pe) <sup>[2]</sup>
