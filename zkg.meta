@@ -12,6 +12,7 @@ test_command  = unset -v CXX CXXFLAGS LD LDFLAGS && cd tests && PATH=$(zkg confi
 # depends = spicy-plugin >=1.2.2
 depends = http://github.com/zeek/spicy-dhcp >=0.0.1
     http://github.com/zeek/spicy-dns >=0.0.1
+    http://github.com/zeek/spicy-http >=0.0.1
     http://github.com/zeek/spicy-ldap >=0.0.2
     http://github.com/zeek/spicy-pe >=0.0.1
     http://github.com/zeek/spicy-png >=0.0.1

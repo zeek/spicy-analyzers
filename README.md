@@ -10,7 +10,7 @@ Currently, the following analyzers are included:
 - [DHCP](https://github.com/zeek/spicy-dhcp) <sup>[1]</sup>
 - [DNS](https://github.com/zeek/spicy-dns) <sup>[1]</sup>
 - [Facefish Rootkit](https://github.com/zeek/spicy-analyzers/tree/main/analyzer/facefish_rootkit)
-- HTTP <sup>[1]</sup>
+- [HTTP](https://github.com/zeek/spicy-http) <sup>[1]</sup>
 - [IPSec](http://github.com/corelight/zeek-spicy-ipsec)
 - [LDAP](http://github.com/zeek/spicy-ldap)
 - [OpenVPN](http://github.com/corelight/zeek-spicy-openvpn)
