@@ -27,7 +27,6 @@ zkg_ubuntu_task:
   check_script:
     - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
     - zeek -NN _Zeek::Spicy | grep Analyzer
-    - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
 
   always:
       stderr_script: ./ci/show-zkg-stderr
@@ -65,7 +64,6 @@ zkg_macos_task:
   check_script:
     - zeek -NN _Zeek::Spicy | grep -q ANALYZER_SPICY_TFTP
     - zeek -NN _Zeek::Spicy | grep Analyzer
-    - (cd /tmp && zeek -r ${CIRRUS_WORKING_DIR}/tests/Traces/tftp_rrq.pcap local && test -e tftp.log && grep rfc1350.txt tftp.log)
 
   always:
       stderr_script: ./ci/show-zkg-stderr

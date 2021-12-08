@@ -15,6 +15,4 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
 endif ()
 
-add_subdirectory(analyzer)
-
 print_analyzers()

@@ -18,7 +18,7 @@ Currently, the following analyzers are included:
 - [Portable Executable (PE)](https://github.com/zeek/spicy-pe) <sup>[2]</sup>
 - [STUN](http://github.com/corelight/zeek-spicy-stun)
 - [Tailscale VPN](http://github.com/corelight/zeek-spicy-wireguard)
-- TFTP
+- [TFTP](https://github.com/zeek/spicy-tftp)
 - [Wireguard](http://github.com/corelight/zeek-spicy-wireguard)
 - [ZIP archives](https://github.com/zeek/spicy-zip)
 
