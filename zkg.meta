@@ -14,5 +14,5 @@ depends = http://github.com/zeek/spicy-ldap >=0.0.2
     http://github.com/corelight/zeek-spicy-facefish >=0.1.0
     http://github.com/corelight/zeek-spicy-ipsec >=0.2.1
     http://github.com/corelight/zeek-spicy-openvpn >=0.1.0
-    http://github.com/corelight/zeek-spicy-stun >=0.2.0
+    http://github.com/corelight/zeek-spicy-stun >=0.2.1
     http://github.com/corelight/zeek-spicy-wireguard >=0.1.0
