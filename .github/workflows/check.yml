@@ -1,0 +1,39 @@
+name: Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  Check:
+    runs-on: ubuntu-latest
+    container: zeekurity/spicy
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare
+        env:
+          PATH: /usr/local/bin:/opt/cmake/bin:/opt/spicy/bin:/opt/zeek/bin:/opt/zeek/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        run: |
+          # Clean out leftover logs for to make it easier to print "our" logs.
+          zkg autoconfig
+
+          rm -f $(zkg config state_dir)/logs/*.log
+          zkg -vvvvv purge --force
+
+          # Manually install spicy-plugin until the image contains a zkg version with a fix for https://github.com/zeek/package-manager/issues/106 (>=zkg-2.12.0).
+          zkg -vvvvv install --force --skiptests spicy-plugin
+
+      - name: Install
+        env:
+          PATH: /usr/local/bin:/opt/cmake/bin:/opt/spicy/bin:/opt/zeek/bin:/opt/zeek/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        run: |
+          git clean -fd
+          eval $(zkg env)
+          echo Y | zkg -vvvvv install .
+
+      - name: Show logs
+        if: always()
+        run: |
+          tail -n 1000000 $(zkg config state_dir)/logs/*.log

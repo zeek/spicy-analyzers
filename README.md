@@ -1,9 +1,9 @@
 
-# Spicy-based Analyzers for Zeek
+# Meta-package for Spicy-based Analyzers for Zeek
 
-This repository provides a [Zeek](https://github.com/zeek/zeek)
-package installing a set of protocol & file analyzers implemented
-through [Spicy](https://github.com/zeek/spicy).
+This repository provides a [Zeek](https://github.com/zeek/zeek) meta-package
+installing a set of protocol & file analyzers implemented through
+[Spicy](https://github.com/zeek/spicy).
 
 Currently, the following analyzers are included:
 
@@ -60,15 +60,13 @@ To check that everything is set up correctly, confirm that the output of
 
 ## Installation
 
-### Install through package manager
-
-The easiest, and recommended, way to install the new analyzers is
-through the Zeek package manager:
+Since this package is a meta-package, the easiest, and recommended way to
+install the analyzers is through the Zeek package manager:
 
     # zkg install zeek/spicy-analyzers
 
-This will pull down the package, compile and test the analyzers, and
-then install and activate them. To check that the new analyzers are
+This will pull down the package and its dependencies, compile and test the
+analyzers, and then install and activate them. To check that the new analyzers are
 available, run `zeek -NN` afterwards, it should list all the included
 Spicy analyzers:
 
@@ -79,28 +77,6 @@ Spicy analyzers:
 
 The new analyzers are now available to Zeek and used by default when
 the package is activated.
-
-### Install manually
-
-You can also build the analyzers yourself outside of the package
-manager. After cloning this repository, make sure that the Spicy tools are
-in your `PATH`, and that the Spicy plugin for Zeek is in place, per
-above. Then build the analyzers like this:
-
-    # (mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/opt/spicy .. && make -j)
-
-The tests should now pass:
-
-    # make -C tests
-
-You can then install the analyzers with:
-
-    # make -C build install
-
-Now `zeek -NN _Zeek::Spicy` should show similar output as above.
-
-When you run Zeek, add `spicy-analyzers` to the command line to load
-the analyzer scripts.
 
 ## Configuration
 
@@ -127,4 +103,5 @@ version of Zeek to be available.)
 
 ## License
 
-These analyzers are open source and released under a BSD license.
+This package is open source and released under a BSD license. Please see the
+individual analyzer package for their licenses.
