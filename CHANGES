@@ -1,3 +1,28 @@
+0.2.28-27 | 2021-12-09 13:54:25 +0100
+
+  * Make this package into a meta-package. (Benjamin Bannier, Corelight)
+
+    Since at this point this package does not contain anything to build
+    directly anymore, this patch removes all unneeded support scripts (e.g.,
+    CMake sources, setup for testing). We also move the CI from Cirrus CI to
+    a simpler Github Action-based CI.
+
+  * Move TFTP analyzer to zeek/spicy-tftp. (Benjamin Bannier, Corelight)
+
+  * Move HTTP analyzer to zeek/spicy-http. (Benjamin Bannier, Corelight)
+
+  * Update link to spicy-ldap repo in README. (Benjamin Bannier, Corelight)
+
+  * Move DNS analyzer to zeek/spicy-dns. (Benjamin Bannier, Corelight)
+
+  * Move DHCP analyzer to zeek/spicy-dhcp. (Benjamin Bannier, Corelight)
+
+  * Move PNG analyzer to zeek/spicy-png. (Benjamin Bannier, Corelight)
+
+  * Move ZIP analyzer to zeek/spicy-zip. (Benjamin Bannier, Corelight)
+
+  * Move PE analyzer to zeek/spicy-pe. (Benjamin Bannier, Corelight)
+
 0.2.28-17 | 2021-12-09 07:49:40 +0100
 
   * Bump STUN version to >=0.2.1. (Keith Jones)
