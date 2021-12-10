@@ -6,11 +6,11 @@ description = Meta package for a number of Spicy-based analyzers.
 # express that dependency due to zeek/package-manager#106
 # depends = spicy-plugin >=1.2.2
 depends = http://github.com/zeek/spicy-dhcp >=0.0.1
-    http://github.com/zeek/spicy-dns >=0.0.1
+    http://github.com/zeek/spicy-dns >=0.0.2
     http://github.com/zeek/spicy-http >=0.0.1
     http://github.com/zeek/spicy-ldap >=0.0.2
-    http://github.com/zeek/spicy-pe >=0.0.1
-    http://github.com/zeek/spicy-png >=0.0.1
+    http://github.com/zeek/spicy-pe >=0.0.3
+    http://github.com/zeek/spicy-png >=0.0.2
     http://github.com/zeek/spicy-tftp >=0.0.1
     http://github.com/zeek/spicy-zip >=0.0.1
     http://github.com/corelight/zeek-spicy-facefish >=0.1.0
