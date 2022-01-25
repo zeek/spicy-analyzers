@@ -42,4 +42,4 @@ jobs:
       - name: Show logs
         if: always()
         run: |
-          tail -n 1000000 $(zkg config state_dir)/logs/*.log
+          tail -n 1000000 $(zkg config state_dir)/logs/*.log $(zkg config state_dir)/testing/*/clones/*/zkg.*.stderr
