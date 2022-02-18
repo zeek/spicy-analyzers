@@ -1,3 +1,12 @@
+0.2.31 | 2022-02-18 18:01:55 +0100
+
+  * Remove all Corelight analyzers. (Benjamin Bannier, Corelight)
+
+    It seems hard for these packages to support different setups, see
+    https://github.com/corelight/zeek-spicy-ipsec/issues/4#issuecomment-1044840170.
+    This patch removes them all from this package for now to avoid breaking
+    users installing this package.
+
 0.2.30 | 2022-02-18 16:17:21 +0100
 
   * Exclude corelight/zeek-spicy-ipsec. (Benjamin Bannier, Corelight)
