@@ -1,3 +1,10 @@
+0.2.30 | 2022-02-18 16:17:21 +0100
+
+  * Exclude corelight/zeek-spicy-ipsec. (Benjamin Bannier, Corelight)
+
+    That package can not be installed currently in zeek-4.2 environments due
+    to https://github.com/corelight/zeek-spicy-ipsec/issues/4.
+
 0.2.29 | 2022-01-26 11:07:53 +0100
 
   * Show package test logs in CI. (Benjamin Bannier, Corelight)
