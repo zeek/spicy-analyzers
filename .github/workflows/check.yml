@@ -24,6 +24,7 @@ jobs:
 
       - name: Install
         run: |
+          git config --global --add safe.directory $PWD
           git clean -fd
           eval $(zkg env)
           echo Y | zkg -vvvvv install .
