@@ -11,8 +11,8 @@ jobs:
     strategy:
       matrix:
         container:
-        - zeekurity/zeek
-        - zeekurity/zeek-dev
+        - zeek/zeek
+        - zeek/zeek-dev
     container: ${{ matrix.container }}
 
     steps:
