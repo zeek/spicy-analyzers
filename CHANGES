@@ -1,3 +1,16 @@
+0.2.31-6 | 2023-11-28 08:50:37 +0100
+
+  * Update README for analyzers dropped in 5ae4c15c9d99261d4270cdfaded783a4fc798373 (Benjamin Bannier, Corelight)
+
+  * Update used Zeek images (Benjamin Bannier, Corelight)
+
+  * Workaround GH actions performing checkout as different user. (Benjamin Bannier, Corelight)
+
+  * Move CI to upstream Zeek images. (Benjamin Bannier, Corelight)
+
+    We also extend the test matrix to test both against the latest release
+    and the current development snapshot.
+
 0.2.31 | 2022-02-18 18:01:55 +0100
 
   * Remove all Corelight analyzers. (Benjamin Bannier, Corelight)
