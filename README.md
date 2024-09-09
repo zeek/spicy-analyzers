@@ -23,35 +23,6 @@ request.
 <sup>[1] replaces the corresponding Zeek analyzer</sup>\
 <sup>[2] replaces and extends the corresponding Zeek analyzer</sup>
 
-## Prerequisites
-
-In addition to Zeek, you will first need to install Spicy. Please
-follow [its instructions](https://docs.zeek.org/projects/spicy/en/latest/installation.html).
-Ensure that the Spicy toolchain is in your ``PATH``. For example, with
-it installed to `/opt/spicy` and using `bash`:
-
-    export PATH=/opt/spicy/bin:$PATH
-
-Now `which` should be able to find `spicy-config`:
-
-    # which spicy-config
-    /opt/spicy/bin/spicy-config
-
-Please also [install and configure](https://docs.zeek.org/projects/package-manager/en/stable/quickstart.html)
-the Zeek package manager.
-
-Finally, you will need the [Spicy plugin for
-Zeek](https://github.com/zeek/spicy-plugin), which you can install
-through the package manager:
-
-    # zkg install zeek/spicy-plugin
-
-To check that everything is set up correctly, confirm that the output of
-`zeek -N` looks like this:
-
-    # zeek -N _Zeek::Spicy
-    _Zeek::Spicy - Support for Spicy parsers (*.spicy, *.evt, *.hlto) (dynamic, version x.y.z)`
-
 ## Installation
 
 Since this package is a meta-package, the easiest, and recommended way to
