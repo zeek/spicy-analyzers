@@ -35,7 +35,7 @@ analyzers, and then install and activate them. To check that the new analyzers a
 available, run `zeek -NN` afterwards, it should list all the included
 Spicy analyzers:
 
-    # zeek -NN _Zeek::Spicy
+    # zeek -NN Zeek::Spicy
     [...]
     [Analyzer] spicy_TFTP (ANALYZER_SPICY_TFTP, enabled)
     [...]
@@ -61,7 +61,7 @@ event zeek_init()
 ```
 
 You can find the `ANALYZER_*` value to use for an analyzer in the
-output of `zeek -N _Zeek::Spicy`.
+output of `zeek -NN Zeek::Spicy`.
 
 (Note that `disable_file_analyzer()` requires a current development
 version of Zeek to be available.)
